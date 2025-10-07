@@ -1,7 +1,15 @@
 import React from 'react';
 import './Auth.css';
 
-const Register = ({ onSwitchToLogin, onClose, isClosing }) => {
+const Register = ({ onSwitchToLogin, onClose, isClosing, onRegisterSuccess }) => {
+  // Simple handler to redirect to dashboard
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onRegisterSuccess) {
+      onRegisterSuccess();
+    }
+  };
+
   return (
     <div className={`auth-container ${isClosing ? 'closing' : ''}`}>
       <div className="auth-content">
@@ -16,7 +24,7 @@ const Register = ({ onSwitchToLogin, onClose, isClosing }) => {
           </p>
         </div>
         
-        <form className="auth-form">
+        <form className="auth-form" onSubmit={handleSubmit}>
           <div>
             <input 
               type="text" 
