@@ -1,18 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './LandingPage.css';
 
 const LandingPage = ({ onNavigateToLogin, onNavigateToRegister }) => {
-  const [location, setLocation] = useState('Los Angeles Parking');
-  const [checkInDate, setCheckInDate] = useState('');
-  const [checkInTime, setCheckInTime] = useState('08:00 AM');
-  const [checkOutDate, setCheckOutDate] = useState('');
-  const [checkOutTime, setCheckOutTime] = useState('08:00 AM');
-  const [promoCode, setPromoCode] = useState('');
-
-  const handleBookNow = (e) => {
-    e.preventDefault();
-    console.log('Booking:', { location, checkInDate, checkInTime, checkOutDate, checkOutTime, promoCode });
-  };
 
   return (
     <div className="landing-page">
@@ -47,106 +36,25 @@ const LandingPage = ({ onNavigateToLogin, onNavigateToRegister }) => {
           </p>
         </div>
 
-        {/* Booking Section */}
-        <div className="booking-section">
-          <h2 className="booking-title">Book Now</h2>
-          <form className="booking-form" onSubmit={handleBookNow}>
-            <div className="form-row">
-              {/* Location */}
-              <div className="form-group">
-                <label>SELECT LOCATION</label>
-                <select 
-                  value={location} 
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="form-input"
-                >
-                  <option>Los Angeles Parking</option>
-                  <option>New York Parking</option>
-                  <option>San Francisco Parking</option>
-                  <option>Chicago Parking</option>
-                </select>
-              </div>
-
-              {/* Check In */}
-              <div className="form-group">
-                <label>CHECK IN</label>
-                <div className="datetime-group">
-                  <input
-                    type="date"
-                    value={checkInDate}
-                    onChange={(e) => setCheckInDate(e.target.value)}
-                    className="form-input date-input"
-                    placeholder="Select Date"
-                  />
-                  <select
-                    value={checkInTime}
-                    onChange={(e) => setCheckInTime(e.target.value)}
-                    className="form-input time-input"
-                  >
-                    <option>08:00 AM</option>
-                    <option>09:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>11:00 AM</option>
-                    <option>12:00 PM</option>
-                    <option>01:00 PM</option>
-                    <option>02:00 PM</option>
-                    <option>03:00 PM</option>
-                    <option>04:00 PM</option>
-                    <option>05:00 PM</option>
-                    <option>06:00 PM</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Check Out */}
-              <div className="form-group">
-                <label>CHECK OUT</label>
-                <div className="datetime-group">
-                  <input
-                    type="date"
-                    value={checkOutDate}
-                    onChange={(e) => setCheckOutDate(e.target.value)}
-                    className="form-input date-input"
-                    placeholder="Select Date"
-                  />
-                  <select
-                    value={checkOutTime}
-                    onChange={(e) => setCheckOutTime(e.target.value)}
-                    className="form-input time-input"
-                  >
-                    <option>08:00 AM</option>
-                    <option>09:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>11:00 AM</option>
-                    <option>12:00 PM</option>
-                    <option>01:00 PM</option>
-                    <option>02:00 PM</option>
-                    <option>03:00 PM</option>
-                    <option>04:00 PM</option>
-                    <option>05:00 PM</option>
-                    <option>06:00 PM</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Promo Code */}
-              <div className="form-group">
-                <label>PROMO CODE <span className="optional">(optional)</span></label>
-                <input
-                  type="text"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="form-input"
-                  placeholder=""
-                />
-              </div>
-
-              {/* Book Now Button */}
-              <div className="form-group book-button-group">
-                <button type="submit" className="book-now-btn">Book Now</button>
-              </div>
-            </div>
-          </form>
+        {/* Parking Gallery */}
+        <div className="parking-gallery">
+          <div className="gallery-grid">
+            <img 
+              src="/images/parking-lot-1.jpg" 
+              alt="Campus Parking Lot 1" 
+              className="parking-image"
+            />
+            <img 
+              src="/images/parking-lot-2.jpg" 
+              alt="Campus Parking Lot 2" 
+              className="parking-image"
+            />
+            <img 
+              src="/images/parking-lot-3.jpg" 
+              alt="Campus Parking Lot 3" 
+              className="parking-image"
+            />
+          </div>
         </div>
       </div>
     </div>
