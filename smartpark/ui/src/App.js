@@ -3,11 +3,13 @@ import { useState } from 'react';
 import LandingPage from './components/LandingPage/LandingPage';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [authView, setAuthView] = useState('login'); // 'login' or 'register'
+  const [authView, setAuthView] = useState('login');
+  const [currentPage, setCurrentPage] = useState('landing'); // Changed this
 
   const handleOpenLogin = () => {
     setAuthView('login');
@@ -26,7 +28,7 @@ function App() {
     setTimeout(() => {
       setShowAuthModal(false);
       setIsClosing(false);
-    }, 500); // Match the animation duration
+    }, 500);
   };
 
   const handleSwitchToRegister = () => {
@@ -37,18 +39,48 @@ function App() {
     setAuthView('login');
   };
 
+  const handleLoginSuccess = () => {
+    setCurrentPage('dashboard'); // Go to dashboard
+    handleCloseAuth();
+  };
+
+  const handleLogout = () => {
+    setCurrentPage('landing'); // Go back to landing
+  };
+
+  // Render based on current page
+  if (currentPage === 'dashboard') {
+    return <Dashboard onLogout={handleLogout} />;
+  }
+
+  // Default: show landing page
   return (
     <div className="App">
-      <LandingPage onNavigateToLogin={handleOpenLogin} onNavigateToRegister={handleOpenRegister} />
-      
-      {/* Auth Modal Overlay */}
+      <LandingPage 
+        onNavigateToLogin={handleOpenLogin}
+        onNavigateToRegister={handleOpenRegister}
+      />
+
       {showAuthModal && (
-        <div className={`auth-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseAuth}>
+        <div 
+          className={`auth-modal-overlay ${isClosing ? 'closing' : ''}`}
+          onClick={handleCloseAuth}
+        >
           <div className="auth-modal-content" onClick={(e) => e.stopPropagation()}>
             {authView === 'login' ? (
-              <Login onSwitchToRegister={handleSwitchToRegister} onClose={handleCloseAuth} isClosing={isClosing} />
+              <Login 
+                onSwitchToRegister={handleSwitchToRegister}
+                onClose={handleCloseAuth}
+                isClosing={isClosing}
+                onLoginSuccess={handleLoginSuccess}
+              />
             ) : (
-              <Register onSwitchToLogin={handleSwitchToLogin} onClose={handleCloseAuth} isClosing={isClosing} />
+              <Register 
+                onSwitchToLogin={handleSwitchToLogin}
+                onClose={handleCloseAuth}
+                isClosing={isClosing}
+                onRegisterSuccess={handleLoginSuccess}
+              />
             )}
           </div>
         </div>
