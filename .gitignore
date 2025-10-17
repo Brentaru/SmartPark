@@ -1,108 +1,50 @@
-<<<<<<< HEAD
-# === Java / Spring Boot ===
-/backend/target/
-/backend/.classpath
-/backend/.project
-/backend/.settings/
-/backend/.idea/
-/backend/*.iml
-/backend/logs/
-
-# === Node / React ===
-/frontend/node_modules/
-/frontend/build/
-/frontend/.env
-/frontend/.env.local
-/frontend/.env.development.local
-/frontend/.env.production.local
-/frontend/.env.test.local
-
-# === IDE / Editors ===
-.vscode/
-.idea/
-*.iml
-
-# === System / OS ===
-=======
-# ==========================
-# 🌱 Global ignores
-# ==========================
->>>>>>> origin/main
+# === General ===
 .DS_Store
 Thumbs.db
 *.log
 *.tmp
-<<<<<<< HEAD
+*.bak
 *.swp
-=======
+*.swo
+*.idea/
+.vscode/
 .env
 .env.local
-.vscode/
-.idea/
-node_modules/
-dist/
-build/
-logs/
-tmp/
-*.iml
+.env.development.local
+.env.test.local
+.env.production.local
 
-# ==========================
-# ⚙️ Backend (Spring Boot)
-# ==========================
+# === Node / React frontend ===
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.eslintcache
+
+# === Java / Spring Boot backend ===
 backend/target/
 backend/.classpath
 backend/.project
 backend/.settings/
-backend/.factorypath
-backend/out/
-backend/bin/
+backend/.mvn/timing.properties
+backend/HELP.md
 
-# Maven wrapper
-backend/.mvn/
-backend/mvnw
-backend/mvnw.cmd
+# === OS-generated files ===
+ehthumbs.db
+Icon?
+__pycache__/
+*.class
 
-# Ignore local configuration
-backend/src/main/resources/application-*.properties
-backend/src/main/resources/application-*.yml
-backend/src/main/resources/application-*.yaml
+# === Maven Wrapper ===
+.mvn/wrapper/maven-wrapper.jar
 
-# ==========================
-# 💻 Frontend (React)
-# ==========================
-frontend/node_modules/
-frontend/.env
-frontend/.env.*.local
-frontend/dist/
-frontend/build/
-frontend/.vite/
-frontend/.next/
-frontend/coverage/
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
+# === Logs ===
+logs/
+*.log
+*.out
 
-# ==========================
-# 🐳 Docker & Deployment
-# ==========================
-docker-compose.override.yml
-*.tar
-*.pid
-
-# ==========================
-# 🧪 Tests & Reports
-# ==========================
-*.coverage
+# === Coverage / testing ===
 coverage/
+frontend/coverage/
+backend/coverage/
 test-output/
-*.swp
-*.swo
-
-# ==========================
-# 🧰 OS/Editor junk files
-# ==========================
-*.bak
-*.swp
-*.swo
-*~
->>>>>>> origin/main
