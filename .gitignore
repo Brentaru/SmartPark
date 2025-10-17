@@ -1,0 +1,29 @@
+# === Java / Spring Boot ===
+/backend/target/
+/backend/.classpath
+/backend/.project
+/backend/.settings/
+/backend/.idea/
+/backend/*.iml
+/backend/logs/
+
+# === Node / React ===
+/frontend/node_modules/
+/frontend/build/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.production.local
+/frontend/.env.test.local
+
+# === IDE / Editors ===
+.vscode/
+.idea/
+*.iml
+
+# === System / OS ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
