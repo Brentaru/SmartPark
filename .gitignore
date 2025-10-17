@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # === Java / Spring Boot ===
 /backend/target/
 /backend/.classpath
@@ -22,8 +23,86 @@
 *.iml
 
 # === System / OS ===
+=======
+# ==========================
+# 🌱 Global ignores
+# ==========================
+>>>>>>> origin/main
 .DS_Store
 Thumbs.db
 *.log
 *.tmp
+<<<<<<< HEAD
 *.swp
+=======
+.env
+.env.local
+.vscode/
+.idea/
+node_modules/
+dist/
+build/
+logs/
+tmp/
+*.iml
+
+# ==========================
+# ⚙️ Backend (Spring Boot)
+# ==========================
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.factorypath
+backend/out/
+backend/bin/
+
+# Maven wrapper
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+
+# Ignore local configuration
+backend/src/main/resources/application-*.properties
+backend/src/main/resources/application-*.yml
+backend/src/main/resources/application-*.yaml
+
+# ==========================
+# 💻 Frontend (React)
+# ==========================
+frontend/node_modules/
+frontend/.env
+frontend/.env.*.local
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.next/
+frontend/coverage/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# ==========================
+# 🐳 Docker & Deployment
+# ==========================
+docker-compose.override.yml
+*.tar
+*.pid
+
+# ==========================
+# 🧪 Tests & Reports
+# ==========================
+*.coverage
+coverage/
+test-output/
+*.swp
+*.swo
+
+# ==========================
+# 🧰 OS/Editor junk files
+# ==========================
+*.bak
+*.swp
+*.swo
+*~
+>>>>>>> origin/main
