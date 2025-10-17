@@ -1,6 +1,6 @@
 # 🅿️ SmartPark
 
-School Parking Management System
+School Parking Management System  
 SmartPark is a web-based application designed to help schools efficiently manage parking spaces for students, staff, and visitors. It provides real-time monitoring, slot reservation, and administration features — making parking management smarter, faster, and more organized.
 
 ## 📑 Table of Contents
@@ -12,7 +12,7 @@ SmartPark is a web-based application designed to help schools efficiently manage
 - [About the Project](#about-the-project)
 - [License](#license)
 
-## 🚀 Features
+## Features
 - **User Authentication** – Secure login and registration for students and administrators.
 - **Real-Time Slot Monitoring** – View available and occupied parking slots instantly.
 - **Parking Reservation System** – Reserve slots in advance to reduce congestion.
@@ -20,21 +20,22 @@ SmartPark is a web-based application designed to help schools efficiently manage
 - **Responsive UI** – Built with React for a smooth and modern experience.
 - **API-Driven** – Backend powered by Spring Boot with RESTful endpoints.
 
-## 🧱 Tech Stack
+## Tech Stack
 **Frontend:**
 - React.js
 - HTML, CSS, JavaScript
+
 **Backend:**
 - Spring Boot (Java)
 - Maven
 - MySQL
-**Tools:**
-- **Visual Studio Code** – main IDE for both frontend and backend development  
-- **Postman** – for testing RESTful API endpoints  
-- **MySQL Workbench** – for managing and designing the database  
-- **Git & GitHub** – for version control and collaboration  
 
-## ⚙️ Project Structure
+**Tools:**
+- Visual Studio Code
+- IntelliJ IDEA / Eclipse
+- Git & GitHub
+
+## Project Structure
 ```bash
 SmartPark/
 │
@@ -52,7 +53,7 @@ SmartPark/
 └── mvnw, mvnw.cmd         # Maven wrappers
 ```
 
-## 🧩 Setup Instructions
+## Setup Instructions
 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/Brentaru/SmartPark.git
@@ -78,17 +79,18 @@ npm start
 ```
 Frontend runs at: http://localhost:3000
 
-## 👨‍💻 Developers
+## Developers
+
 | Name                | Role      |
-|---------------------|-----------||
+|---------------------|-----------|  
 | Brent Jelson Unabia | Developer |
 | Jhon Gil Lauro      | Developer |
 | Benz Leo Gamallo    | Developer |
 
-## 🧠 About the Project
+## About the Project
 SmartPark was developed as a school-based parking management system to address issues like limited parking, lack of monitoring, and inefficient manual tracking. By integrating modern technologies, it helps streamline the parking process, ensuring convenience and organization within school premises.
 
-## 📄 License
+## License
 This project is developed for academic purposes and is not licensed for commercial use unless otherwise stated.
 
 ---
