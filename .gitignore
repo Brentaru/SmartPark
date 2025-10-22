@@ -1,0 +1,50 @@
+# === General ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.idea/
+.vscode/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# === Node / React frontend ===
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.eslintcache
+
+# === Java / Spring Boot backend ===
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.mvn/timing.properties
+backend/HELP.md
+
+# === OS-generated files ===
+ehthumbs.db
+Icon?
+__pycache__/
+*.class
+
+# === Maven Wrapper ===
+.mvn/wrapper/maven-wrapper.jar
+
+# === Logs ===
+logs/
+*.log
+*.out
+
+# === Coverage / testing ===
+coverage/
+frontend/coverage/
+backend/coverage/
+test-output/
