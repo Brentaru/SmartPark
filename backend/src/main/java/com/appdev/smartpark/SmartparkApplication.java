@@ -1,4 +1,4 @@
-package com.appdev.smartpark.smartpark;
+package com.appdev.smartpark;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
