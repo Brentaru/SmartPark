@@ -6,6 +6,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
 function AppContent() {
@@ -55,12 +56,14 @@ function AppContent() {
           } 
         />
 
-        {/* Dashboard Page */}
-        <Route 
-          path="/dashboard" 
+        {/* Dashboard Page (protected) */}
+        <Route
+          path="/dashboard"
           element={
-            <Dashboard />
-          } 
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         />
 
         {/* 404 - Redirect to Landing */}

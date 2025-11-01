@@ -1,0 +1,177 @@
+/* Parking Map Styles */
+.parking-map-container {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  border: 1px solid #f3f4f6;
+  margin-top: 1.5rem;
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.map-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.map-legend {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-dot.free {
+  background: #10b981;
+}
+
+.legend-dot.occupied {
+  background: #ef4444;
+}
+
+.legend-dot.reserved {
+  background: #3b82f6;
+}
+
+.legend-label {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Parking Grid */
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.parking-slot {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.parking-slot svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 2;
+}
+
+.slot-number {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Slot States */
+.parking-slot.slot-free {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.parking-slot.slot-free:hover {
+  background: #a7f3d0;
+  border-color: #10b981;
+  transform: scale(1.05);
+}
+
+.parking-slot.slot-occupied {
+  background: #fee2e2;
+  color: #dc2626;
+  cursor: not-allowed;
+}
+
+.parking-slot.slot-occupied:hover {
+  background: #fecaca;
+}
+
+.parking-slot.slot-reserved {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.parking-slot.slot-reserved:hover {
+  background: #bfdbfe;
+  border-color: #3b82f6;
+  transform: scale(1.05);
+}
+
+/* Map Footer */
+.map-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.availability-text {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.availability-text strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .parking-map-container {
+    padding: 1rem;
+  }
+
+  .map-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .map-legend {
+    gap: 1rem;
+  }
+
+  .parking-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .parking-slot svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .slot-number {
+    font-size: 0.6875rem;
+  }
+}

@@ -2,10 +2,14 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Dashboard.css';
+import Sidebar from '../components/Sidebar';
+import AuthTopbar from '../components/AuthTopbar';
+import StudentDashboard from './dashboard/StudentDashboard';
 
 const Dashboard = () => {
-  const { currentUser, logout, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -14,35 +18,46 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   if (!currentUser) {
     return <div>Loading...</div>;
   }
 
+  // Debug: Log current user to see structure
+  console.log('Current User in Dashboard:', currentUser);
+  console.log('User Role:', currentUser?.role);
+
+  // Extract user's display name
+  const displayName = currentUser.firstName || 
+                     (currentUser.name && currentUser.name.split(' ')[0]) || 
+                     'User';
+
   return (
     <div className="dashboard-page">
-      <nav className="dashboard-nav">
-        <div className="dashboard-logo">
-          <span className="logo-smart">Smart</span>
-          <span className="logo-park">Park</span>
-        </div>
-        <div className="dashboard-user">
-          <span className="user-name">
-            {currentUser.firstName} {currentUser.lastName}
-          </span>
-          <button onClick={handleLogout} className="logout-btn">
-            Logout
-          </button>
-        </div>
-      </nav>
+      <AuthTopbar pageTitle="Dashboard" onToggleSidebar={toggleSidebar} />
 
-      {/* Empty canvas for dashboard content - to be implemented by team */}
-      <div className="dashboard-container">
-        {/* Dashboard content goes here */}
+      <div className="dashboard-layout">
+        <Sidebar isOpen={sidebarOpen} />
+
+        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
+          <div className="dashboard-container">
+            <section className="welcome-section">
+              <h1 className="welcome-title">
+                Welcome, {displayName}!
+              </h1>
+              <p className="welcome-sub">Here's your parking overview for today</p>
+            </section>
+
+            {/* Render role-specific dashboard - for now always show StudentDashboard */}
+            <StudentDashboard currentUser={currentUser} />
+            {/* Future: Add conditional rendering based on role */}
+            {/* {currentUser.role === 'staff' && <StaffDashboard currentUser={currentUser} />} */}
+            {/* {currentUser.role === 'guard' && <GuardDashboard currentUser={currentUser} />} */}
+          </div>
+        </main>
       </div>
     </div>
   );

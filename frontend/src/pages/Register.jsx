@@ -96,6 +96,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
         email: formValues.email,
         contactNumber: formValues.contactNumber,
         password: formValues.password,
+        role: 'student', // Set role to student by default
       });
       
       if (result.success) {

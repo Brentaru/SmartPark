@@ -1,0 +1,61 @@
+/* Student Dashboard Layout */
+.student-dashboard {
+  width: 100%;
+}
+
+/* Quick Overview Section */
+.quick-overview {
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* Two Column Layout */
+.dashboard-columns {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 1.5rem;
+}
+
+.left-column {
+  min-width: 0;
+}
+
+.right-column {
+  min-width: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+  .dashboard-columns {
+    grid-template-columns: 1fr 350px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-overview {
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard-columns {
+    gap: 1rem;
+  }
+}
