@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
 import useForm from '../hooks/useForm';
 import '../styles/Auth.css';
 
-const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
+const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboard }) => {
+  const { register } = useAuth();
+  const [registerError, setRegisterError] = useState('');
+
   // Validation function
   const validate = (values) => {
     const errors = {};
+
+    if (!values.studentId) {
+      errors.studentId = 'Student/Faculty ID is required';
+    } else if (!/^\d{2}-\d{4}-\d{3}$/.test(values.studentId)) {
+      errors.studentId = 'ID must be in format: XX-XXXX-XXX (e.g., 21-1234-567)';
+    }
 
     if (!values.firstName) {
       errors.firstName = 'First name is required';
@@ -27,6 +37,12 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
       errors.email = 'Invalid email address';
     } else if (!values.email.includes('.edu')) {
       errors.email = 'Please use your school email (.edu)';
+    }
+
+    if (!values.contactNumber) {
+      errors.contactNumber = 'Contact number is required';
+    } else if (!/^[0-9]{10,11}$/.test(values.contactNumber.replace(/[-\s]/g, ''))) {
+      errors.contactNumber = 'Please enter a valid contact number (10-11 digits)';
     }
 
     if (!values.password) {
@@ -57,9 +73,11 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
     handleSubmit
   } = useForm(
     { 
+      studentId: '',
       firstName: '', 
       lastName: '', 
-      email: '', 
+      email: '',
+      contactNumber: '',
       password: '',
       confirmPassword: ''
     },
@@ -68,9 +86,29 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
 
   // Submit handler
   const onSubmit = async (formValues) => {
-    console.log('Register form submitted:', formValues);
-    // TODO: Implement actual registration logic
-    // For now, just log the values
+    setRegisterError('');
+    
+    try {
+      const result = await register({
+        id: formValues.studentId,
+        firstName: formValues.firstName,
+        lastName: formValues.lastName,
+        email: formValues.email,
+        contactNumber: formValues.contactNumber,
+        password: formValues.password,
+      });
+      
+      if (result.success) {
+        // Show success message
+        alert(`Welcome to SmartPark, ${result.user.firstName}! Your account has been created.`);
+        // Navigate to dashboard
+        onNavigateToDashboard();
+      } else {
+        setRegisterError(result.error);
+      }
+    } catch (error) {
+      setRegisterError('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (
@@ -131,10 +169,10 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
                 <AuthFeature
                   icon={
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   }
-                  text="24/7 parking access"
+                  text="Easy booking management"
                 />
               </div>
             </div>
@@ -151,8 +189,36 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
                 </p>
               </div>
 
+              {/* Error Message */}
+              {registerError && (
+                <div className="auth-error-banner">
+                  <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {registerError}
+                </div>
+              )}
+
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
+                {/* Student ID Field */}
+                <InputField
+                  label="Student/Faculty ID"
+                  type="text"
+                  name="studentId"
+                  value={values.studentId}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="21-1234-567"
+                  error={touched.studentId && errors.studentId}
+                  required
+                  icon={
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                    </svg>
+                  }
+                />
+
                 {/* Name Fields Row */}
                 <div className="form-row">
                   <InputField
@@ -197,12 +263,29 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding }) => {
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="john.doe@university.edu"
+                  placeholder="john.doe@cit.edu"
                   error={touched.email && errors.email}
                   required
                   icon={
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  }
+                />
+
+                <InputField
+                  label="Contact Number"
+                  type="tel"
+                  name="contactNumber"
+                  value={values.contactNumber}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  placeholder="09123456789"
+                  error={touched.contactNumber && errors.contactNumber}
+                  required
+                  icon={
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                   }
                 />

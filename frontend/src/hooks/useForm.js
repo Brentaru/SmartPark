@@ -36,17 +36,8 @@ const useForm = (initialValues = {}, validate) => {
       [name]: true
     }));
 
-    // Validate single field on blur if validate function exists
-    if (validate) {
-      const validationErrors = validate(values);
-      if (validationErrors[name]) {
-        setErrors(prev => ({
-          ...prev,
-          [name]: validationErrors[name]
-        }));
-      }
-    }
-  }, [values, validate]);
+    // Don't validate on blur - only validate on submit
+  }, []);
 
   // Handle form submission
   const handleSubmit = useCallback((onSubmit) => {
