@@ -59,6 +59,25 @@
   padding: 3rem 2rem;
 }
 
+/* Layout for sidebar + main */
+.dashboard-layout {
+  display: flex;
+  min-height: calc(100vh - 64px); /* account for topbar */
+  position: relative;
+  overflow-x: hidden;
+}
+
+.dashboard-main {
+  flex: 1;
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 0;
+}
+
+.dashboard-main.sidebar-closed {
+  margin-left: -260px;
+}
+
 /* Header */
 .dashboard-header {
   margin-bottom: 3rem;
@@ -175,6 +194,124 @@
   font-size: 0.9375rem;
   font-weight: 600;
   color: #6b7280;
+}
+
+/* Welcome Section (new) */
+.welcome-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #111827 0%, #374151 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-sub {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin: -1rem 0 0 0;
+  font-weight: 400;
+}
+
+.user-mock-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.02);
+  max-width: 720px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.user-mock-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08), 0 12px 24px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+.user-mock-card h3 {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-mock-card h3::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(180deg, #dc2626 0%, #ef4444 100%);
+  border-radius: 2px;
+}
+
+.user-mock-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.user-mock-card li {
+  padding: 0.75rem 1rem;
+  color: #374151;
+  background: #f9fafb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+}
+
+.user-mock-card li:hover {
+  background: #f3f4f6;
+}
+
+.user-mock-card li strong {
+  color: #111827;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.user-mock-card details {
+  margin-top: 0.5rem;
+}
+
+.user-mock-card summary {
+  cursor: pointer;
+  color: #dc2626;
+  font-weight: 700;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.user-mock-card summary:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.user-mock-card pre {
+  background: #1f2937;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  font-size: 0.875rem;
+  color: #e5e7eb;
+  line-height: 1.6;
+  margin-top: 0.75rem;
 }
 
 /* Responsive */

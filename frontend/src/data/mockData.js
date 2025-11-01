@@ -14,17 +14,17 @@ const initialUsers = [
     email: 'john.doe@university.edu',
     contactNumber: '09123456789',
     password: 'Password123', // In real app, this would be hashed
-    role: 'unassigned',
+    role: 'student', // Changed from 'unassigned' to 'student'
     createdAt: new Date().toISOString(),
   },
   {
     id: '21-0002-456',
-    firstName: 'Jane',
+    firstName: 'Jane',  
     lastName: 'Smith',
     email: 'jane.smith@university.edu',
     contactNumber: '09187654321',
     password: 'Password123',
-    role: 'unassigned',
+    role: 'student', // Changed from 'unassigned' to 'student'
     createdAt: new Date().toISOString(),
   },
   {
@@ -91,7 +91,7 @@ export const mockDataService = {
       email: userData.email,
       contactNumber: userData.contactNumber,
       password: userData.password, // In real app, hash this
-      role: userData.role || 'unassigned',
+      role: userData.role || 'student', // Default to 'student' instead of 'unassigned'
       createdAt: new Date().toISOString(),
     };
 
