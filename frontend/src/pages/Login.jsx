@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
 import useForm from '../hooks/useForm';
 import '../styles/Auth.css';
 
-const Login = ({ onNavigateToRegister, onNavigateToLanding }) => {
+const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboard }) => {
+  const { login } = useAuth();
+  const [loginError, setLoginError] = useState('');
+
   // Validation function
   const validate = (values) => {
     const errors = {};
@@ -30,7 +34,8 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding }) => {
     isSubmitting,
     handleChange,
     handleBlur,
-    handleSubmit
+    handleSubmit,
+    setErrors
   } = useForm(
     { id: '', password: '' },
     validate
@@ -38,9 +43,22 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding }) => {
 
   // Submit handler
   const onSubmit = async (formValues) => {
-    console.log('Login form submitted:', formValues);
-    // TODO: Implement actual login logic
-    // For now, just log the values
+    setLoginError('');
+    
+    try {
+      const result = await login(formValues.id, formValues.password);
+      
+      if (result.success) {
+        // Show success message
+        alert(`Welcome back, ${result.user.firstName}!`);
+        // Navigate to dashboard
+        onNavigateToDashboard();
+      } else {
+        setLoginError(result.error);
+      }
+    } catch (error) {
+      setLoginError('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (
@@ -79,6 +97,16 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding }) => {
                   Sign in to access your SmartPark account
                 </p>
               </div>
+
+              {/* Error Message */}
+              {loginError && (
+                <div className="auth-error-banner">
+                  <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {loginError}
+                </div>
+              )}
 
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
