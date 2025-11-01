@@ -1,0 +1,114 @@
+/* Navbar - Clean Modern Design */
+
+.navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.brand-text {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.brand-smart {
+  color: #111111;
+}
+
+.brand-park {
+  color: #dc2626;
+}
+
+.brand-text:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+.brand-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  background-color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.brand-logo:hover {
+  transform: scale(1.05);
+}
+
+.brand-text {
+  color: #2d3748;
+}
+
+.navbar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-nav {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.btn-nav-login {
+  background-color: transparent;
+  color: #2d3748;
+  border: 1px solid #e2e8f0;
+}
+
+.btn-nav-login:hover {
+  background-color: #f8fafc;
+}
+
+.btn-nav-register {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.btn-nav-register:hover {
+  background-color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .navbar-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .navbar-actions {
+    width: 100%;
+  }
+
+  .btn-nav {
+    flex: 1;
+  }
+}
