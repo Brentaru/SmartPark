@@ -16,6 +16,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userID;
     
+    private String studentId;
     private String fname;
     private String lname;
     private String email;
@@ -32,7 +33,8 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(String fname, String lname, String email, String password, String role, String contact) {
+    public User(String studentId, String fname, String lname, String email, String password, String role, String contact) {
+        this.studentId = studentId;
         this.fname = fname;
         this.lname = lname;
         this.email = email;
@@ -48,6 +50,14 @@ public class User {
 
     public void setUserID(Integer userID) {
         this.userID = userID;
+    }
+
+    public String getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
     }
 
     public String getFname() {

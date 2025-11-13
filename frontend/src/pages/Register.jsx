@@ -16,7 +16,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
     if (!values.studentId) {
       errors.studentId = 'Student/Faculty ID is required';
     } else if (!/^\d{2}-\d{4}-\d{3}$/.test(values.studentId)) {
-      errors.studentId = 'ID must be in format: XX-XXXX-XXX (e.g., 21-1234-567)';
+      errors.studentId = 'ID must be in format: 12-3456-678';
     }
 
     if (!values.firstName) {
@@ -35,8 +35,6 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
       errors.email = 'School email is required';
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
       errors.email = 'Invalid email address';
-    } else if (!values.email.includes('.edu')) {
-      errors.email = 'Please use your school email (.edu)';
     }
 
     if (!values.contactNumber) {
@@ -90,7 +88,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
     
     try {
       const result = await register({
-        id: formValues.studentId,
+        studentId: formValues.studentId,
         firstName: formValues.firstName,
         lastName: formValues.lastName,
         email: formValues.email,

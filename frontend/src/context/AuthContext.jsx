@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import mockDataService from '../data/mockData';
+import { userAPI } from '../api/api';
 
 // Create Auth Context
 const AuthContext = createContext(null);
@@ -21,9 +21,15 @@ export const AuthProvider = ({ children }) => {
 
   // Check for existing session on mount
   useEffect(() => {
-    const user = mockDataService.getCurrentUser();
-    if (user) {
-      setCurrentUser(user);
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+      } catch (err) {
+        console.error('Error parsing stored user:', err);
+        localStorage.removeItem('currentUser');
+      }
     }
     setLoading(false);
   }, []);
@@ -32,19 +38,29 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     setError(null);
     try {
-      // Generate a student ID if not provided
-      const newUserData = {
-        ...userData,
-        id: userData.id || `STU-${Date.now()}`,
-      };
-
-      const user = mockDataService.registerUser(newUserData);
+      const result = await userAPI.register(userData);
       
-      // Auto-login after registration
-      const loggedInUser = mockDataService.loginUser(newUserData.id, userData.password);
-      setCurrentUser(loggedInUser);
-      
-      return { success: true, user: loggedInUser };
+      if (result.success) {
+        const user = result.data;
+        // Format user data for frontend
+        const formattedUser = {
+          id: user.userID,
+          studentId: user.studentId,
+          email: user.email,
+          firstName: user.fname,
+          lastName: user.lname,
+          role: user.role,
+          contactNumber: user.contact
+        };
+        
+        setCurrentUser(formattedUser);
+        localStorage.setItem('currentUser', JSON.stringify(formattedUser));
+        
+        return { success: true, user: formattedUser };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -52,12 +68,32 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login function
-  const login = async (id, password) => {
+  const login = async (studentId, password) => {
     setError(null);
     try {
-      const user = mockDataService.loginUser(id, password);
-      setCurrentUser(user);
-      return { success: true, user };
+      const result = await userAPI.login(studentId, password);
+      
+      if (result.success) {
+        const user = result.data;
+        // Format user data for frontend
+        const formattedUser = {
+          id: user.userID,
+          studentId: user.studentId,
+          email: user.email,
+          firstName: user.fname,
+          lastName: user.lname,
+          role: user.role,
+          contactNumber: user.contact
+        };
+        
+        setCurrentUser(formattedUser);
+        localStorage.setItem('currentUser', JSON.stringify(formattedUser));
+        
+        return { success: true, user: formattedUser };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -66,8 +102,8 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    mockDataService.logoutUser();
     setCurrentUser(null);
+    localStorage.removeItem('currentUser');
     setError(null);
   };
 
@@ -78,9 +114,34 @@ export const AuthProvider = ({ children }) => {
       if (!currentUser) {
         throw new Error('No user logged in');
       }
-      const updatedUser = mockDataService.updateUser(currentUser.id, updates);
-      setCurrentUser(updatedUser);
-      return { success: true, user: updatedUser };
+      
+      const result = await userAPI.updateUser(currentUser.id, {
+        fname: updates.firstName,
+        lname: updates.lastName,
+        email: updates.email,
+        contact: updates.contactNumber,
+        role: updates.role
+      });
+      
+      if (result.success) {
+        const user = result.data;
+        const formattedUser = {
+          id: user.userID,
+          email: user.email,
+          firstName: user.fname,
+          lastName: user.lname,
+          role: user.role,
+          contactNumber: user.contact
+        };
+        
+        setCurrentUser(formattedUser);
+        localStorage.setItem('currentUser', JSON.stringify(formattedUser));
+        
+        return { success: true, user: formattedUser };
+      } else {
+        setError(result.error);
+        return { success: false, error: result.error };
+      }
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
