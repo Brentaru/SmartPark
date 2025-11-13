@@ -48,15 +48,15 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         try {
-            String email = credentials.get("email");
+            String studentId = credentials.get("studentId");
             String password = credentials.get("password");
             
-            Optional<User> user = userService.login(email, password);
+            Optional<User> user = userService.loginByStudentId(studentId, password);
             if (user.isPresent()) {
                 return ResponseEntity.ok(user.get());
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("message", "Invalid email or password"));
+                        .body(Map.of("message", "Invalid Student ID or password"));
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

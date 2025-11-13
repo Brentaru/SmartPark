@@ -13,8 +13,10 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
   const validate = (values) => {
     const errors = {};
 
-    if (!values.id) {
-      errors.id = 'ID is required';
+    if (!values.studentId) {
+      errors.studentId = 'Student/Faculty ID is required';
+    } else if (!/^\d{2}-\d{4}-\d{3}$/.test(values.studentId)) {
+      errors.studentId = 'ID must be in format: 12-3456-678';
     }
 
     if (!values.password) {
@@ -37,7 +39,7 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
     handleSubmit,
     setErrors
   } = useForm(
-    { id: '', password: '' },
+    { studentId: '', password: '' },
     validate
   );
 
@@ -46,7 +48,7 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
     setLoginError('');
     
     try {
-      const result = await login(formValues.id, formValues.password);
+      const result = await login(formValues.studentId, formValues.password);
       
       if (result.success) {
         // Show success message
@@ -113,16 +115,16 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
                 <InputField
                   label="Student/Faculty ID"
                   type="text"
-                  name="id"
-                  value={values.id}
+                  name="studentId"
+                  value={values.studentId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="Enter your ID"
-                  error={touched.id && errors.id}
+                  placeholder="21-1234-567"
+                  error={touched.studentId && errors.studentId}
                   required
                   icon={
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                     </svg>
                   }
                 />

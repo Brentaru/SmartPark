@@ -1,242 +1,225 @@
-import axios from 'axios';
+// ============================================
+// REUSABLE API MODULE FOR SMARTPARK
+// Simple and easy to understand for college projects
+// ============================================
 
-// Base API URL - adjust this based on your backend port
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
-// Create axios instance with default config
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 10000, // 10 seconds
-});
+// ============================================
+// HELPER FUNCTION - Makes API calls easier
+// ============================================
 
-// Request interceptor - add auth token if available
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+/**
+ * Generic API request function
+ * @param {string} endpoint - API endpoint (e.g., '/users/login')
+ * @param {string} method - HTTP method (GET, POST, PUT, DELETE)
+ * @param {object} data - Request body (optional)
+ * @returns {Promise} Response data
+ */
+const apiRequest = async (endpoint, method = 'GET', data = null) => {
+  const url = `${API_BASE_URL}${endpoint}`;
+  
+  const options = {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  // Add body for POST, PUT, PATCH requests
+  if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+    options.body = JSON.stringify(data);
+  }
+
+  try {
+    const response = await fetch(url, options);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Something went wrong');
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
-// Response interceptor - handle common errors
-apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response) {
-      // Server responded with error status
-      const { status, data } = error.response;
-      
-      switch (status) {
-        case 401:
-          // Unauthorized - redirect to login or refresh token
-          console.error('Unauthorized access');
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
-          break;
-        case 403:
-          console.error('Forbidden access');
-          break;
-        case 404:
-          console.error('Resource not found');
-          break;
-        case 500:
-          console.error('Server error');
-          break;
-        default:
-          console.error('API Error:', data?.message || error.message);
-      }
-    } else if (error.request) {
-      // Request made but no response
-      console.error('No response from server');
-    } else {
-      // Something else happened
-      console.error('Error:', error.message);
-    }
-    
-    return Promise.reject(error);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error('API Error:', error);
+    return { success: false, error: error.message };
   }
-);
+};
+
 
 // ============================================
-// CENTRAL API FUNCTIONS
+// USER API - Authentication & User Management
 // ============================================
+const userAPI = {
+  // Register new user
+  register: (userData) => apiRequest('/users/register', 'POST', {
+    studentId: userData.studentId,
+    fname: userData.firstName,
+    lname: userData.lastName,
+    email: userData.email,
+    password: userData.password,
+    role: userData.role || 'student',
+    contact: userData.contactNumber
+  }),
 
-/**
- * Generic GET request
- * @param {string} endpoint - API endpoint
- * @param {object} params - Query parameters
- * @returns {Promise} Response data
- */
-export const get = async (endpoint, params = {}) => {
-  try {
-    const response = await apiClient.get(endpoint, { params });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+  // Login user
+  login: (studentId, password) => apiRequest('/users/login', 'POST', { studentId, password }),
 
-/**
- * Generic POST request
- * @param {string} endpoint - API endpoint
- * @param {object} data - Request body
- * @returns {Promise} Response data
- */
-export const post = async (endpoint, data = {}) => {
-  try {
-    const response = await apiClient.post(endpoint, data);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+  // Get all users
+  getAllUsers: () => apiRequest('/users'),
 
-/**
- * Generic PUT request
- * @param {string} endpoint - API endpoint
- * @param {object} data - Request body
- * @returns {Promise} Response data
- */
-export const put = async (endpoint, data = {}) => {
-  try {
-    const response = await apiClient.put(endpoint, data);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+  // Get user by ID
+  getUserById: (id) => apiRequest(`/users/${id}`),
 
-/**
- * Generic PATCH request
- * @param {string} endpoint - API endpoint
- * @param {object} data - Request body
- * @returns {Promise} Response data
- */
-export const patch = async (endpoint, data = {}) => {
-  try {
-    const response = await apiClient.patch(endpoint, data);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+  // Update user
+  updateUser: (id, userData) => apiRequest(`/users/${id}`, 'PUT', userData),
 
-/**
- * Generic DELETE request
- * @param {string} endpoint - API endpoint
- * @returns {Promise} Response data
- */
-export const remove = async (endpoint) => {
-  try {
-    const response = await apiClient.delete(endpoint);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// ============================================
-// USER API
-// ============================================
-export const userAPI = {
-  register: (userData) => post('/users/register', userData),
-  login: (credentials) => post('/users/login', credentials),
-  getAllUsers: () => get('/users'),
-  getUserById: (id) => get(`/users/${id}`),
-  updateUser: (id, userData) => put(`/users/${id}`, userData),
-  deleteUser: (id) => remove(`/users/${id}`),
+  // Delete user
+  deleteUser: (id) => apiRequest(`/users/${id}`, 'DELETE'),
 };
 
 // ============================================
 // PARKING SLOT API
 // ============================================
-export const parkingSlotAPI = {
-  createParkingSlot: (slotData) => post('/parking-slots', slotData),
-  getAllParkingSlots: () => get('/parking-slots'),
-  getParkingSlotById: (id) => get(`/parking-slots/${id}`),
-  getSlotsByStatus: (status) => get(`/parking-slots/status/${status}`),
-  getAvailableSlots: () => get('/parking-slots/available'),
-  getSlotsByArea: (areaId) => get(`/parking-slots/area/${areaId}`),
-  updateParkingSlot: (id, slotData) => put(`/parking-slots/${id}`, slotData),
-  updateSlotStatus: (id, status) => patch(`/parking-slots/${id}/status`, { status }),
-  deleteParkingSlot: (id) => remove(`/parking-slots/${id}`),
+const parkingSlotAPI = {
+  // Get all parking slots
+  getAllSlots: () => apiRequest('/parking-slots'),
+
+  // Get slot by ID
+  getSlotById: (id) => apiRequest(`/parking-slots/${id}`),
+
+  // Get slots by area
+  getSlotsByArea: (areaId) => apiRequest(`/parking-slots/area/${areaId}`),
+
+  // Get available slots
+  getAvailableSlots: () => apiRequest('/parking-slots/available'),
+
+  // Create new slot
+  createSlot: (slotData) => apiRequest('/parking-slots', 'POST', slotData),
+
+  // Update slot
+  updateSlot: (id, slotData) => apiRequest(`/parking-slots/${id}`, 'PUT', slotData),
+
+  // Delete slot
+  deleteSlot: (id) => apiRequest(`/parking-slots/${id}`, 'DELETE'),
 };
 
 // ============================================
 // PARKING AREA API
 // ============================================
-export const parkingAreaAPI = {
-  createParkingArea: (areaData) => post('/parking-areas', areaData),
-  getAllParkingAreas: () => get('/parking-areas'),
-  getParkingAreaById: (id) => get(`/parking-areas/${id}`),
-  updateParkingArea: (id, areaData) => put(`/parking-areas/${id}`, areaData),
-  deleteParkingArea: (id) => remove(`/parking-areas/${id}`),
+const parkingAreaAPI = {
+  // Get all parking areas
+  getAllAreas: () => apiRequest('/parking-areas'),
+
+  // Get area by ID
+  getAreaById: (id) => apiRequest(`/parking-areas/${id}`),
+
+  // Create new area
+  createArea: (areaData) => apiRequest('/parking-areas', 'POST', areaData),
+
+  // Update area
+  updateArea: (id, areaData) => apiRequest(`/parking-areas/${id}`, 'PUT', areaData),
+
+  // Delete area
+  deleteArea: (id) => apiRequest(`/parking-areas/${id}`, 'DELETE'),
 };
 
 // ============================================
 // PARKING RECORD API
 // ============================================
-export const parkingRecordAPI = {
-  createParkingRecord: (recordData) => post('/parking-records', recordData),
-  getAllParkingRecords: () => get('/parking-records'),
-  getParkingRecordById: (id) => get(`/parking-records/${id}`),
-  getRecordsByUser: (userId) => get(`/parking-records/user/${userId}`),
-  getRecordsByVehicle: (vehicleId) => get(`/parking-records/vehicle/${vehicleId}`),
-  getActiveRecords: () => get('/parking-records/active'),
-  updateParkingRecord: (id, recordData) => put(`/parking-records/${id}`, recordData),
-  endParkingSession: (id) => patch(`/parking-records/${id}/end`),
-  deleteParkingRecord: (id) => remove(`/parking-records/${id}`),
+const parkingRecordAPI = {
+  // Get all records
+  getAllRecords: () => apiRequest('/parking-records'),
+
+  // Get record by ID
+  getRecordById: (id) => apiRequest(`/parking-records/${id}`),
+
+  // Get records by user
+  getRecordsByUser: (userId) => apiRequest(`/parking-records/user/${userId}`),
+
+  // Get active records
+  getActiveRecords: () => apiRequest('/parking-records/active'),
+
+  // Create new record (park vehicle)
+  createRecord: (recordData) => apiRequest('/parking-records', 'POST', recordData),
+
+  // Update record
+  updateRecord: (id, recordData) => apiRequest(`/parking-records/${id}`, 'PUT', recordData),
+
+  // End parking session
+  endSession: (id) => apiRequest(`/parking-records/${id}/end`, 'PATCH'),
+
+  // Delete record
+  deleteRecord: (id) => apiRequest(`/parking-records/${id}`, 'DELETE'),
 };
 
 // ============================================
 // VEHICLE API
 // ============================================
-export const vehicleAPI = {
-  createVehicle: (vehicleData) => post('/vehicles', vehicleData),
-  getAllVehicles: () => get('/vehicles'),
-  getVehicleById: (id) => get(`/vehicles/${id}`),
-  getVehiclesByUser: (userId) => get(`/vehicles/user/${userId}`),
-  getVehicleByPlate: (licensePlate) => get(`/vehicles/plate/${licensePlate}`),
-  updateVehicle: (id, vehicleData) => put(`/vehicles/${id}`, vehicleData),
-  deleteVehicle: (id) => remove(`/vehicles/${id}`),
+const vehicleAPI = {
+  // Get all vehicles
+  getAllVehicles: () => apiRequest('/vehicles'),
+
+  // Get vehicle by ID
+  getVehicleById: (id) => apiRequest(`/vehicles/${id}`),
+
+  // Get vehicles by user
+  getVehiclesByUser: (userId) => apiRequest(`/vehicles/user/${userId}`),
+
+  // Get vehicle by license plate
+  getVehicleByPlate: (licensePlate) => apiRequest(`/vehicles/plate/${licensePlate}`),
+
+  // Create new vehicle
+  createVehicle: (vehicleData) => apiRequest('/vehicles', 'POST', vehicleData),
+
+  // Update vehicle
+  updateVehicle: (id, vehicleData) => apiRequest(`/vehicles/${id}`, 'PUT', vehicleData),
+
+  // Delete vehicle
+  deleteVehicle: (id) => apiRequest(`/vehicles/${id}`, 'DELETE'),
 };
 
 // ============================================
 // GUARD API
 // ============================================
-export const guardAPI = {
-  createGuard: (guardData) => post('/guards', guardData),
-  getAllGuards: () => get('/guards'),
-  getGuardById: (id) => get(`/guards/${id}`),
-  getGuardsByArea: (areaId) => get(`/guards/area/${areaId}`),
-  updateGuard: (id, guardData) => put(`/guards/${id}`, guardData),
-  deleteGuard: (id) => remove(`/guards/${id}`),
+const guardAPI = {
+  // Get all guards
+  getAllGuards: () => apiRequest('/guards'),
+
+  // Get guard by ID
+  getGuardById: (id) => apiRequest(`/guards/${id}`),
+
+  // Get guards by area
+  getGuardsByArea: (areaId) => apiRequest(`/guards/area/${areaId}`),
+
+  // Create new guard
+  createGuard: (guardData) => apiRequest('/guards', 'POST', guardData),
+
+  // Update guard
+  updateGuard: (id, guardData) => apiRequest(`/guards/${id}`, 'PUT', guardData),
+
+  // Delete guard
+  deleteGuard: (id) => apiRequest(`/guards/${id}`, 'DELETE'),
 };
 
-// Export central functions and axios instance
-export { apiClient };
-export default {
-  get,
-  post,
-  put,
-  patch,
-  remove,
-  apiClient,
+// ============================================
+// EXPORT ALL API MODULES
+// ============================================
+export {
   userAPI,
   parkingSlotAPI,
   parkingAreaAPI,
   parkingRecordAPI,
   vehicleAPI,
   guardAPI,
+};
+
+// Default export with all APIs
+export default {
+  users: userAPI,
+  slots: parkingSlotAPI,
+  areas: parkingAreaAPI,
+  records: parkingRecordAPI,
+  vehicles: vehicleAPI,
+  guards: guardAPI,
 };

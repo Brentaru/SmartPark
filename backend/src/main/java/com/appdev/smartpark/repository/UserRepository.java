@@ -10,5 +10,6 @@ import com.appdev.smartpark.entity.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
+    Optional<User> findByStudentId(String studentId);
     boolean existsByEmail(String email);
 }

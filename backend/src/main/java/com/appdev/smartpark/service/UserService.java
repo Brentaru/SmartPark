@@ -59,6 +59,15 @@ public class UserService {
         return Optional.empty();
     }
     
+    // Login by Student ID
+    public Optional<User> loginByStudentId(String studentId, String password) {
+        Optional<User> user = userRepository.findByStudentId(studentId);
+        if (user.isPresent() && user.get().getPassword().equals(password)) {
+            return user;
+        }
+        return Optional.empty();
+    }
+    
     // Check if email exists
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
