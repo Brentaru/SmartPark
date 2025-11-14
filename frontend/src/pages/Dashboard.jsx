@@ -37,7 +37,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-page">
-      <AuthTopbar pageTitle="Dashboard" onToggleSidebar={toggleSidebar} />
+      <AuthTopbar pageTitle="Dashboard" onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
 
       <div className="dashboard-layout">
         <Sidebar isOpen={sidebarOpen} />

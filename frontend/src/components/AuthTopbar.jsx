@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import '../styles/Topbar.css';
 
-const AuthTopbar = ({ pageTitle = 'Dashboard', onToggleSidebar }) => {
+const AuthTopbar = ({ pageTitle = 'Dashboard', onToggleSidebar, sidebarOpen = true }) => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -30,7 +30,7 @@ const AuthTopbar = ({ pageTitle = 'Dashboard', onToggleSidebar }) => {
   };
 
   return (
-    <header className="auth-topbar">
+    <header className={`auth-topbar ${sidebarOpen ? 'sidebar-open' : ''}`}>
       <div className="topbar-left">
         <button 
           className="menu-toggle-btn" 
