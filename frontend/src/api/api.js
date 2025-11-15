@@ -74,6 +74,15 @@ const userAPI = {
   // Update user
   updateUser: (id, userData) => apiRequest(`/users/${id}`, 'PUT', userData),
 
+  // Update profile (same as updateUser but for clarity)
+  updateProfile: (id, userData) => apiRequest(`/users/${id}`, 'PUT', userData),
+
+  // Change password
+  changePassword: (id, currentPassword, newPassword) => apiRequest(`/users/${id}/change-password`, 'PUT', {
+    currentPassword,
+    newPassword
+  }),
+
   // Delete user
   deleteUser: (id) => apiRequest(`/users/${id}`, 'DELETE'),
 };
