@@ -24,10 +24,17 @@ const ParkingMap = ({ slots }) => {
     }
   };
 
+  // Split slots into top and bottom rows for NGE parking layout
+  const topRowSlots = slots?.slice(0, 12) || [];
+  const bottomRowSlots = slots?.slice(12, 20) || [];
+
   return (
     <div className="parking-map-container">
       <div className="map-header">
-        <h2 className="map-title">Campus Parking Map</h2>
+        <div className="map-title-section">
+          <h2 className="map-title">Campus Parking Map</h2>
+          <span className="map-subtitle">NGE Parking Area</span>
+        </div>
         <div className="map-legend">
           <div className="legend-item">
             <span className="legend-dot free"></span>
@@ -44,22 +51,51 @@ const ParkingMap = ({ slots }) => {
         </div>
       </div>
 
-      <div className="parking-grid">
-        {slots && slots.map((slot) => (
-          <div 
-            key={slot.id} 
-            className={`parking-slot ${getSlotClass(slot.status)}`}
-            title={`Slot ${slot.id} - ${slot.status}`}
-            onClick={() => handleSlotClick(slot)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="5" y="11" width="14" height="10" rx="2"/>
-              <circle cx="12" cy="16" r="2"/>
-              <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-            </svg>
-            <span className="slot-number">{slot.id}</span>
-          </div>
-        ))}
+      <div className="nge-parking-layout">
+        {/* Top Row */}
+        <div className="parking-row parking-row-top">
+          {topRowSlots.map((slot) => (
+            <div 
+              key={slot.id} 
+              className={`parking-slot ${getSlotClass(slot.status)}`}
+              title={`Slot ${slot.id} - ${slot.status}`}
+              onClick={() => handleSlotClick(slot)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2"/>
+                <circle cx="12" cy="16" r="2"/>
+                <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              </svg>
+              <span className="slot-number">{slot.id}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Road Separator */}
+        <div className="parking-road">
+          <div className="road-line"></div>
+          <span className="road-label">ROAD</span>
+          <div className="road-line"></div>
+        </div>
+
+        {/* Bottom Row */}
+        <div className="parking-row parking-row-bottom">
+          {bottomRowSlots.map((slot) => (
+            <div 
+              key={slot.id} 
+              className={`parking-slot ${getSlotClass(slot.status)}`}
+              title={`Slot ${slot.id} - ${slot.status}`}
+              onClick={() => handleSlotClick(slot)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2"/>
+                <circle cx="12" cy="16" r="2"/>
+                <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              </svg>
+              <span className="slot-number">{slot.id}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="map-footer">

@@ -29,6 +29,11 @@
   min-width: 0;
 }
 
+/* Full Width Parking Map */
+.parking-map-full-width {
+  grid-column: 1 / -1;
+}
+
 /* Responsive Design */
 @media (max-width: 1400px) {
   .dashboard-columns {

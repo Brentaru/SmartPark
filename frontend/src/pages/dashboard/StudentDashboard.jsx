@@ -4,7 +4,6 @@ import StatsCard from '../../components/dashboard/StatsCard';
 import ActivityTable from '../../components/dashboard/ActivityTable';
 import ReservationPanel from '../../components/dashboard/ReservationPanel';
 import ParkingMap from '../../components/dashboard/ParkingMap';
-import Notifications from '../../components/dashboard/Notifications';
 import '../../styles/dashboard/StudentDashboard.css';
 
 const StudentDashboard = ({ currentUser }) => {
@@ -51,15 +50,10 @@ const StudentDashboard = ({ currentUser }) => {
     location: 'North Parking Area'
   });
 
-  const [selectedParkingArea, setSelectedParkingArea] = React.useState('All Areas');
+  const [selectedParkingArea, setSelectedParkingArea] = React.useState('NGE Parking Area');
 
   const parkingAreas = [
-    'All Areas',
-    'North Parking Area',
-    'South Parking Area', 
-    'East Parking Area',
-    'West Parking Area',
-    'Faculty Parking'
+    'NGE Parking Area'
   ];
 
   const [notifications, setNotifications] = React.useState([
@@ -215,7 +209,6 @@ const StudentDashboard = ({ currentUser }) => {
         {/* Left Column */}
         <div className="left-column">
           <ActivityTable activities={dashboardData.recentActivity} />
-          <ParkingMap slots={dashboardData.parkingSlots} />
         </div>
 
         {/* Right Column */}
@@ -225,12 +218,12 @@ const StudentDashboard = ({ currentUser }) => {
             onReserve={handleReserve}
             onCancel={handleCancelReservation}
           />
-          <Notifications 
-            notifications={notifications}
-            onDismiss={handleDismissNotification}
-            onMarkAllRead={handleMarkAllRead}
-          />
         </div>
+      </div>
+      
+      {/* Full Width Parking Map */}
+      <div className="parking-map-full-width">
+        <ParkingMap slots={dashboardData.parkingSlots} />
       </div>
     </div>
   );
