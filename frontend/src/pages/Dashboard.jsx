@@ -1,14 +1,16 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import '../styles/Dashboard.css';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
 import StudentDashboard from './dashboard/StudentDashboard';
+import Profile from './dashboard/Profile';
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
 
   // Redirect if not authenticated
@@ -35,27 +37,39 @@ const Dashboard = () => {
                      (currentUser.name && currentUser.name.split(' ')[0]) || 
                      'User';
 
+  // Determine page title based on route
+  const getPageTitle = () => {
+    if (location.pathname.includes('/profile')) return 'Profile';
+    if (location.pathname.includes('/settings')) return 'Settings';
+    return 'Dashboard';
+  };
+
   return (
     <div className="dashboard-page">
-      <AuthTopbar pageTitle="Dashboard" onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <AuthTopbar pageTitle={getPageTitle()} onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
 
       <div className="dashboard-layout">
         <Sidebar isOpen={sidebarOpen} />
 
         <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
           <div className="dashboard-container">
-            <section className="welcome-section">
-              <h1 className="welcome-title">
-                Welcome, {displayName}!
-              </h1>
-              <p className="welcome-sub">Here's your parking overview for today</p>
-            </section>
-
-            {/* Render role-specific dashboard - for now always show StudentDashboard */}
-            <StudentDashboard currentUser={currentUser} />
-            {/* Future: Add conditional rendering based on role */}
-            {/* {currentUser.role === 'staff' && <StaffDashboard currentUser={currentUser} />} */}
-            {/* {currentUser.role === 'guard' && <GuardDashboard currentUser={currentUser} />} */}
+            <Routes>
+              {/* Dashboard Home */}
+              <Route path="/" element={
+                <>
+                  <section className="welcome-section">
+                    <h1 className="welcome-title">
+                      Welcome, {displayName}!
+                    </h1>
+                    <p className="welcome-sub">Here's your parking overview for today</p>
+                  </section>
+                  <StudentDashboard currentUser={currentUser} />
+                </>
+              } />
+              
+              {/* Profile Route */}
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
           </div>
         </main>
       </div>

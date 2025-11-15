@@ -53,19 +53,22 @@ const AuthTopbar = ({ pageTitle = 'Dashboard', onToggleSidebar, sidebarOpen = tr
 
       <div className="topbar-right">
         <div className="topbar-name">{currentUser?.firstName} {currentUser?.lastName}</div>
-        <button className="icon-btn" title="Notifications" aria-label="Notifications">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
 
         <div className="profile-dropdown" ref={dropdownRef}>
           <button className="profile-btn" onClick={() => setOpen(!open)} aria-haspopup>
-            <div className="profile-avatar">{(currentUser?.firstName || 'U').charAt(0)}</div>
+            <div className="profile-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </div>
           </button>
 
           {open && (
             <div className="profile-menu">
-              <button className="profile-menu-item" onClick={() => goTo('/profile')}>Profile</button>
-              <button className="profile-menu-item" onClick={() => goTo('/settings')}>Settings</button>
+              <button className="profile-menu-item" onClick={() => goTo('/dashboard/profile')}>Profile</button>
+              <button className="profile-menu-item" onClick={() => goTo('/dashboard/settings')}>Settings</button>
+              <button className="profile-menu-item" onClick={handleLogout}>Logout</button>
             </div>
           )}
         </div>

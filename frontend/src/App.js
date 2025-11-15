@@ -56,9 +56,9 @@ function AppContent() {
           } 
         />
 
-        {/* Dashboard Page (protected) */}
+        {/* Dashboard Page (protected) - with nested routes */}
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={
             <ProtectedRoute>
               <Dashboard />

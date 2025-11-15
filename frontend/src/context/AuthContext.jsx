@@ -158,6 +158,12 @@ export const AuthProvider = ({ children }) => {
     return currentUser && currentUser.role === role;
   };
 
+  // Update user profile in context (without API call)
+  const updateUserProfile = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+  };
+
   const value = {
     currentUser,
     loading,
@@ -166,6 +172,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateProfile,
+    updateUserProfile,
     isAuthenticated,
     hasRole,
     setError,
