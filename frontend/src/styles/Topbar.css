@@ -105,3 +105,6 @@
 .auth-topbar.sidebar-open {
   left: 260px;
 }
+.auth-topbar.sidebar-open .menu-toggle-btn {
+  margin-left: 1rem;
+}

@@ -6,6 +6,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ParkingHistory from './pages/ParkingHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -62,6 +63,15 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        {/* Parking History Page (protected) */}
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <ParkingHistory />
             </ProtectedRoute>
           }
         />
