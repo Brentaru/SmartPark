@@ -5,7 +5,6 @@ import '../styles/Dashboard.css';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
 import StudentDashboard from './dashboard/StudentDashboard';
-import Profile from './dashboard/Profile';
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
@@ -66,9 +65,6 @@ const Dashboard = () => {
                   <StudentDashboard currentUser={currentUser} />
                 </>
               } />
-              
-              {/* Profile Route */}
-              <Route path="/profile" element={<Profile />} />
             </Routes>
           </div>
         </main>

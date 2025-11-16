@@ -7,6 +7,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import ParkingHistory from './pages/ParkingHistory';
+import MyParkingSlots from './pages/MyParkingSlots';
+import MyProfile from './pages/MyProfile';
+import ProfileSettings from './pages/ProfileSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -66,12 +69,43 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+        
         {/* Parking History Page (protected) */}
         <Route
           path="/history"
           element={
             <ProtectedRoute>
               <ParkingHistory />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* My Parking Slots / Reservations (protected) */}
+        <Route
+          path="/my-slots"
+          element={
+            <ProtectedRoute>
+              <MyParkingSlots />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* My Profile (View Mode - protected) */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MyProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Profile Settings (Edit Mode - protected) */}
+        <Route
+          path="/profile-settings"
+          element={
+            <ProtectedRoute>
+              <ProfileSettings />
             </ProtectedRoute>
           }
         />
