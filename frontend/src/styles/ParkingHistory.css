@@ -129,13 +129,15 @@
 .controls-row {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 1.5rem;
+  gap: 3rem;
   align-items: center;
 }
 
 .search-box {
   position: relative;
   min-width: 320px;
+  z-index: 5;
+  margin-right: 1rem;
 }
 
 .search-icon {
@@ -174,6 +176,9 @@
   display: flex;
   gap: 1rem;
   flex-shrink: 0;
+  position: relative;
+  z-index: 15;
+  margin-left: 1rem;
 }
 
 .filter-select {
@@ -196,6 +201,8 @@
   background-position: right 1rem center;
   padding-right: 3rem;
   white-space: nowrap;
+  position: relative;
+  z-index: 10;
 }
 
 .filter-select:hover {

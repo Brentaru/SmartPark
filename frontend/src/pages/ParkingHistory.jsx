@@ -3,12 +3,14 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
+import { mockParkingHistory } from '../data/mockData';
 import '../styles/ParkingHistory.css';
 
 const ParkingHistory = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [filterLocation, setFilterLocation] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
@@ -24,101 +26,17 @@ const ParkingHistory = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Mock parking history data
-  const parkingHistory = [
-    {
-      id: 1,
-      date: '2025-11-15',
-      slot: 'A-12',
-      area: 'NGE Parking Area',
-      timeIn: '08:30 AM',
-      timeOut: '05:45 PM',
-      duration: '9h 15m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 2,
-      date: '2025-11-14',
-      slot: 'B-05',
-      area: 'NGE Parking Area',
-      timeIn: '09:15 AM',
-      timeOut: '04:30 PM',
-      duration: '7h 15m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 3,
-      date: '2025-11-13',
-      slot: 'A-12',
-      area: 'NGE Parking Area',
-      timeIn: '08:00 AM',
-      timeOut: '06:00 PM',
-      duration: '10h 0m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 4,
-      date: '2025-11-12',
-      slot: 'A-04',
-      area: 'NGE Parking Area',
-      timeIn: '10:00 AM',
-      timeOut: '03:45 PM',
-      duration: '5h 45m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 5,
-      date: '2025-11-11',
-      slot: 'A-12',
-      area: 'NGE Parking Area',
-      timeIn: '07:45 AM',
-      timeOut: '04:15 PM',
-      duration: '8h 30m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 6,
-      date: '2025-11-08',
-      slot: 'B-03',
-      area: 'NGE Parking Area',
-      timeIn: '09:30 AM',
-      timeOut: '05:00 PM',
-      duration: '7h 30m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 7,
-      date: '2025-11-07',
-      slot: 'A-08',
-      area: 'NGE Parking Area',
-      timeIn: '08:15 AM',
-      timeOut: null,
-      duration: null,
-      status: 'Expired',
-      vehicle: 'ABC-1234'
-    },
-    {
-      id: 8,
-      date: '2025-11-06',
-      slot: 'B-02',
-      area: 'NGE Parking Area',
-      timeIn: '10:30 AM',
-      timeOut: '02:15 PM',
-      duration: '3h 45m',
-      status: 'Completed',
-      vehicle: 'ABC-1234'
-    }
-  ];
+  // Use mock parking history data from centralized location
+  const parkingHistory = mockParkingHistory;
 
   // Filter and sort logic
   const getFilteredHistory = () => {
     let filtered = [...parkingHistory];
+
+    // Filter by location
+    if (filterLocation !== 'all') {
+      filtered = filtered.filter(record => record.area.toLowerCase().includes(filterLocation.toLowerCase()));
+    }
 
     // Filter by status
     if (filterStatus !== 'all') {
@@ -130,6 +48,7 @@ const ParkingHistory = () => {
       filtered = filtered.filter(record => 
         record.slot.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.area.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        record.vehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.date.includes(searchTerm)
       );
     }
@@ -261,7 +180,7 @@ const ParkingHistory = () => {
                   <input
                     type="text"
                     className="search-input"
-                    placeholder="Search by slot, area, or date..."
+                    placeholder="Search by location, slot, or vehicle..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -270,23 +189,21 @@ const ParkingHistory = () => {
                 <div className="filter-group">
                   <select 
                     className="filter-select"
+                    value={filterLocation}
+                    onChange={(e) => setFilterLocation(e.target.value)}
+                  >
+                    <option value="all">All Locations</option>
+                    <option value="nge">NGE Parking Area</option>
+                  </select>
+
+                  <select 
+                    className="filter-select"
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
                   >
                     <option value="all">All Status</option>
                     <option value="completed">Completed</option>
                     <option value="expired">Expired</option>
-                  </select>
-
-                  <select 
-                    className="filter-select"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                  >
-                    <option value="date-desc">Date (Newest)</option>
-                    <option value="date-asc">Date (Oldest)</option>
-                    <option value="duration-desc">Duration (Longest)</option>
-                    <option value="slot">Slot (A-Z)</option>
                   </select>
                 </div>
               </div>

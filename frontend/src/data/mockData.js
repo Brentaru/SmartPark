@@ -177,4 +177,179 @@ export const mockDataService = {
 // Initialize on load
 mockDataService.init();
 
+// Mock Parking History Data
+export const mockParkingHistory = [
+  {
+    id: 1,
+    date: '2025-11-15',
+    slot: 'A-12',
+    area: 'NGE Parking Area',
+    timeIn: '08:30 AM',
+    timeOut: '05:45 PM',
+    duration: '9h 15m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 2,
+    date: '2025-11-14',
+    slot: 'B-05',
+    area: 'NGE Parking Area',
+    timeIn: '09:15 AM',
+    timeOut: '04:30 PM',
+    duration: '7h 15m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 3,
+    date: '2025-11-13',
+    slot: 'A-12',
+    area: 'NGE Parking Area',
+    timeIn: '08:00 AM',
+    timeOut: '06:00 PM',
+    duration: '10h 0m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 4,
+    date: '2025-11-12',
+    slot: 'A-04',
+    area: 'NGE Parking Area',
+    timeIn: '10:00 AM',
+    timeOut: '03:45 PM',
+    duration: '5h 45m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 5,
+    date: '2025-11-11',
+    slot: 'A-12',
+    area: 'NGE Parking Area',
+    timeIn: '07:45 AM',
+    timeOut: '04:15 PM',
+    duration: '8h 30m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 6,
+    date: '2025-11-08',
+    slot: 'B-03',
+    area: 'NGE Parking Area',
+    timeIn: '09:30 AM',
+    timeOut: '05:00 PM',
+    duration: '7h 30m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 7,
+    date: '2025-11-07',
+    slot: 'A-08',
+    area: 'NGE Parking Area',
+    timeIn: '08:15 AM',
+    timeOut: null,
+    duration: null,
+    status: 'Expired',
+    vehicle: 'ABC-1234'
+  },
+  {
+    id: 8,
+    date: '2025-11-06',
+    slot: 'B-02',
+    area: 'NGE Parking Area',
+    timeIn: '10:30 AM',
+    timeOut: '02:15 PM',
+    duration: '3h 45m',
+    status: 'Completed',
+    vehicle: 'ABC-1234'
+  }
+];
+
+// Mock Dashboard Data
+export const mockDashboardData = {
+  currentReservation: {
+    slot: 'A-12',
+    date: 'November 3, 2025',
+    timeStart: '8:00 AM',
+    timeEnd: '6:00 PM',
+    location: 'NGE Parking Area'
+  },
+  
+  parkingAreas: [
+    'NGE Parking Area'
+  ],
+  
+  notifications: [
+    { 
+      id: 1,
+      type: 'warning', 
+      message: 'Your reservation will expire in 15 minutes. Please renew or vacate the slot.',
+      time: '5 minutes ago'
+    },
+    { 
+      id: 2,
+      type: 'info', 
+      message: 'Parking Lot C will be closed for maintenance tomorrow (Nov 3) from 8 AM to 12 PM.',
+      time: '2 hours ago'
+    },
+    { 
+      id: 3,
+      type: 'success', 
+      message: 'Your parking fee payment of $15.00 has been processed successfully.',
+      time: '1 day ago'
+    },
+    { 
+      id: 4,
+      type: 'info', 
+      message: 'New parking rates will be effective from November 15, 2025. Check your email for details.',
+      time: '2 days ago'
+    },
+  ],
+  
+  stats: {
+    totalVisits: 24
+  },
+  
+  recentActivity: [
+    { date: '2025-11-02', timeIn: '08:30 AM', timeOut: '05:45 PM', slot: 'A-12', duration: 555, status: 'Completed' },
+    { date: '2025-11-01', timeIn: '09:15 AM', timeOut: '04:30 PM', slot: 'B-05', duration: 435, status: 'Completed' },
+    { date: '2025-10-31', timeIn: '08:00 AM', timeOut: '06:00 PM', slot: 'A-12', duration: 600, status: 'Completed' },
+    { date: '2025-10-30', timeIn: '10:00 AM', timeOut: '03:45 PM', slot: 'C-18', duration: 345, status: 'Completed' },
+    { date: '2025-10-29', timeIn: '07:45 AM', timeOut: '04:15 PM', slot: 'A-12', duration: 510, status: 'Completed' },
+    { date: '2025-10-28', timeIn: '09:30 AM', timeOut: '05:00 PM', slot: 'B-03', duration: 450, status: 'Completed' },
+    { date: '2025-10-27', timeIn: '08:15 AM', timeOut: null, slot: 'A-08', duration: null, status: 'Expired' },
+  ],
+  
+  parkingSlots: [
+    { id: 'A-01', status: 'free' },
+    { id: 'A-02', status: 'occupied' },
+    { id: 'A-03', status: 'free' },
+    { id: 'A-04', status: 'reserved' },
+    { id: 'A-05', status: 'occupied' },
+    { id: 'A-06', status: 'free' },
+    { id: 'A-07', status: 'free' },
+    { id: 'A-08', status: 'occupied' },
+    { id: 'A-09', status: 'free' },
+    { id: 'A-10', status: 'occupied' },
+    { id: 'A-11', status: 'reserved' },
+    { id: 'A-12', status: 'reserved' },
+    { id: 'B-01', status: 'free' },
+    { id: 'B-02', status: 'free' },
+    { id: 'B-03', status: 'occupied' },
+    { id: 'B-04', status: 'free' },
+    { id: 'B-05', status: 'occupied' },
+    { id: 'B-06', status: 'free' },
+    { id: 'B-07', status: 'free' },
+    { id: 'B-08', status: 'occupied' },
+    { id: 'C-01', status: 'free' },
+    { id: 'C-02', status: 'occupied' },
+    { id: 'C-03', status: 'free' },
+    { id: 'C-04', status: 'free' },
+  ]
+};
+
 export default mockDataService;

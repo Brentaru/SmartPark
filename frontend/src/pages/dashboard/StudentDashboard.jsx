@@ -4,6 +4,7 @@ import StatsCard from '../../components/dashboard/StatsCard';
 import ActivityTable from '../../components/dashboard/ActivityTable';
 import ReservationPanel from '../../components/dashboard/ReservationPanel';
 import ParkingMap from '../../components/dashboard/ParkingMap';
+import { mockDashboardData } from '../../data/mockData';
 import '../../styles/dashboard/StudentDashboard.css';
 
 const StudentDashboard = ({ currentUser }) => {
@@ -41,91 +42,23 @@ const StudentDashboard = ({ currentUser }) => {
     ),
   };
 
-  // State management for dashboard data
-  const [currentReservation, setCurrentReservation] = React.useState({
-    slot: 'A-12',
-    date: 'November 3, 2025',
-    timeStart: '8:00 AM',
-    timeEnd: '6:00 PM',
-    location: 'North Parking Area'
-  });
+  // State management for dashboard data - using centralized mock data
+  const [currentReservation, setCurrentReservation] = React.useState(mockDashboardData.currentReservation);
+  const [selectedParkingArea, setSelectedParkingArea] = React.useState(mockDashboardData.parkingAreas[0]);
+  const [notifications, setNotifications] = React.useState(mockDashboardData.notifications);
 
-  const [selectedParkingArea, setSelectedParkingArea] = React.useState('NGE Parking Area');
+  const parkingAreas = mockDashboardData.parkingAreas;
 
-  const parkingAreas = [
-    'NGE Parking Area'
-  ];
-
-  const [notifications, setNotifications] = React.useState([
-    { 
-      id: 1,
-      type: 'warning', 
-      message: 'Your reservation will expire in 15 minutes. Please renew or vacate the slot.',
-      time: '5 minutes ago'
-    },
-    { 
-      id: 2,
-      type: 'info', 
-      message: 'Parking Lot C will be closed for maintenance tomorrow (Nov 3) from 8 AM to 12 PM.',
-      time: '2 hours ago'
-    },
-    { 
-      id: 3,
-      type: 'success', 
-      message: 'Your parking fee payment of $15.00 has been processed successfully.',
-      time: '1 day ago'
-    },
-    { 
-      id: 4,
-      type: 'info', 
-      message: 'New parking rates will be effective from November 15, 2025. Check your email for details.',
-      time: '2 days ago'
-    },
-  ]);
-
-  // Mock dashboard data - would come from API in real app
+  // Dashboard data from centralized mock data
   const dashboardData = {
     stats: {
       activeSlot: currentReservation ? currentReservation.slot : 'None',
       reservation: currentReservation ? `Slot #${currentReservation.slot}` : 'No reservation',
       parkingArea: selectedParkingArea,
-      totalVisits: 24
+      totalVisits: mockDashboardData.stats.totalVisits
     },
-    recentActivity: [
-      { date: '2025-11-02', timeIn: '08:30 AM', timeOut: '05:45 PM', slot: 'A-12', duration: 555, status: 'Completed' },
-      { date: '2025-11-01', timeIn: '09:15 AM', timeOut: '04:30 PM', slot: 'B-05', duration: 435, status: 'Completed' },
-      { date: '2025-10-31', timeIn: '08:00 AM', timeOut: '06:00 PM', slot: 'A-12', duration: 600, status: 'Completed' },
-      { date: '2025-10-30', timeIn: '10:00 AM', timeOut: '03:45 PM', slot: 'C-18', duration: 345, status: 'Completed' },
-      { date: '2025-10-29', timeIn: '07:45 AM', timeOut: '04:15 PM', slot: 'A-12', duration: 510, status: 'Completed' },
-      { date: '2025-10-28', timeIn: '09:30 AM', timeOut: '05:00 PM', slot: 'B-03', duration: 450, status: 'Completed' },
-      { date: '2025-10-27', timeIn: '08:15 AM', timeOut: null, slot: 'A-08', duration: null, status: 'Expired' },
-    ],
-    parkingSlots: [
-      { id: 'A-01', status: 'free' },
-      { id: 'A-02', status: 'occupied' },
-      { id: 'A-03', status: 'free' },
-      { id: 'A-04', status: 'reserved' },
-      { id: 'A-05', status: 'occupied' },
-      { id: 'A-06', status: 'free' },
-      { id: 'A-07', status: 'free' },
-      { id: 'A-08', status: 'occupied' },
-      { id: 'A-09', status: 'free' },
-      { id: 'A-10', status: 'occupied' },
-      { id: 'A-11', status: 'reserved' },
-      { id: 'A-12', status: 'reserved' },
-      { id: 'B-01', status: 'free' },
-      { id: 'B-02', status: 'free' },
-      { id: 'B-03', status: 'occupied' },
-      { id: 'B-04', status: 'free' },
-      { id: 'B-05', status: 'occupied' },
-      { id: 'B-06', status: 'free' },
-      { id: 'B-07', status: 'free' },
-      { id: 'B-08', status: 'occupied' },
-      { id: 'C-01', status: 'free' },
-      { id: 'C-02', status: 'occupied' },
-      { id: 'C-03', status: 'free' },
-      { id: 'C-04', status: 'free' },
-    ]
+    recentActivity: mockDashboardData.recentActivity,
+    parkingSlots: mockDashboardData.parkingSlots
   };
 
   // Handler functions
