@@ -6,7 +6,7 @@ const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['home', 'features', 'pricing', 'about', 'contact'];
+      const sections = ['home', 'features', 'about', 'contact'];
       const scrollPosition = window.scrollY + 100;
 
       for (const sectionId of sections) {
@@ -58,13 +58,6 @@ const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
             onClick={(e) => { e.preventDefault(); scrollToSection('features'); }}
           >
             Features
-          </a>
-          <a 
-            href="#pricing" 
-            className={`nav-link ${activeSection === 'pricing' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); scrollToSection('pricing'); }}
-          >
-            Pricing
           </a>
           <a 
             href="#about" 
