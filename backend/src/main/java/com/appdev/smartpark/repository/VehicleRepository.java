@@ -10,6 +10,7 @@ import com.appdev.smartpark.entity.Vehicle;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Integer> {
-    Optional<Vehicle> findByPlateNumber(String plateNumber);
-    List<Vehicle> findByUserUserID(Integer userID);
+    Optional<Vehicle> findFirstByPlateNumberOrderByVehicleIDDesc(String plateNumber);
+    List<Vehicle> findByPlateNumber(String plateNumber);
+    List<Vehicle> findByUserUserID(String userID);
 }

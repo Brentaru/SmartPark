@@ -32,9 +32,7 @@ const ActivityTable = ({ activities }) => {
             <tr>
               <th>Date</th>
               <th>Time In</th>
-              <th>Time Out</th>
               <th>Slot #</th>
-              <th>Duration</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -44,17 +42,15 @@ const ActivityTable = ({ activities }) => {
                 <tr key={index}>
                   <td>{activity.date}</td>
                   <td>{activity.timeIn}</td>
-                  <td>{activity.timeOut || '-'}</td>
                   <td>
                     <span className="slot-badge">{activity.slot}</span>
                   </td>
-                  <td>{formatDuration(activity.duration)}</td>
                   <td>{getStatusBadge(activity.status)}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="6" className="no-data">
+                <td colSpan="4" className="no-data">
                   No parking activity yet
                 </td>
               </tr>

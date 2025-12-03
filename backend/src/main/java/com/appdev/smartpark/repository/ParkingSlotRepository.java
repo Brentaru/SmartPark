@@ -11,4 +11,5 @@ import com.appdev.smartpark.entity.ParkingSlot;
 public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Integer> {
     List<ParkingSlot> findByStatus(String status);
     List<ParkingSlot> findByParkingAreaAreaID(Integer areaID);
+    List<ParkingSlot> findByReservedBy(String reservedBy);
 }

@@ -14,9 +14,21 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
     const errors = {};
 
     if (!values.studentId) {
-      errors.studentId = 'Student/Faculty ID is required';
-    } else if (!/^\d{2}-\d{4}-\d{3}$/.test(values.studentId)) {
-      errors.studentId = 'ID must be in format: 12-3456-678';
+      errors.studentId = 'ID is required';
+    } else {
+      // Accept three different ID formats:
+      // Student: xx-xxxx-xxx (e.g., 20-2024-123)
+      // Staff: xx-xxxx-xxxx (e.g., 20-2024-1234)
+      // Guard: xx-xxx-xxx (e.g., 20-123-456)
+      const studentFormat = /^\d{2}-\d{4}-\d{3}$/;
+      const staffFormat = /^\d{2}-\d{4}-\d{4}$/;
+      const guardFormat = /^\d{2}-\d{3}-\d{3}$/;
+      
+      if (!studentFormat.test(values.studentId) && 
+          !staffFormat.test(values.studentId) && 
+          !guardFormat.test(values.studentId)) {
+        errors.studentId = 'Invalid ID format. Use: Student (xx-xxxx-xxx), Staff (xx-xxxx-xxxx), or Guard (xx-xxx-xxx)';
+      }
     }
 
     if (!values.password) {
@@ -51,10 +63,17 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
       const result = await login(formValues.studentId, formValues.password);
       
       if (result.success) {
-        // Show success message
-        alert(`Welcome back, ${result.user.firstName}!`);
-        // Navigate to dashboard
-        onNavigateToDashboard();
+        // Check if user has registered their vehicle
+        if (!result.user.plateNumber) {
+          // Redirect to vehicle registration
+          alert(`Welcome, ${result.user.firstName}! Please register your vehicle to continue.`);
+          window.location.href = '/vehicle-registration';
+        } else {
+          // Show success message
+          alert(`Welcome back, ${result.user.firstName}!`);
+          // Navigate to dashboard
+          onNavigateToDashboard();
+        }
       } else {
         setLoginError(result.error);
       }
@@ -113,13 +132,13 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
                 <InputField
-                  label="Student/Faculty ID"
+                  label="ID Number"
                   type="text"
                   name="studentId"
                   value={values.studentId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="21-1234-567"
+                  placeholder="Student: 20-2024-123 | Staff: 20-2024-1234 | Guard: 20-123-456"
                   error={touched.studentId && errors.studentId}
                   required
                   icon={

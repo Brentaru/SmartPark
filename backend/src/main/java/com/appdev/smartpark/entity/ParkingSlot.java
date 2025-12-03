@@ -2,6 +2,9 @@ package com.appdev.smartpark.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,17 +19,31 @@ import jakarta.persistence.Table;
 public class ParkingSlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "slotid")
     private Integer slotID;
     
+    @Column(name = "location")
     private String location;
+    
+    @Column(name = "status")
     private String status;
+    
+    @Column(name = "slot_type")
     private String slotType;
     
+    @Column(name = "reserved_by")
+    private String reservedBy; // UserID of staff/guard who reserved (now String like "99-9999-999")
+    
+    @Column(name = "reserved_for")
+    private String reservedFor; // Name or details of person slot is reserved for
+    
     @ManyToOne
-    @JoinColumn(name = "areaID")
+    @JoinColumn(name = "areaid")
+    @JsonIgnore
     private ParkingArea parkingArea;
     
     @OneToMany(mappedBy = "parkingSlot")
+    @JsonIgnore
     private List<ParkingRecord> parkingRecords;
 
     // Constructors
@@ -78,6 +95,22 @@ public class ParkingSlot {
 
     public void setParkingArea(ParkingArea parkingArea) {
         this.parkingArea = parkingArea;
+    }
+
+    public String getReservedBy() {
+        return reservedBy;
+    }
+
+    public void setReservedBy(String reservedBy) {
+        this.reservedBy = reservedBy;
+    }
+
+    public String getReservedFor() {
+        return reservedFor;
+    }
+
+    public void setReservedFor(String reservedFor) {
+        this.reservedFor = reservedFor;
     }
 
     public List<ParkingRecord> getParkingRecords() {

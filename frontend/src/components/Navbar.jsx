@@ -82,10 +82,13 @@ const Navbar = ({ onNavigateToLogin, onNavigateToRegister }) => {
           <button className="btn-nav btn-nav-register" onClick={onNavigateToRegister}>
             Get Started
           </button>
+          
         </div>
       </div>
     </nav>
   );
 };
+
+
 
 export default Navbar;

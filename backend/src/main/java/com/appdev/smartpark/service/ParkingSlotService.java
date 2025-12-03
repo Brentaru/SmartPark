@@ -49,6 +49,8 @@ public class ParkingSlotService {
         slot.setStatus(slotDetails.getStatus());
         slot.setSlotType(slotDetails.getSlotType());
         slot.setParkingArea(slotDetails.getParkingArea());
+        slot.setReservedBy(slotDetails.getReservedBy());
+        slot.setReservedFor(slotDetails.getReservedFor());
         
         return parkingSlotRepository.save(slot);
     }
@@ -70,5 +72,47 @@ public class ParkingSlotService {
     // Get available slots
     public List<ParkingSlot> getAvailableSlots() {
         return parkingSlotRepository.findByStatus("Available");
+    }
+    
+    // Reserve a slot (Staff/Guard only)
+    public ParkingSlot reserveSlot(Integer slotId, String userId, String reservedFor) {
+        ParkingSlot slot = parkingSlotRepository.findById(slotId)
+                .orElseThrow(() -> new RuntimeException("Parking Slot not found with id: " + slotId));
+        
+        if (!"Available".equals(slot.getStatus())) {
+            throw new RuntimeException("Slot is not available for reservation");
+        }
+        
+        slot.setStatus("Reserved");
+        slot.setReservedBy(userId);
+        slot.setReservedFor(reservedFor);
+        
+        return parkingSlotRepository.save(slot);
+    }
+    
+    // Cancel reservation
+    public ParkingSlot cancelReservation(Integer slotId) {
+        ParkingSlot slot = parkingSlotRepository.findById(slotId)
+                .orElseThrow(() -> new RuntimeException("Parking Slot not found with id: " + slotId));
+        
+        if (!"Reserved".equals(slot.getStatus())) {
+            throw new RuntimeException("Slot is not reserved");
+        }
+        
+        slot.setStatus("Available");
+        slot.setReservedBy(null);
+        slot.setReservedFor(null);
+        
+        return parkingSlotRepository.save(slot);
+    }
+    
+    // Get reserved slots
+    public List<ParkingSlot> getReservedSlots() {
+        return parkingSlotRepository.findByStatus("Reserved");
+    }
+    
+    // Get slots reserved by a specific user
+    public List<ParkingSlot> getSlotsByReservedBy(String userId) {
+        return parkingSlotRepository.findByReservedBy(userId);
     }
 }

@@ -30,13 +30,13 @@ public class VehicleService {
         return vehicleRepository.findById(id);
     }
     
-    // Get by Plate Number
+    // Get by Plate Number (returns the most recent vehicle with this plate)
     public Optional<Vehicle> getVehicleByPlateNumber(String plateNumber) {
-        return vehicleRepository.findByPlateNumber(plateNumber);
+        return vehicleRepository.findFirstByPlateNumberOrderByVehicleIDDesc(plateNumber);
     }
     
     // Get by User
-    public List<Vehicle> getVehiclesByUser(Integer userID) {
+    public List<Vehicle> getVehiclesByUser(String userID) {
         return vehicleRepository.findByUserUserID(userID);
     }
     

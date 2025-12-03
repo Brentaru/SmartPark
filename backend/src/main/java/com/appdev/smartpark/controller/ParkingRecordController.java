@@ -59,6 +59,12 @@ public class ParkingRecordController {
         }
     }
     
+    // Get records by user
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ParkingRecord>> getRecordsByUser(@PathVariable String userId) {
+        return ResponseEntity.ok(parkingRecordService.getParkingRecordsByUser(userId));
+    }
+    
     // Get records by vehicle
     @GetMapping("/vehicle/{vehicleId}")
     public ResponseEntity<List<ParkingRecord>> getRecordsByVehicle(@PathVariable Integer vehicleId) {

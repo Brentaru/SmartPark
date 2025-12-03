@@ -113,4 +113,43 @@ public class ParkingSlotController {
                     .body(Map.of("message", "Error deleting parking slot: " + e.getMessage()));
         }
     }
+    
+    // Reserve a parking slot (Staff/Guard only)
+    @PostMapping("/{id}/reserve")
+    public ResponseEntity<?> reserveSlot(@PathVariable Integer id, @RequestBody Map<String, Object> reservationData) {
+        try {
+            String userId = String.valueOf(reservationData.get("userId"));
+            String reservedFor = String.valueOf(reservationData.get("reservedFor"));
+            
+            ParkingSlot reservedSlot = parkingSlotService.reserveSlot(id, userId, reservedFor);
+            return ResponseEntity.ok(reservedSlot);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+    
+    // Cancel reservation
+    @PostMapping("/{id}/cancel-reservation")
+    public ResponseEntity<?> cancelReservation(@PathVariable Integer id) {
+        try {
+            ParkingSlot slot = parkingSlotService.cancelReservation(id);
+            return ResponseEntity.ok(slot);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+    
+    // Get reserved slots
+    @GetMapping("/reserved")
+    public ResponseEntity<List<ParkingSlot>> getReservedSlots() {
+        return ResponseEntity.ok(parkingSlotService.getReservedSlots());
+    }
+    
+    // Get slots reserved by a specific user
+    @GetMapping("/reserved/user/{userId}")
+    public ResponseEntity<List<ParkingSlot>> getSlotsByReservedBy(@PathVariable String userId) {
+        return ResponseEntity.ok(parkingSlotService.getSlotsByReservedBy(userId));
+    }
 }

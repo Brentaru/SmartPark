@@ -1,7 +1,61 @@
 import React from 'react';
 import '../../styles/dashboard/ReservationPanel.css';
 
-const ReservationPanel = ({ currentReservation, onReserve, onCancel }) => {
+const ReservationPanel = ({ myReservations, onCancelReservation, currentUser }) => {
+  // If myReservations prop is provided, show staff/guard view
+  if (myReservations !== undefined) {
+    return (
+      <div className="reservation-panel">
+        <div className="panel-header">
+          <h2 className="panel-title">My Reservations</h2>
+        </div>
+
+        {myReservations && myReservations.length > 0 ? (
+          <div className="reservations-list">
+            {myReservations.map((reservation, index) => (
+              <div key={index} className="reservation-card">
+                <div className="reservation-info">
+                  <div className="info-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="5" y="11" width="14" height="10" rx="2"/>
+                      <circle cx="12" cy="16" r="2"/>
+                    </svg>
+                  </div>
+                  <div className="info-content">
+                    <h3 className="reservation-slot">Slot {reservation.id}</h3>
+                    <p className="reservation-location">{reservation.location}</p>
+                    <p className="reservation-for">Reserved for: <strong>{reservation.reservedFor}</strong></p>
+                  </div>
+                </div>
+                <button 
+                  className="btn-cancel-small"
+                  onClick={() => onCancelReservation(reservation.id)}
+                >
+                  Cancel
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="reservation-empty">
+            <div className="empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2"/>
+                <circle cx="12" cy="16" r="2"/>
+                <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+              </svg>
+            </div>
+            <h3 className="empty-title">No Active Reservations</h3>
+            <p className="empty-text">Click on available slots in the parking map below to reserve them</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Original student view (backward compatibility)
+  const { currentReservation, onReserve, onCancel } = myReservations || {};
+  
   return (
     <div className="reservation-panel">
       <div className="panel-header">

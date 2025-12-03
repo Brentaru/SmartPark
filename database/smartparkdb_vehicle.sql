@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `smartparkdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `smartparkdb`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: smartparkdb
@@ -29,11 +27,10 @@ CREATE TABLE `vehicle` (
   `color` varchar(255) DEFAULT NULL,
   `plate_number` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
-  `userid` int DEFAULT NULL,
+  `userid` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`vehicleid`),
-  KEY `FKse3d6pqffwirrpks8q40shg59` (`userid`),
-  CONSTRAINT `FKse3d6pqffwirrpks8q40shg59` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `FKse3d6pqffwirrpks8q40shg59` (`userid`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +39,7 @@ CREATE TABLE `vehicle` (
 
 LOCK TABLES `vehicle` WRITE;
 /*!40000 ALTER TABLE `vehicle` DISABLE KEYS */;
+INSERT INTO `vehicle` VALUES (1,'blue','QEZ-123','SUV',NULL),(2,'blue','QEZ-123','Car',NULL),(3,'red','EDS-755','Truck',NULL),(4,'Black','WED-234','Car','6'),(5,'White','TYU-123','Car','5'),(6,'Black','ABC-123','Car','9'),(7,'Black','ABC-123','Car','99-9999-999'),(8,'Black','ABC-123','Car','99-9999-999'),(9,'Black','ABC-1234','Car','12-1212-1212'),(10,'Black','ABC-1234','Car','12-1212-1212');
 /*!40000 ALTER TABLE `vehicle` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-14 11:46:22
+-- Dump completed on 2025-12-04  2:02:50
