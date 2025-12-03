@@ -2,6 +2,8 @@ package com.appdev.smartpark.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +26,11 @@ public class Vehicle {
     
     @ManyToOne
     @JoinColumn(name = "userID")
+    @JsonIgnoreProperties({"vehicles", "guards", "password"})
     private User user;
     
     @OneToMany(mappedBy = "vehicle")
+    @JsonIgnoreProperties({"vehicle", "parkingSlot"})
     private List<ParkingRecord> parkingRecords;
 
     // Constructors

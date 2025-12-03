@@ -26,27 +26,55 @@ public class UserService {
     }
     
     // Read One
-    public Optional<User> getUserById(Integer id) {
+    public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
     
+    // Read One by Student ID
+    public Optional<User> getUserByStudentId(String studentId) {
+        return userRepository.findByStudentId(studentId);
+    }
+    
+    // Read One by Plate Number
+    public Optional<User> getUserByPlateNumber(String plateNumber) {
+        return userRepository.findByPlateNumber(plateNumber);
+    }
+    
     // Update
-    public User updateUser(Integer id, User userDetails) {
+    public User updateUser(String id, User userDetails) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         
         user.setFname(userDetails.getFname());
         user.setLname(userDetails.getLname());
         user.setEmail(userDetails.getEmail());
-        user.setPassword(userDetails.getPassword());
+        
+        // Only update password if it's provided and not a placeholder
+        if (userDetails.getPassword() != null && 
+            !userDetails.getPassword().isEmpty() && 
+            !userDetails.getPassword().equals("UNCHANGED")) {
+            user.setPassword(userDetails.getPassword());
+        }
+        
         user.setRole(userDetails.getRole());
         user.setContact(userDetails.getContact());
+        
+        // Update vehicle fields if provided
+        if (userDetails.getPlateNumber() != null && !userDetails.getPlateNumber().isEmpty()) {
+            user.setPlateNumber(userDetails.getPlateNumber());
+        }
+        if (userDetails.getVehicleType() != null && !userDetails.getVehicleType().isEmpty()) {
+            user.setVehicleType(userDetails.getVehicleType());
+        }
+        if (userDetails.getVehicleColor() != null && !userDetails.getVehicleColor().isEmpty()) {
+            user.setVehicleColor(userDetails.getVehicleColor());
+        }
         
         return userRepository.save(user);
     }
     
     // Delete
-    public void deleteUser(Integer id) {
+    public void deleteUser(String id) {
         userRepository.deleteById(id);
     }
     
@@ -59,9 +87,9 @@ public class UserService {
         return Optional.empty();
     }
     
-    // Login by Student ID
+    // Login by Student ID (now using userID)
     public Optional<User> loginByStudentId(String studentId, String password) {
-        Optional<User> user = userRepository.findByStudentId(studentId);
+        Optional<User> user = userRepository.findById(studentId);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
             return user;
         }

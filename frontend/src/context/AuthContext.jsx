@@ -50,7 +50,10 @@ export const AuthProvider = ({ children }) => {
           firstName: user.fname,
           lastName: user.lname,
           role: user.role,
-          contactNumber: user.contact
+          contactNumber: user.contact,
+          plateNumber: user.plateNumber,
+          vehicleType: user.vehicleType,
+          vehicleColor: user.vehicleColor
         };
         
         setCurrentUser(formattedUser);
@@ -67,6 +70,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Detect role based on ID format
+  const detectRoleFromId = (studentId) => {
+    const studentFormat = /^\d{2}-\d{4}-\d{3}$/;  // xx-xxxx-xxx
+    const staffFormat = /^\d{2}-\d{4}-\d{4}$/;    // xx-xxxx-xxxx
+    const guardFormat = /^\d{2}-\d{3}-\d{3}$/;    // xx-xxx-xxx
+    
+    if (studentFormat.test(studentId)) return 'student';
+    if (staffFormat.test(studentId)) return 'staff';
+    if (guardFormat.test(studentId)) return 'guard';
+    return null;
+  };
+
   // Login function
   const login = async (studentId, password) => {
     setError(null);
@@ -75,6 +90,11 @@ export const AuthProvider = ({ children }) => {
       
       if (result.success) {
         const user = result.data;
+        
+        // Auto-detect correct role from ID format
+        const detectedRole = detectRoleFromId(studentId);
+        const correctRole = detectedRole || user.role;
+        
         // Format user data for frontend
         const formattedUser = {
           id: user.userID,
@@ -82,8 +102,11 @@ export const AuthProvider = ({ children }) => {
           email: user.email,
           firstName: user.fname,
           lastName: user.lname,
-          role: user.role,
-          contactNumber: user.contact
+          role: correctRole,
+          contactNumber: user.contact,
+          plateNumber: user.plateNumber,
+          vehicleType: user.vehicleType,
+          vehicleColor: user.vehicleColor
         };
         
         setCurrentUser(formattedUser);
@@ -164,6 +187,24 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('currentUser', JSON.stringify(updatedUser));
   };
 
+  // Update user (generic method that updates context after successful API call)
+  const updateUser = (updatedUserData) => {
+    const formattedUser = {
+      id: updatedUserData.userID,
+      studentId: updatedUserData.studentId,
+      email: updatedUserData.email,
+      firstName: updatedUserData.fname,
+      lastName: updatedUserData.lname,
+      role: updatedUserData.role,
+      contactNumber: updatedUserData.contact,
+      plateNumber: updatedUserData.plateNumber,
+      vehicleType: updatedUserData.vehicleType,
+      vehicleColor: updatedUserData.vehicleColor
+    };
+    setCurrentUser(formattedUser);
+    localStorage.setItem('currentUser', JSON.stringify(formattedUser));
+  };
+
   const value = {
     currentUser,
     loading,
@@ -173,6 +214,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     updateUserProfile,
+    updateUser,
     isAuthenticated,
     hasRole,
     setError,

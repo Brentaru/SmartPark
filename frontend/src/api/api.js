@@ -71,6 +71,12 @@ const userAPI = {
   // Get user by ID
   getUserById: (id) => apiRequest(`/users/${id}`),
 
+  // Get user by student ID
+  getUserByStudentId: (studentId) => apiRequest(`/users/student/${studentId}`),
+
+  // Get user by plate number
+  getUserByPlateNumber: (plateNumber) => apiRequest(`/users/plate/${plateNumber}`),
+
   // Update user
   updateUser: (id, userData) => apiRequest(`/users/${id}`, 'PUT', userData),
 
@@ -111,6 +117,21 @@ const parkingSlotAPI = {
 
   // Delete slot
   deleteSlot: (id) => apiRequest(`/parking-slots/${id}`, 'DELETE'),
+
+  // Reserve a slot (Staff/Guard only)
+  reserveSlot: (slotId, userId, reservedFor) => apiRequest(`/parking-slots/${slotId}/reserve`, 'POST', {
+    userId,
+    reservedFor
+  }),
+
+  // Cancel reservation
+  cancelReservation: (slotId) => apiRequest(`/parking-slots/${slotId}/cancel-reservation`, 'POST'),
+
+  // Get reserved slots
+  getReservedSlots: () => apiRequest('/parking-slots/reserved'),
+
+  // Get slots reserved by user
+  getSlotsByReservedBy: (userId) => apiRequest(`/parking-slots/reserved/user/${userId}`),
 };
 
 // ============================================

@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `smartparkdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `smartparkdb`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: smartparkdb
@@ -30,10 +28,12 @@ CREATE TABLE `parking_slot` (
   `slot_type` varchar(255) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
   `areaid` int DEFAULT NULL,
+  `reserved_by` varchar(255) DEFAULT NULL,
+  `reserved_for` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`slotid`),
   KEY `FKqnkhn84pg99hjbdsro0xsnfrc` (`areaid`),
   CONSTRAINT `FKqnkhn84pg99hjbdsro0xsnfrc` FOREIGN KEY (`areaid`) REFERENCES `parking_area` (`areaid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,6 +42,7 @@ CREATE TABLE `parking_slot` (
 
 LOCK TABLES `parking_slot` WRITE;
 /*!40000 ALTER TABLE `parking_slot` DISABLE KEYS */;
+INSERT INTO `parking_slot` VALUES (1,'A-01','Standard','Occupied',NULL,NULL,NULL),(2,'A-02','Standard','Occupied',NULL,NULL,NULL),(3,'A-03','Standard','Available',NULL,NULL,NULL),(4,'A-04','Standard','Occupied',NULL,NULL,NULL),(5,'A-05','Standard','Available',1,NULL,NULL),(6,'A-06','Standard','Available',1,NULL,NULL),(7,'A-07','Standard','Available',1,NULL,NULL),(8,'A-08','Standard','Available',1,NULL,NULL),(9,'A-09','Standard','Available',1,NULL,NULL),(10,'A-10','Standard','Occupied',NULL,NULL,NULL),(11,'A-11','Standard','Available',1,NULL,NULL),(12,'A-12','Standard','Available',1,NULL,NULL),(13,'B-01','Standard','Occupied',NULL,NULL,NULL),(14,'B-02','Standard','Occupied',NULL,NULL,NULL),(15,'B-03','Standard','Available',1,NULL,NULL),(16,'B-04','Standard','Available',1,NULL,NULL),(17,'B-05','Standard','Available',1,NULL,NULL),(18,'B-06','Standard','Available',1,NULL,NULL),(19,'B-07','Standard','Available',1,NULL,NULL),(20,'B-08','Standard','Available',1,NULL,NULL);
 /*!40000 ALTER TABLE `parking_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +55,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-14 11:46:22
+-- Dump completed on 2025-12-04  2:02:50

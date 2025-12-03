@@ -2,20 +2,22 @@ package com.appdev.smartpark.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "users")
 public class User {
-    @Id 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userID;
+    @Id
+    private String userID; // Now stores the actual student/staff/guard ID
     
+    // studentId is deprecated - userID now serves this purpose
+    @Column(name = "student_id")
     private String studentId;
     private String fname;
     private String lname;
@@ -24,10 +26,22 @@ public class User {
     private String role;
     private String contact;
     
+    // Vehicle registration fields
+    @Column(name = "plate_number")
+    private String plateNumber;
+    
+    @Column(name = "vehicle_type")
+    private String vehicleType;
+    
+    @Column(name = "vehicle_color")
+    private String vehicleColor;
+    
     @OneToMany(mappedBy = "user")
+    @JsonIgnoreProperties({"user", "parkingRecords"})
     private List<Vehicle> vehicles;
     
     @OneToMany(mappedBy = "verifiedBy")
+    @JsonIgnoreProperties({"verifiedBy"})
     private List<Guard> guards;
 
     // Constructors
@@ -43,12 +57,25 @@ public class User {
         this.contact = contact;
     }
 
+    public User(String studentId, String fname, String lname, String email, String password, String role, String contact, String plateNumber, String vehicleType, String vehicleColor) {
+        this.studentId = studentId;
+        this.fname = fname;
+        this.lname = lname;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.contact = contact;
+        this.plateNumber = plateNumber;
+        this.vehicleType = vehicleType;
+        this.vehicleColor = vehicleColor;
+    }
+
     // Getters and Setters
-    public Integer getUserID() {
+    public String getUserID() {
         return userID;
     }
 
-    public void setUserID(Integer userID) {
+    public void setUserID(String userID) {
         this.userID = userID;
     }
 
@@ -122,5 +149,29 @@ public class User {
 
     public void setGuards(List<Guard> guards) {
         this.guards = guards;
+    }
+
+    public String getPlateNumber() {
+        return plateNumber;
+    }
+
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
+    }
+
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public String getVehicleColor() {
+        return vehicleColor;
+    }
+
+    public void setVehicleColor(String vehicleColor) {
+        this.vehicleColor = vehicleColor;
     }
 }

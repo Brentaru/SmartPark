@@ -39,6 +39,11 @@ public class ParkingRecordService {
         return parkingRecordRepository.findByVehicleVehicleID(vehicleID);
     }
     
+    // Get by User (through Vehicle)
+    public List<ParkingRecord> getParkingRecordsByUser(String userID) {
+        return parkingRecordRepository.findByVehicleUserUserID(userID);
+    }
+    
     // Get by Slot
     public List<ParkingRecord> getParkingRecordsBySlot(Integer slotID) {
         return parkingRecordRepository.findByParkingSlotSlotID(slotID);

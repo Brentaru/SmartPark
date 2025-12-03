@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatsCard from '../../components/dashboard/StatsCard';
 import ActivityTable from '../../components/dashboard/ActivityTable';
-import ReservationPanel from '../../components/dashboard/ReservationPanel';
 import ParkingMap from '../../components/dashboard/ParkingMap';
+import { parkingSlotAPI, parkingRecordAPI } from '../../api/api';
 import { mockDashboardData } from '../../data/mockData';
 import '../../styles/dashboard/StudentDashboard.css';
 
@@ -17,14 +17,6 @@ const StudentDashboard = ({ currentUser }) => {
         <rect x="5" y="11" width="14" height="10" rx="2"/>
         <circle cx="12" cy="16" r="2"/>
         <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-      </svg>
-    ),
-    reservation: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
     ),
     location: (
@@ -42,41 +34,105 @@ const StudentDashboard = ({ currentUser }) => {
     ),
   };
 
-  // State management for dashboard data - using centralized mock data
-  const [currentReservation, setCurrentReservation] = React.useState(mockDashboardData.currentReservation);
-  const [selectedParkingArea, setSelectedParkingArea] = React.useState(mockDashboardData.parkingAreas[0]);
-  const [notifications, setNotifications] = React.useState(mockDashboardData.notifications);
+  // State management for dashboard data
+  const [selectedParkingArea, setSelectedParkingArea] = useState(mockDashboardData.parkingAreas[0]);
+  const [notifications, setNotifications] = useState(mockDashboardData.notifications);
+  const [parkingSlots, setParkingSlots] = useState([]);
+  const [parkingActivity, setParkingActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const parkingAreas = mockDashboardData.parkingAreas;
 
-  // Dashboard data from centralized mock data
-  const dashboardData = {
-    stats: {
-      activeSlot: currentReservation ? currentReservation.slot : 'None',
-      reservation: currentReservation ? `Slot #${currentReservation.slot}` : 'No reservation',
-      parkingArea: selectedParkingArea,
-      totalVisits: mockDashboardData.stats.totalVisits
-    },
-    recentActivity: mockDashboardData.recentActivity,
-    parkingSlots: mockDashboardData.parkingSlots
-  };
+  // Load parking slots and activity on mount
+  useEffect(() => {
+    loadParkingSlots();
+    loadParkingActivity();
+  }, [currentUser.id]);
 
-  // Handler functions
-  const handleReserve = () => {
-    console.log('Navigate to reservation page');
-    // In real app: navigate('/reserve');
-    alert('Redirecting to reservation page... (Feature coming soon)');
-  };
-
-  const handleCancelReservation = () => {
-    if (window.confirm('Are you sure you want to cancel your reservation?')) {
-      setCurrentReservation(null);
-      console.log('Reservation cancelled');
-      // In real app: call API to cancel reservation
-      alert('Reservation cancelled successfully!');
+  const loadParkingSlots = async () => {
+    try {
+      setLoading(true);
+      const result = await parkingSlotAPI.getAllSlots();
+      
+      if (result.success && result.data && result.data.length > 0) {
+        // Transform backend data to match frontend format
+        const transformedSlots = result.data.map(slot => ({
+          id: slot.slotID,  // Numeric ID from backend
+          location: slot.location,
+          status: slot.status === 'Available' ? 'free' : 
+                  slot.status === 'Reserved' ? 'reserved' : 'occupied',
+          type: slot.slotType,
+          reservedBy: slot.reservedBy,
+          reservedFor: slot.reservedFor
+        }));
+        setParkingSlots(transformedSlots);
+      } else {
+        console.warn('No parking slots found in database.');
+        setParkingSlots([]);
+      }
+    } catch (error) {
+      console.error('Error loading parking slots:', error);
+      setParkingSlots([]);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const loadParkingActivity = async () => {
+    try {
+      // Load parking records for this specific user
+      const recordsResult = await parkingRecordAPI.getRecordsByUser(currentUser.id);
+      console.log('📊 Student parking records:', recordsResult);
+      
+      if (recordsResult.success && recordsResult.data) {
+        // Transform records to match ActivityTable format
+        const transformedActivity = recordsResult.data.map(record => {
+          const entryTime = new Date(record.entryTime);
+          const exitTime = record.exitTime ? new Date(record.exitTime) : null;
+          
+          // Determine status
+          let status = 'ACTIVE';
+          if (exitTime) {
+            status = 'COMPLETED';
+          } else if (entryTime < new Date(Date.now() - 24 * 60 * 60 * 1000)) {
+            status = 'EXPIRED';
+          }
+          
+          return {
+            date: entryTime.toISOString().split('T')[0],
+            timeIn: entryTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            slot: record.parkingSlot?.location || 'N/A',
+            status: status
+          };
+        })
+        .filter(activity => activity.status !== 'EXPIRED') // Filter out expired records
+        .sort((a, b) => new Date(b.date + ' ' + b.timeIn) - new Date(a.date + ' ' + a.timeIn))
+        .slice(0, 10); // Latest 10 records
+        
+        console.log('✅ Student transformed activity:', transformedActivity);
+        setParkingActivity(transformedActivity);
+      } else {
+        console.warn('⚠️ No parking records found for this student');
+        setParkingActivity([]);
+      }
+    } catch (error) {
+      console.error('Error loading parking activity:', error);
+      setParkingActivity([]);
+    }
+  };
+
+  // Dashboard data structure
+  const dashboardData = {
+    stats: {
+      activeSlot: 'None',
+      parkingArea: selectedParkingArea,
+      totalVisits: parkingActivity.length // Use actual parking record count
+    },
+    recentActivity: parkingActivity,  // Use real parking activity data
+    parkingSlots: parkingSlots  // Use only backend data
+  };
+
+  // Handler functions
   const handleDismissNotification = (notificationId) => {
     setNotifications(notifications.filter(n => n.id !== notificationId));
   };
@@ -102,12 +158,6 @@ const StudentDashboard = ({ currentUser }) => {
             label="Active Slot"
             value={dashboardData.stats.activeSlot || 'None'}
             status={dashboardData.stats.activeSlot ? 'active' : 'neutral'}
-          />
-          <StatsCard
-            icon={icons.reservation}
-            label="Reservation"
-            value={dashboardData.stats.reservation || 'No reservation'}
-            status="reserved"
           />
           <div className="stats-card stats-location">
             <div className="stats-icon">
@@ -137,21 +187,9 @@ const StudentDashboard = ({ currentUser }) => {
         </div>
       </section>
 
-      {/* Two Column Layout */}
-      <div className="dashboard-columns">
-        {/* Left Column */}
-        <div className="left-column">
-          <ActivityTable activities={dashboardData.recentActivity} />
-        </div>
-
-        {/* Right Column */}
-        <div className="right-column">
-          <ReservationPanel 
-            currentReservation={currentReservation}
-            onReserve={handleReserve}
-            onCancel={handleCancelReservation}
-          />
-        </div>
+      {/* Activity Table */}
+      <div className="dashboard-section">
+        <ActivityTable activities={dashboardData.recentActivity} />
       </div>
       
       {/* Full Width Parking Map */}

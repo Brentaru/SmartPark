@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `smartparkdb` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
-USE `smartparkdb`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
 -- Host: localhost    Database: smartparkdb
@@ -39,7 +37,7 @@ CREATE TABLE `parking_record` (
   CONSTRAINT `FK60xcy6h173cp0umgys0nw8m4t` FOREIGN KEY (`guardid`) REFERENCES `guard` (`guardid`),
   CONSTRAINT `FKhvbx71jmv5u3921vmtqt4f669` FOREIGN KEY (`slotid`) REFERENCES `parking_slot` (`slotid`),
   CONSTRAINT `FKm36i8h9yrlkmitx6ipe6a0jho` FOREIGN KEY (`vehicleid`) REFERENCES `vehicle` (`vehicleid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,6 +46,7 @@ CREATE TABLE `parking_record` (
 
 LOCK TABLES `parking_record` WRITE;
 /*!40000 ALTER TABLE `parking_record` DISABLE KEYS */;
+INSERT INTO `parking_record` VALUES (1,'2025-12-03 06:47:00.000000',NULL,8,NULL,1,1),(2,'2025-12-03 06:52:00.000000',NULL,8,NULL,1,2),(3,'2025-12-03 07:02:00.000000',NULL,8,NULL,10,3),(4,'2025-12-03 07:18:00.000000',NULL,8,NULL,13,4),(5,'2025-12-03 07:19:00.000000',NULL,8,NULL,14,5),(6,'2025-12-02 09:13:00.000000',NULL,8,NULL,2,7),(7,'2025-12-02 09:33:00.000000',NULL,8,NULL,4,8),(8,'2025-12-02 09:46:00.000000',NULL,8,NULL,2,10);
 /*!40000 ALTER TABLE `parking_record` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -60,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-14 11:46:23
+-- Dump completed on 2025-12-04  2:02:50

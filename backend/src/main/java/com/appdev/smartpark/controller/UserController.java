@@ -36,6 +36,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of("message", "Email already exists"));
             }
+            // Set userID to be the same as studentId (the actual ID like 99-9999-999)
+            user.setUserID(user.getStudentId());
             User savedUser = userService.registerUser(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
@@ -72,7 +74,7 @@ public class UserController {
     
     // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
+    public ResponseEntity<?> getUserById(@PathVariable String id) {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
@@ -82,9 +84,33 @@ public class UserController {
         }
     }
     
+    // Get user by student ID
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<?> getUserByStudentId(@PathVariable String studentId) {
+        Optional<User> user = userService.getUserByStudentId(studentId);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found with student ID: " + studentId));
+        }
+    }
+    
+    // Get user by plate number
+    @GetMapping("/plate/{plateNumber}")
+    public ResponseEntity<?> getUserByPlateNumber(@PathVariable String plateNumber) {
+        Optional<User> user = userService.getUserByPlateNumber(plateNumber);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "User not found with plate number: " + plateNumber));
+        }
+    }
+    
     // Update user
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User userDetails) {
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody User userDetails) {
         try {
             User updatedUser = userService.updateUser(id, userDetails);
             return ResponseEntity.ok(updatedUser);
@@ -96,7 +122,7 @@ public class UserController {
     
     // Delete user
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+    public ResponseEntity<?> deleteUser(@PathVariable String id) {
         try {
             userService.deleteUser(id);
             return ResponseEntity.ok(Map.of("message", "User deleted successfully"));

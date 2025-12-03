@@ -10,6 +10,7 @@ import ParkingHistory from './pages/ParkingHistory';
 import MyParkingSlots from './pages/MyParkingSlots';
 import MyProfile from './pages/MyProfile';
 import ProfileSettings from './pages/ProfileSettings';
+import VehicleRegistration from './pages/VehicleRegistration';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -66,6 +67,16 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Vehicle Registration (protected) */}
+        <Route
+          path="/vehicle-registration"
+          element={
+            <ProtectedRoute>
+              <VehicleRegistration />
             </ProtectedRoute>
           }
         />

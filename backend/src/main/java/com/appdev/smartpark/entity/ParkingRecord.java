@@ -2,6 +2,9 @@ package com.appdev.smartpark.entity;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,22 +18,31 @@ import jakarta.persistence.Table;
 public class ParkingRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "recordid")
     private Integer recordID;
     
     @ManyToOne
-    @JoinColumn(name = "vehicleID")
+    @JoinColumn(name = "vehicleid")
+    @JsonIgnoreProperties({"parkingRecords", "user"})
     private Vehicle vehicle;
     
     @ManyToOne
-    @JoinColumn(name = "slotID")
+    @JoinColumn(name = "slotid")
+    @JsonIgnoreProperties({"parkingRecords", "parkingArea"})
     private ParkingSlot parkingSlot;
     
     @ManyToOne
-    @JoinColumn(name = "guardID")
+    @JoinColumn(name = "guardid")
+    @JsonIgnoreProperties({"parkingRecords"})
     private Guard guard;
     
+    @Column(name = "entry_time")
     private LocalDateTime entryTime;
+    
+    @Column(name = "exit_time")
     private LocalDateTime exitTime;
+    
+    @Column(name = "verified_by")
     private Integer verifiedBy;
 
     // Constructors

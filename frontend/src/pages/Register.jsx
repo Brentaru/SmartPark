@@ -9,14 +9,38 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
   const { register } = useAuth();
   const [registerError, setRegisterError] = useState('');
 
+  // Detect role based on ID format
+  const detectRoleFromId = (studentId) => {
+    const studentFormat = /^\d{2}-\d{4}-\d{3}$/;  // xx-xxxx-xxx
+    const staffFormat = /^\d{2}-\d{4}-\d{4}$/;    // xx-xxxx-xxxx
+    const guardFormat = /^\d{2}-\d{3}-\d{3}$/;    // xx-xxx-xxx
+    
+    if (studentFormat.test(studentId)) return 'student';
+    if (staffFormat.test(studentId)) return 'staff';
+    if (guardFormat.test(studentId)) return 'guard';
+    return 'student'; // default
+  };
+
   // Validation function
   const validate = (values) => {
     const errors = {};
 
     if (!values.studentId) {
-      errors.studentId = 'Student/Faculty ID is required';
-    } else if (!/^\d{2}-\d{4}-\d{3}$/.test(values.studentId)) {
-      errors.studentId = 'ID must be in format: 12-3456-678';
+      errors.studentId = 'ID is required';
+    } else {
+      // Accept three different ID formats:
+      // Student: xx-xxxx-xxx (e.g., 20-2024-123)
+      // Staff: xx-xxxx-xxxx (e.g., 20-2024-1234)
+      // Guard: xx-xxx-xxx (e.g., 20-123-456)
+      const studentFormat = /^\d{2}-\d{4}-\d{3}$/;
+      const staffFormat = /^\d{2}-\d{4}-\d{4}$/;
+      const guardFormat = /^\d{2}-\d{3}-\d{3}$/;
+      
+      if (!studentFormat.test(values.studentId) && 
+          !staffFormat.test(values.studentId) && 
+          !guardFormat.test(values.studentId)) {
+        errors.studentId = 'Invalid ID format. Student: xx-xxxx-xxx, Staff: xx-xxxx-xxxx, Guard: xx-xxx-xxx';
+      }
     }
 
     if (!values.firstName) {
@@ -87,6 +111,9 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
     setRegisterError('');
     
     try {
+      // Auto-detect role based on ID format
+      const detectedRole = detectRoleFromId(formValues.studentId);
+      
       const result = await register({
         studentId: formValues.studentId,
         firstName: formValues.firstName,
@@ -94,14 +121,14 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
         email: formValues.email,
         contactNumber: formValues.contactNumber,
         password: formValues.password,
-        role: 'student', // Set role to student by default
+        role: detectedRole, // Auto-assign role based on ID format
       });
       
       if (result.success) {
-        // Show success message
-        alert(`Welcome to SmartPark, ${result.user.firstName}! Your account has been created.`);
-        // Navigate to dashboard
-        onNavigateToDashboard();
+        // Show success message with role
+        alert(`Welcome to SmartPark, ${result.user.firstName}! You are registered as ${detectedRole}. Please register your vehicle to continue.`);
+        // Redirect to vehicle registration (new users don't have vehicle registered)
+        window.location.href = '/vehicle-registration';
       } else {
         setRegisterError(result.error);
       }
@@ -200,15 +227,15 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
 
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
-                {/* Student ID Field */}
+                {/* ID Field - supports Student/Staff/Guard formats */}
                 <InputField
-                  label="Student/Faculty ID"
+                  label="ID Number"
                   type="text"
                   name="studentId"
                   value={values.studentId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="21-1234-567"
+                  placeholder="Student: 20-2024-123 | Staff: 20-2024-1234 | Guard: 20-123-456"
                   error={touched.studentId && errors.studentId}
                   required
                   icon={

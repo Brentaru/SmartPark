@@ -72,7 +72,7 @@ public class VehicleController {
     
     // Get vehicles by user
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Vehicle>> getVehiclesByUser(@PathVariable Integer userId) {
+    public ResponseEntity<List<Vehicle>> getVehiclesByUser(@PathVariable String userId) {
         return ResponseEntity.ok(vehicleService.getVehiclesByUser(userId));
     }
     

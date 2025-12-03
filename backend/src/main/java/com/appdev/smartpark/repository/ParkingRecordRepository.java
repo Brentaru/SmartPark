@@ -10,6 +10,7 @@ import com.appdev.smartpark.entity.ParkingRecord;
 @Repository
 public interface ParkingRecordRepository extends JpaRepository<ParkingRecord, Integer> {
     List<ParkingRecord> findByVehicleVehicleID(Integer vehicleID);
+    List<ParkingRecord> findByVehicleUserUserID(String userID); // Changed to String
     List<ParkingRecord> findByParkingSlotSlotID(Integer slotID);
     List<ParkingRecord> findByExitTimeIsNull();
 }
