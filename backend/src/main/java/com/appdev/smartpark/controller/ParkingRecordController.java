@@ -33,9 +33,18 @@ public class ParkingRecordController {
     @PostMapping
     public ResponseEntity<?> createParkingRecord(@RequestBody ParkingRecord parkingRecord) {
         try {
+            System.out.println("🚗 Received parking record request:");
+            System.out.println("   Vehicle ID: " + (parkingRecord.getVehicle() != null ? parkingRecord.getVehicle().getVehicleID() : "null"));
+            System.out.println("   Slot ID: " + (parkingRecord.getParkingSlot() != null ? parkingRecord.getParkingSlot().getSlotID() : "null"));
+            System.out.println("   Entry Time: " + parkingRecord.getEntryTime());
+            System.out.println("   Exit Time: " + parkingRecord.getExitTime());
+            
             ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord);
+            System.out.println("✅ Parking record created successfully with ID: " + savedRecord.getRecordID());
             return ResponseEntity.status(HttpStatus.CREATED).body(savedRecord);
         } catch (Exception e) {
+            System.err.println("❌ Error creating parking record: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error creating parking record: " + e.getMessage()));
         }

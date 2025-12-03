@@ -201,8 +201,15 @@ export const AuthProvider = ({ children }) => {
       vehicleType: updatedUserData.vehicleType,
       vehicleColor: updatedUserData.vehicleColor
     };
+    
+    // Update both state and localStorage
     setCurrentUser(formattedUser);
     localStorage.setItem('currentUser', JSON.stringify(formattedUser));
+    
+    // Log for debugging
+    console.log('✅ User context updated:', formattedUser);
+    
+    return formattedUser;
   };
 
   const value = {

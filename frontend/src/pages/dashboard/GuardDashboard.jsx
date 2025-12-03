@@ -184,9 +184,7 @@ const GuardDashboard = () => {
         entryTime: localDateTimeString,
         exitTime: null,
         vehicle: { vehicleID: vehicleResult.data.vehicleID },
-        parkingSlot: { slotID: selectedSlot.id },
-        guard: null,
-        verifiedBy: currentUser.id
+        parkingSlot: { slotID: selectedSlot.id }
       };
 
       console.log('📝 Creating parking record:', recordData);

@@ -13,6 +13,26 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const [user, setUser] = React.useState(currentUser);
+
+  // Refresh user data when component mounts or location changes
+  React.useEffect(() => {
+    const refreshUser = () => {
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+        } catch (err) {
+          console.error('Error parsing stored user:', err);
+        }
+      } else if (currentUser) {
+        setUser(currentUser);
+      }
+    };
+    
+    refreshUser();
+  }, [location, currentUser]);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -25,23 +45,29 @@ const Dashboard = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  if (!currentUser) {
-    return <div>Loading...</div>;
+  if (!user) {
+    return (
+      <div className="dashboard-page">
+        <div className="loading-container">
+          <div>Loading your dashboard...</div>
+        </div>
+      </div>
+    );
   }
 
   // Debug: Log current user to see structure
-  console.log('Current User in Dashboard:', currentUser);
-  console.log('User Role:', currentUser?.role);
+  console.log('Current User in Dashboard:', user);
+  console.log('User Role:', user?.role);
 
   // Extract user's display name
-  const displayName = currentUser.firstName || 
-                     (currentUser.name && currentUser.name.split(' ')[0]) || 
+  const displayName = user.firstName || 
+                     (user.name && user.name.split(' ')[0]) || 
                      'User';
 
   // Determine which dashboard to show based on role
-  const isStaff = currentUser.role === 'staff';
-  const isGuard = currentUser.role === 'guard';
-  const isStudent = currentUser.role === 'student';
+  const isStaff = user.role === 'staff';
+  const isGuard = user.role === 'guard';
+  const isStudent = user.role === 'student';
 
   // Determine page title based on route
   const getPageTitle = () => {
@@ -60,7 +86,7 @@ const Dashboard = () => {
         <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
           <div className="dashboard-container">
             <Routes>
-              {/* Dashboard Home */}
+              {/* Dashboard Home - default route */}
               <Route path="/" element={
                 <>
                   <section className="welcome-section">
@@ -73,9 +99,52 @@ const Dashboard = () => {
                       {isStudent && "Here's your parking overview for today"}
                     </p>
                   </section>
-                  {isStaff && <StaffDashboard currentUser={currentUser} />}
-                  {isGuard && <GuardDashboard currentUser={currentUser} />}
-                  {isStudent && <StudentDashboard currentUser={currentUser} />}
+                  {isStaff && <StaffDashboard currentUser={user} />}
+                  {isGuard && <GuardDashboard currentUser={user} />}
+                  {isStudent && <StudentDashboard currentUser={user} />}
+                </>
+              } />
+              
+              {/* Specific role-based routes */}
+              <Route path="/student" element={
+                <>
+                  <section className="welcome-section">
+                    <h1 className="welcome-title">
+                      Welcome, {displayName}!
+                    </h1>
+                    <p className="welcome-sub">
+                      Here's your parking overview for today
+                    </p>
+                  </section>
+                  <StudentDashboard currentUser={user} />
+                </>
+              } />
+              
+              <Route path="/staff" element={
+                <>
+                  <section className="welcome-section">
+                    <h1 className="welcome-title">
+                      Welcome, {displayName}!
+                    </h1>
+                    <p className="welcome-sub">
+                      Manage parking reservations and view available slots
+                    </p>
+                  </section>
+                  <StaffDashboard currentUser={user} />
+                </>
+              } />
+              
+              <Route path="/guard" element={
+                <>
+                  <section className="welcome-section">
+                    <h1 className="welcome-title">
+                      Welcome, {displayName}!
+                    </h1>
+                    <p className="welcome-sub">
+                      Monitor parking slots and manage reservations
+                    </p>
+                  </section>
+                  <GuardDashboard currentUser={user} />
                 </>
               } />
             </Routes>
