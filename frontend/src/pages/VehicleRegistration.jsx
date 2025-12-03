@@ -89,18 +89,24 @@ const VehicleRegistration = () => {
       }
       
       // Step 3: Update user in context
-      updateUser(userResult.data);
+      const updatedUser = updateUser(userResult.data);
+      console.log('📝 User context updated with vehicle info:', updatedUser);
       
       // Step 4: Navigate to appropriate dashboard based on role
       console.log('✅ Vehicle registration complete! Navigating to dashboard...');
+      console.log('🎯 User role for navigation:', currentUser.role);
+      
+      // Small delay to ensure context state is fully updated before navigation
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       if (currentUser.role === 'student') {
-        navigate('/dashboard/student');
+        navigate('/dashboard/student', { replace: true, state: { refresh: true } });
       } else if (currentUser.role === 'staff') {
-        navigate('/dashboard/staff');
+        navigate('/dashboard/staff', { replace: true, state: { refresh: true } });
       } else if (currentUser.role === 'guard') {
-        navigate('/dashboard/guard');
+        navigate('/dashboard/guard', { replace: true, state: { refresh: true } });
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard', { replace: true, state: { refresh: true } });
       }
     } catch (err) {
       console.error('❌ Error registering vehicle:', err);
