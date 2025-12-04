@@ -92,9 +92,22 @@ public class UserService {
     // Login
     public Optional<User> login(String email, String password) {
         Optional<User> user = userRepository.findByEmail(email);
-        // Use BCrypt to compare password with hashed password
-        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            return user;
+        if (user.isPresent()) {
+            String storedPassword = user.get().getPassword();
+            // Check if password is BCrypt hashed (starts with $2a$ or $2b$)
+            boolean isHashed = storedPassword != null && (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$"));
+            
+            if (isHashed) {
+                // Use BCrypt to compare hashed password
+                if (passwordEncoder.matches(password, storedPassword)) {
+                    return user;
+                }
+            } else {
+                // Plain-text comparison for legacy accounts
+                if (storedPassword != null && storedPassword.equals(password)) {
+                    return user;
+                }
+            }
         }
         return Optional.empty();
     }
@@ -102,9 +115,22 @@ public class UserService {
     // Login by Student ID (now using userID)
     public Optional<User> loginByStudentId(String studentId, String password) {
         Optional<User> user = userRepository.findById(studentId);
-        // Use BCrypt to compare password with hashed password
-        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
-            return user;
+        if (user.isPresent()) {
+            String storedPassword = user.get().getPassword();
+            // Check if password is BCrypt hashed (starts with $2a$ or $2b$)
+            boolean isHashed = storedPassword != null && (storedPassword.startsWith("$2a$") || storedPassword.startsWith("$2b$"));
+            
+            if (isHashed) {
+                // Use BCrypt to compare hashed password
+                if (passwordEncoder.matches(password, storedPassword)) {
+                    return user;
+                }
+            } else {
+                // Plain-text comparison for legacy accounts
+                if (storedPassword != null && storedPassword.equals(password)) {
+                    return user;
+                }
+            }
         }
         return Optional.empty();
     }
