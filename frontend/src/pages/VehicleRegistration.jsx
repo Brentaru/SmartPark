@@ -73,9 +73,7 @@ const VehicleRegistration = () => {
         plateNumber: formData.plateNumber.toUpperCase().trim(),
         type: formData.vehicleType,
         color: formData.vehicleColor.trim(),
-        user: {
-          userID: currentUser.id
-        }
+        userID: currentUser.id  // Fixed: Use userID directly, not nested user object
       };
 
       console.log('📝 Step 2: Creating vehicle entry:', vehicleData);
