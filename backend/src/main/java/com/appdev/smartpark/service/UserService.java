@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.appdev.smartpark.entity.User;
@@ -15,8 +16,16 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
     
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    
     // Create
     public User registerUser(User user) {
+        // Hash the password before saving
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            String hashedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(hashedPassword);
+        }
         return userRepository.save(user);
     }
     
@@ -53,7 +62,9 @@ public class UserService {
         if (userDetails.getPassword() != null && 
             !userDetails.getPassword().isEmpty() && 
             !userDetails.getPassword().equals("UNCHANGED")) {
-            user.setPassword(userDetails.getPassword());
+            // Hash the new password before saving
+            String hashedPassword = passwordEncoder.encode(userDetails.getPassword());
+            user.setPassword(hashedPassword);
         }
         
         user.setRole(userDetails.getRole());
@@ -81,7 +92,8 @@ public class UserService {
     // Login
     public Optional<User> login(String email, String password) {
         Optional<User> user = userRepository.findByEmail(email);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
+        // Use BCrypt to compare password with hashed password
+        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
             return user;
         }
         return Optional.empty();
@@ -90,7 +102,8 @@ public class UserService {
     // Login by Student ID (now using userID)
     public Optional<User> loginByStudentId(String studentId, String password) {
         Optional<User> user = userRepository.findById(studentId);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
+        // Use BCrypt to compare password with hashed password
+        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
             return user;
         }
         return Optional.empty();

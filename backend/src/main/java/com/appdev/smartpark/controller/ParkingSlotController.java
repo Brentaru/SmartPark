@@ -3,6 +3,7 @@ package com.appdev.smartpark.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appdev.smartpark.dto.DTOMapper;
+import com.appdev.smartpark.dto.ParkingSlotDTO;
+import com.appdev.smartpark.dto.ParkingSlotRequestDTO;
+import com.appdev.smartpark.entity.ParkingArea;
 import com.appdev.smartpark.entity.ParkingSlot;
+import com.appdev.smartpark.service.ParkingAreaService;
 import com.appdev.smartpark.service.ParkingSlotService;
 
 @RestController
@@ -29,12 +35,27 @@ public class ParkingSlotController {
     @Autowired
     private ParkingSlotService parkingSlotService;
     
+    @Autowired
+    private ParkingAreaService parkingAreaService;
+    
+    @Autowired
+    private DTOMapper dtoMapper;
+    
     // Create parking slot
     @PostMapping
-    public ResponseEntity<?> createParkingSlot(@RequestBody ParkingSlot parkingSlot) {
+    public ResponseEntity<?> createParkingSlot(@RequestBody ParkingSlotRequestDTO requestDTO) {
         try {
+            ParkingArea area = null;
+            if (requestDTO.getAreaID() != null) {
+                Optional<ParkingArea> areaOpt = parkingAreaService.getParkingAreaById(requestDTO.getAreaID());
+                if (areaOpt.isPresent()) {
+                    area = areaOpt.get();
+                }
+            }
+            ParkingSlot parkingSlot = dtoMapper.toParkingSlotEntity(requestDTO, area);
             ParkingSlot savedSlot = parkingSlotService.createParkingSlot(parkingSlot);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedSlot);
+            ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(savedSlot);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error creating parking slot: " + e.getMessage()));
@@ -43,8 +64,12 @@ public class ParkingSlotController {
     
     // Get all parking slots
     @GetMapping
-    public ResponseEntity<List<ParkingSlot>> getAllParkingSlots() {
-        return ResponseEntity.ok(parkingSlotService.getAllParkingSlots());
+    public ResponseEntity<List<ParkingSlotDTO>> getAllParkingSlots() {
+        List<ParkingSlot> slots = parkingSlotService.getAllParkingSlots();
+        List<ParkingSlotDTO> slotDTOs = slots.stream()
+                .map(dtoMapper::toParkingSlotDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(slotDTOs);
     }
     
     // Get parking slot by ID
@@ -52,7 +77,8 @@ public class ParkingSlotController {
     public ResponseEntity<?> getParkingSlotById(@PathVariable Integer id) {
         Optional<ParkingSlot> slot = parkingSlotService.getParkingSlotById(id);
         if (slot.isPresent()) {
-            return ResponseEntity.ok(slot.get());
+            ParkingSlotDTO slotDTO = dtoMapper.toParkingSlotDTO(slot.get());
+            return ResponseEntity.ok(slotDTO);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "Parking slot not found"));
@@ -61,28 +87,49 @@ public class ParkingSlotController {
     
     // Get slots by status
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<ParkingSlot>> getSlotsByStatus(@PathVariable String status) {
-        return ResponseEntity.ok(parkingSlotService.getParkingSlotsByStatus(status));
+    public ResponseEntity<List<ParkingSlotDTO>> getSlotsByStatus(@PathVariable String status) {
+        List<ParkingSlot> slots = parkingSlotService.getParkingSlotsByStatus(status);
+        List<ParkingSlotDTO> slotDTOs = slots.stream()
+                .map(dtoMapper::toParkingSlotDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(slotDTOs);
     }
     
     // Get available slots
     @GetMapping("/available")
-    public ResponseEntity<List<ParkingSlot>> getAvailableSlots() {
-        return ResponseEntity.ok(parkingSlotService.getAvailableSlots());
+    public ResponseEntity<List<ParkingSlotDTO>> getAvailableSlots() {
+        List<ParkingSlot> slots = parkingSlotService.getAvailableSlots();
+        List<ParkingSlotDTO> slotDTOs = slots.stream()
+                .map(dtoMapper::toParkingSlotDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(slotDTOs);
     }
     
     // Get slots by area
     @GetMapping("/area/{areaId}")
-    public ResponseEntity<List<ParkingSlot>> getSlotsByArea(@PathVariable Integer areaId) {
-        return ResponseEntity.ok(parkingSlotService.getParkingSlotsByArea(areaId));
+    public ResponseEntity<List<ParkingSlotDTO>> getSlotsByArea(@PathVariable Integer areaId) {
+        List<ParkingSlot> slots = parkingSlotService.getParkingSlotsByArea(areaId);
+        List<ParkingSlotDTO> slotDTOs = slots.stream()
+                .map(dtoMapper::toParkingSlotDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(slotDTOs);
     }
     
     // Update parking slot
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateParkingSlot(@PathVariable Integer id, @RequestBody ParkingSlot slotDetails) {
+    public ResponseEntity<?> updateParkingSlot(@PathVariable Integer id, @RequestBody ParkingSlotRequestDTO requestDTO) {
         try {
+            ParkingArea area = null;
+            if (requestDTO.getAreaID() != null) {
+                Optional<ParkingArea> areaOpt = parkingAreaService.getParkingAreaById(requestDTO.getAreaID());
+                if (areaOpt.isPresent()) {
+                    area = areaOpt.get();
+                }
+            }
+            ParkingSlot slotDetails = dtoMapper.toParkingSlotEntity(requestDTO, area);
             ParkingSlot updatedSlot = parkingSlotService.updateParkingSlot(id, slotDetails);
-            return ResponseEntity.ok(updatedSlot);
+            ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(updatedSlot);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
@@ -95,7 +142,8 @@ public class ParkingSlotController {
         try {
             String status = body.get("status");
             ParkingSlot updatedSlot = parkingSlotService.updateSlotStatus(id, status);
-            return ResponseEntity.ok(updatedSlot);
+            ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(updatedSlot);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
@@ -122,7 +170,8 @@ public class ParkingSlotController {
             String reservedFor = String.valueOf(reservationData.get("reservedFor"));
             
             ParkingSlot reservedSlot = parkingSlotService.reserveSlot(id, userId, reservedFor);
-            return ResponseEntity.ok(reservedSlot);
+            ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(reservedSlot);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", e.getMessage()));
@@ -134,7 +183,8 @@ public class ParkingSlotController {
     public ResponseEntity<?> cancelReservation(@PathVariable Integer id) {
         try {
             ParkingSlot slot = parkingSlotService.cancelReservation(id);
-            return ResponseEntity.ok(slot);
+            ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(slot);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
@@ -143,8 +193,12 @@ public class ParkingSlotController {
     
     // Get reserved slots
     @GetMapping("/reserved")
-    public ResponseEntity<List<ParkingSlot>> getReservedSlots() {
-        return ResponseEntity.ok(parkingSlotService.getReservedSlots());
+    public ResponseEntity<List<ParkingSlotDTO>> getReservedSlots() {
+        List<ParkingSlot> slots = parkingSlotService.getReservedSlots();
+        List<ParkingSlotDTO> slotDTOs = slots.stream()
+                .map(dtoMapper::toParkingSlotDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(slotDTOs);
     }
     
     // Get slots reserved by a specific user

@@ -3,6 +3,7 @@ package com.appdev.smartpark.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appdev.smartpark.dto.DTOMapper;
+import com.appdev.smartpark.dto.ParkingRecordDTO;
+import com.appdev.smartpark.dto.ParkingRecordRequestDTO;
+import com.appdev.smartpark.entity.Guard;
 import com.appdev.smartpark.entity.ParkingRecord;
+import com.appdev.smartpark.entity.ParkingSlot;
+import com.appdev.smartpark.entity.Vehicle;
+import com.appdev.smartpark.service.GuardService;
 import com.appdev.smartpark.service.ParkingRecordService;
+import com.appdev.smartpark.service.ParkingSlotService;
+import com.appdev.smartpark.service.VehicleService;
 
 @RestController
 @RequestMapping("/api/parking-records")
@@ -29,19 +39,57 @@ public class ParkingRecordController {
     @Autowired
     private ParkingRecordService parkingRecordService;
     
+    @Autowired
+    private VehicleService vehicleService;
+    
+    @Autowired
+    private ParkingSlotService parkingSlotService;
+    
+    @Autowired
+    private GuardService guardService;
+    
+    @Autowired
+    private DTOMapper dtoMapper;
+    
     // Create parking record
     @PostMapping
-    public ResponseEntity<?> createParkingRecord(@RequestBody ParkingRecord parkingRecord) {
+    public ResponseEntity<?> createParkingRecord(@RequestBody ParkingRecordRequestDTO requestDTO) {
         try {
             System.out.println("🚗 Received parking record request:");
-            System.out.println("   Vehicle ID: " + (parkingRecord.getVehicle() != null ? parkingRecord.getVehicle().getVehicleID() : "null"));
-            System.out.println("   Slot ID: " + (parkingRecord.getParkingSlot() != null ? parkingRecord.getParkingSlot().getSlotID() : "null"));
-            System.out.println("   Entry Time: " + parkingRecord.getEntryTime());
-            System.out.println("   Exit Time: " + parkingRecord.getExitTime());
+            System.out.println("   Vehicle ID: " + requestDTO.getVehicleID());
+            System.out.println("   Slot ID: " + requestDTO.getSlotID());
+            System.out.println("   Entry Time: " + requestDTO.getEntryTime());
+            System.out.println("   Exit Time: " + requestDTO.getExitTime());
             
+            Vehicle vehicle = null;
+            if (requestDTO.getVehicleID() != null) {
+                Optional<Vehicle> vehicleOpt = vehicleService.getVehicleById(requestDTO.getVehicleID());
+                if (vehicleOpt.isPresent()) {
+                    vehicle = vehicleOpt.get();
+                }
+            }
+            
+            ParkingSlot slot = null;
+            if (requestDTO.getSlotID() != null) {
+                Optional<ParkingSlot> slotOpt = parkingSlotService.getParkingSlotById(requestDTO.getSlotID());
+                if (slotOpt.isPresent()) {
+                    slot = slotOpt.get();
+                }
+            }
+            
+            Guard guard = null;
+            if (requestDTO.getGuardID() != null) {
+                Optional<Guard> guardOpt = guardService.getGuardById(requestDTO.getGuardID());
+                if (guardOpt.isPresent()) {
+                    guard = guardOpt.get();
+                }
+            }
+            
+            ParkingRecord parkingRecord = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, guard);
             ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord);
+            ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(savedRecord);
             System.out.println("✅ Parking record created successfully with ID: " + savedRecord.getRecordID());
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedRecord);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
         } catch (Exception e) {
             System.err.println("❌ Error creating parking record: " + e.getMessage());
             e.printStackTrace();
@@ -52,8 +100,12 @@ public class ParkingRecordController {
     
     // Get all parking records
     @GetMapping
-    public ResponseEntity<List<ParkingRecord>> getAllParkingRecords() {
-        return ResponseEntity.ok(parkingRecordService.getAllParkingRecords());
+    public ResponseEntity<List<ParkingRecordDTO>> getAllParkingRecords() {
+        List<ParkingRecord> records = parkingRecordService.getAllParkingRecords();
+        List<ParkingRecordDTO> recordDTOs = records.stream()
+                .map(dtoMapper::toParkingRecordDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(recordDTOs);
     }
     
     // Get parking record by ID
@@ -61,7 +113,8 @@ public class ParkingRecordController {
     public ResponseEntity<?> getParkingRecordById(@PathVariable Integer id) {
         Optional<ParkingRecord> record = parkingRecordService.getParkingRecordById(id);
         if (record.isPresent()) {
-            return ResponseEntity.ok(record.get());
+            ParkingRecordDTO recordDTO = dtoMapper.toParkingRecordDTO(record.get());
+            return ResponseEntity.ok(recordDTO);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "Parking record not found"));
@@ -70,34 +123,76 @@ public class ParkingRecordController {
     
     // Get records by user
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ParkingRecord>> getRecordsByUser(@PathVariable String userId) {
-        return ResponseEntity.ok(parkingRecordService.getParkingRecordsByUser(userId));
+    public ResponseEntity<List<ParkingRecordDTO>> getRecordsByUser(@PathVariable String userId) {
+        List<ParkingRecord> records = parkingRecordService.getParkingRecordsByUser(userId);
+        List<ParkingRecordDTO> recordDTOs = records.stream()
+                .map(dtoMapper::toParkingRecordDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(recordDTOs);
     }
     
     // Get records by vehicle
     @GetMapping("/vehicle/{vehicleId}")
-    public ResponseEntity<List<ParkingRecord>> getRecordsByVehicle(@PathVariable Integer vehicleId) {
-        return ResponseEntity.ok(parkingRecordService.getParkingRecordsByVehicle(vehicleId));
+    public ResponseEntity<List<ParkingRecordDTO>> getRecordsByVehicle(@PathVariable Integer vehicleId) {
+        List<ParkingRecord> records = parkingRecordService.getParkingRecordsByVehicle(vehicleId);
+        List<ParkingRecordDTO> recordDTOs = records.stream()
+                .map(dtoMapper::toParkingRecordDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(recordDTOs);
     }
     
     // Get records by slot
     @GetMapping("/slot/{slotId}")
-    public ResponseEntity<List<ParkingRecord>> getRecordsBySlot(@PathVariable Integer slotId) {
-        return ResponseEntity.ok(parkingRecordService.getParkingRecordsBySlot(slotId));
+    public ResponseEntity<List<ParkingRecordDTO>> getRecordsBySlot(@PathVariable Integer slotId) {
+        List<ParkingRecord> records = parkingRecordService.getParkingRecordsBySlot(slotId);
+        List<ParkingRecordDTO> recordDTOs = records.stream()
+                .map(dtoMapper::toParkingRecordDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(recordDTOs);
     }
     
     // Get active records
     @GetMapping("/active")
-    public ResponseEntity<List<ParkingRecord>> getActiveRecords() {
-        return ResponseEntity.ok(parkingRecordService.getActiveRecords());
+    public ResponseEntity<List<ParkingRecordDTO>> getActiveRecords() {
+        List<ParkingRecord> records = parkingRecordService.getActiveRecords();
+        List<ParkingRecordDTO> recordDTOs = records.stream()
+                .map(dtoMapper::toParkingRecordDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(recordDTOs);
     }
     
     // Update parking record
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateParkingRecord(@PathVariable Integer id, @RequestBody ParkingRecord recordDetails) {
+    public ResponseEntity<?> updateParkingRecord(@PathVariable Integer id, @RequestBody ParkingRecordRequestDTO requestDTO) {
         try {
+            Vehicle vehicle = null;
+            if (requestDTO.getVehicleID() != null) {
+                Optional<Vehicle> vehicleOpt = vehicleService.getVehicleById(requestDTO.getVehicleID());
+                if (vehicleOpt.isPresent()) {
+                    vehicle = vehicleOpt.get();
+                }
+            }
+            
+            ParkingSlot slot = null;
+            if (requestDTO.getSlotID() != null) {
+                Optional<ParkingSlot> slotOpt = parkingSlotService.getParkingSlotById(requestDTO.getSlotID());
+                if (slotOpt.isPresent()) {
+                    slot = slotOpt.get();
+                }
+            }
+            
+            Guard guard = null;
+            if (requestDTO.getGuardID() != null) {
+                Optional<Guard> guardOpt = guardService.getGuardById(requestDTO.getGuardID());
+                if (guardOpt.isPresent()) {
+                    guard = guardOpt.get();
+                }
+            }
+            
+            ParkingRecord recordDetails = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, guard);
             ParkingRecord updatedRecord = parkingRecordService.updateParkingRecord(id, recordDetails);
-            return ResponseEntity.ok(updatedRecord);
+            ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(updatedRecord);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
@@ -109,7 +204,8 @@ public class ParkingRecordController {
     public ResponseEntity<?> checkout(@PathVariable Integer id) {
         try {
             ParkingRecord updatedRecord = parkingRecordService.updateExitTime(id);
-            return ResponseEntity.ok(updatedRecord);
+            ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(updatedRecord);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
