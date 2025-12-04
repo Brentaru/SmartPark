@@ -3,6 +3,7 @@ package com.appdev.smartpark.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appdev.smartpark.dto.DTOMapper;
+import com.appdev.smartpark.dto.ParkingAreaDTO;
+import com.appdev.smartpark.dto.ParkingAreaRequestDTO;
 import com.appdev.smartpark.entity.ParkingArea;
 import com.appdev.smartpark.service.ParkingAreaService;
 
@@ -28,12 +32,17 @@ public class ParkingAreaController {
     @Autowired
     private ParkingAreaService parkingAreaService;
     
+    @Autowired
+    private DTOMapper dtoMapper;
+    
     // Create parking area
     @PostMapping
-    public ResponseEntity<?> createParkingArea(@RequestBody ParkingArea parkingArea) {
+    public ResponseEntity<?> createParkingArea(@RequestBody ParkingAreaRequestDTO requestDTO) {
         try {
+            ParkingArea parkingArea = dtoMapper.toParkingAreaEntity(requestDTO);
             ParkingArea savedArea = parkingAreaService.createParkingArea(parkingArea);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedArea);
+            ParkingAreaDTO responseDTO = dtoMapper.toParkingAreaDTO(savedArea);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error creating parking area: " + e.getMessage()));
@@ -42,8 +51,12 @@ public class ParkingAreaController {
     
     // Get all parking areas
     @GetMapping
-    public ResponseEntity<List<ParkingArea>> getAllParkingAreas() {
-        return ResponseEntity.ok(parkingAreaService.getAllParkingAreas());
+    public ResponseEntity<List<ParkingAreaDTO>> getAllParkingAreas() {
+        List<ParkingArea> areas = parkingAreaService.getAllParkingAreas();
+        List<ParkingAreaDTO> areaDTOs = areas.stream()
+                .map(dtoMapper::toParkingAreaDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(areaDTOs);
     }
     
     // Get parking area by ID
@@ -51,7 +64,8 @@ public class ParkingAreaController {
     public ResponseEntity<?> getParkingAreaById(@PathVariable Integer id) {
         Optional<ParkingArea> area = parkingAreaService.getParkingAreaById(id);
         if (area.isPresent()) {
-            return ResponseEntity.ok(area.get());
+            ParkingAreaDTO areaDTO = dtoMapper.toParkingAreaDTO(area.get());
+            return ResponseEntity.ok(areaDTO);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", "Parking area not found"));
@@ -60,10 +74,12 @@ public class ParkingAreaController {
     
     // Update parking area
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateParkingArea(@PathVariable Integer id, @RequestBody ParkingArea areaDetails) {
+    public ResponseEntity<?> updateParkingArea(@PathVariable Integer id, @RequestBody ParkingAreaRequestDTO requestDTO) {
         try {
+            ParkingArea areaDetails = dtoMapper.toParkingAreaEntity(requestDTO);
             ParkingArea updatedArea = parkingAreaService.updateParkingArea(id, areaDetails);
-            return ResponseEntity.ok(updatedArea);
+            ParkingAreaDTO responseDTO = dtoMapper.toParkingAreaDTO(updatedArea);
+            return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
