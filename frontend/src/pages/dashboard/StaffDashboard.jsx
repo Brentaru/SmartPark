@@ -121,7 +121,7 @@ const StaffDashboard = ({ currentUser }) => {
           return {
             date: entryTime.toISOString().split('T')[0],
             timeIn: entryTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-            slot: record.parkingSlot?.location || 'N/A',
+            slot: record.slotLocation || 'N/A',
             status: status
           };
         })
