@@ -162,7 +162,7 @@ const GuardDashboard = () => {
           plateNumber: plateNumber,
           type: reservationFormData.vehicleType,
           color: reservationFormData.vehicleColor.trim(),
-          user: { userID: studentUser.userID }
+          userID: studentUser.userID  // Fixed: Use userID directly, not nested user object
         };
         vehicleResult = await vehicleAPI.createVehicle(vehicleData);
         
@@ -183,8 +183,8 @@ const GuardDashboard = () => {
       const recordData = {
         entryTime: localDateTimeString,
         exitTime: null,
-        vehicle: { vehicleID: vehicleResult.data.vehicleID },
-        parkingSlot: { slotID: selectedSlot.id }
+        vehicleID: vehicleResult.data.vehicleID,  // Fixed: Use vehicleID directly
+        slotID: selectedSlot.id  // Fixed: Use slotID directly
       };
 
       console.log('📝 Creating parking record:', recordData);
@@ -250,9 +250,7 @@ const GuardDashboard = () => {
         plateNumber: parkingFormData.plateNumber.toUpperCase().trim(),
         type: parkingFormData.vehicleType,
         color: parkingFormData.vehicleColor || studentUser.vehicleColor || 'Unknown',
-        user: {
-          userID: studentUser.userID
-        }
+        userID: studentUser.userID  // Fixed: Use userID directly, not nested user object
       };
 
       console.log('🚙 Creating vehicle:', vehicleData);
@@ -267,13 +265,9 @@ const GuardDashboard = () => {
       const recordData = {
         entryTime: entryDateTime.toISOString(),
         exitTime: null,
-        parkingSlot: {
-          slotID: selectedSlot.id
-        },
-        vehicle: {
-          vehicleID: vehicleResult.data.vehicleID
-        },
-        guard: null,
+        slotID: selectedSlot.id,  // Fixed: Use slotID directly
+        vehicleID: vehicleResult.data.vehicleID,  // Fixed: Use vehicleID directly
+        guardID: null,
         verifiedBy: currentUser.id
       };
 
@@ -373,7 +367,7 @@ const GuardDashboard = () => {
             plateNumber: staffUser.plateNumber,
             type: staffUser.vehicleType || 'Car',
             color: staffUser.vehicleColor || 'Unknown',
-            user: { userID: staffUser.userID }
+            userID: staffUser.userID  // Fixed: Use userID directly
           };
           vehicleResult = await vehicleAPI.createVehicle(vehicleData);
         }
@@ -397,8 +391,8 @@ const GuardDashboard = () => {
       
       const recordData = {
         entryTime: localDateTimeString,
-        vehicle: { vehicleID: vehicleResult.data.vehicleID },
-        parkingSlot: { slotID: selectedSlot.id }
+        vehicleID: vehicleResult.data.vehicleID,  // Fixed: Use vehicleID directly
+        slotID: selectedSlot.id  // Fixed: Use slotID directly
       };
 
       console.log('📝 Creating parking record:', recordData);
