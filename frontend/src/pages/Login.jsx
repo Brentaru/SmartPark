@@ -16,18 +16,21 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
     if (!values.studentId) {
       errors.studentId = 'ID is required';
     } else {
-      // Accept three different ID formats:
+      // Accept ID formats:
       // Student: xx-xxxx-xxx (e.g., 20-2024-123)
       // Staff: xx-xxxx-xxxx (e.g., 20-2024-1234)
       // Guard: xx-xxx-xxx (e.g., 20-123-456)
+      // Admin: xx-xxxx-xx (e.g., 99-2025-01)
       const studentFormat = /^\d{2}-\d{4}-\d{3}$/;
       const staffFormat = /^\d{2}-\d{4}-\d{4}$/;
       const guardFormat = /^\d{2}-\d{3}-\d{3}$/;
+      const adminFormat = /^\d{2}-\d{4}-\d{2}$/; // Admin format
       
       if (!studentFormat.test(values.studentId) && 
           !staffFormat.test(values.studentId) && 
-          !guardFormat.test(values.studentId)) {
-        errors.studentId = 'Invalid ID format. Use: Student (xx-xxxx-xxx), Staff (xx-xxxx-xxxx), or Guard (xx-xxx-xxx)';
+          !guardFormat.test(values.studentId) &&
+          !adminFormat.test(values.studentId)) {
+        errors.studentId = 'Invalid ID format. Use: Student (xx-xxxx-xxx), Staff (xx-xxxx-xxxx), Guard (xx-xxx-xxx), or Admin (xx-xxxx-xx)';
       }
     }
 

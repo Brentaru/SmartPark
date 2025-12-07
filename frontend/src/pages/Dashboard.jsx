@@ -41,6 +41,13 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  // Redirect Admin users to admin dashboard
+  React.useEffect(() => {
+    if (user && user.role && user.role.toLowerCase() === 'admin') {
+      navigate('/admin-dashboard');
+    }
+  }, [user, navigate]);
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -64,10 +71,12 @@ const Dashboard = () => {
                      (user.name && user.name.split(' ')[0]) || 
                      'User';
 
-  // Determine which dashboard to show based on role
-  const isStaff = user.role === 'staff';
-  const isGuard = user.role === 'guard';
-  const isStudent = user.role === 'student';
+  // Determine which dashboard to show based on role (case-insensitive)
+  const userRole = user.role ? user.role.toLowerCase() : 'student';
+  const isStaff = userRole === 'staff';
+  const isGuard = userRole === 'guard';
+  const isStudent = userRole === 'student';
+  const isAdmin = userRole === 'admin';
 
   // Determine page title based on route
   const getPageTitle = () => {

@@ -114,7 +114,14 @@ public class UserService {
     
     // Login by Student ID (now using userID)
     public Optional<User> loginByStudentId(String studentId, String password) {
-        Optional<User> user = userRepository.findById(studentId);
+        // First try to find by student_id column
+        Optional<User> user = userRepository.findByStudentId(studentId);
+        
+        // If not found, try finding by userid (primary key)
+        if (!user.isPresent()) {
+            user = userRepository.findById(studentId);
+        }
+        
         if (user.isPresent()) {
             String storedPassword = user.get().getPassword();
             // Check if password is BCrypt hashed (starts with $2a$ or $2b$)

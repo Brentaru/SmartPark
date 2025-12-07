@@ -11,6 +11,7 @@ import MyParkingSlots from './pages/MyParkingSlots';
 import MyProfile from './pages/MyProfile';
 import ProfileSettings from './pages/ProfileSettings';
 import VehicleRegistration from './pages/VehicleRegistration';
+import AdminDashboard from './pages/dashboard/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -67,6 +68,16 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Dashboard (protected) */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />
