@@ -1,9 +1,59 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import '../styles/Landing.css';
 
 const Landing = ({ onNavigateToLogin, onNavigateToRegister }) => {
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(''); // 'success' or 'error'
+  const [submitMessage, setSubmitMessage] = useState('');
+
+  const handleContactChange = (e) => {
+    const { name, value } = e.target;
+    setContactForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('');
+    setSubmitMessage('');
+
+    try {
+      const response = await fetch('http://localhost:8080/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactForm),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitStatus('success');
+        setSubmitMessage('Message sent successfully! We\'ll get back to you soon.');
+        setContactForm({ name: '', email: '', message: '' });
+      } else {
+        setSubmitStatus('error');
+        setSubmitMessage(data.error || 'Failed to send message. Please try again.');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setSubmitMessage('Failed to connect to server. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="landing-page">
       <Navbar 
@@ -204,18 +254,58 @@ const Landing = ({ onNavigateToLogin, onNavigateToRegister }) => {
             </div>
             
             <div className="contact-form">
-              <form>
+              {submitStatus === 'success' && (
+                <div className="contact-success-message">
+                  <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  {submitMessage}
+                </div>
+              )}
+              {submitStatus === 'error' && (
+                <div className="contact-error-message">
+                  <svg viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  {submitMessage}
+                </div>
+              )}
+              <form onSubmit={handleContactSubmit}>
                 <div className="form-group">
-                  <input type="text" placeholder="Your Name" className="form-input" />
+                  <input 
+                    type="text" 
+                    name="name"
+                    placeholder="Your Name" 
+                    className="form-input" 
+                    value={contactForm.name}
+                    onChange={handleContactChange}
+                    required
+                  />
                 </div>
                 <div className="form-group">
-                  <input type="email" placeholder="Your Email" className="form-input" />
+                  <input 
+                    type="email" 
+                    name="email"
+                    placeholder="Your Email" 
+                    className="form-input" 
+                    value={contactForm.email}
+                    onChange={handleContactChange}
+                    required
+                  />
                 </div>
                 <div className="form-group">
-                  <textarea placeholder="Your Message" rows="5" className="form-input form-textarea"></textarea>
+                  <textarea 
+                    name="message"
+                    placeholder="Your Message" 
+                    rows="5" 
+                    className="form-input form-textarea"
+                    value={contactForm.message}
+                    onChange={handleContactChange}
+                    required
+                  ></textarea>
                 </div>
-                <button type="submit" className="btn btn-primary btn-full">
-                  Send Message
+                <button type="submit" className="btn btn-primary btn-full" disabled={isSubmitting}>
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>

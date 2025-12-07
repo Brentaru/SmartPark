@@ -5,6 +5,8 @@ import { AuthProvider } from './context/AuthContext';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import ParkingHistory from './pages/ParkingHistory';
 import MyParkingSlots from './pages/MyParkingSlots';
@@ -22,6 +24,7 @@ function AppContent() {
   const handleNavigateToLanding = () => navigate('/');
   const handleNavigateToLogin = () => navigate('/login');
   const handleNavigateToRegister = () => navigate('/register');
+  const handleNavigateToForgotPassword = () => navigate('/forgot-password');
   const handleNavigateToDashboard = () => navigate('/dashboard');
 
   return (
@@ -46,6 +49,7 @@ function AppContent() {
               onNavigateToRegister={handleNavigateToRegister}
               onNavigateToLanding={handleNavigateToLanding}
               onNavigateToDashboard={handleNavigateToDashboard}
+              onNavigateToForgotPassword={handleNavigateToForgotPassword}
             />
           } 
         />
@@ -58,6 +62,28 @@ function AppContent() {
               onNavigateToLogin={handleNavigateToLogin}
               onNavigateToLanding={handleNavigateToLanding}
               onNavigateToDashboard={handleNavigateToDashboard}
+            />
+          } 
+        />
+
+        {/* Forgot Password Page */}
+        <Route 
+          path="/forgot-password" 
+          element={
+            <ForgotPassword 
+              onNavigateToLogin={handleNavigateToLogin}
+              onNavigateToLanding={handleNavigateToLanding}
+            />
+          } 
+        />
+
+        {/* Reset Password Page */}
+        <Route 
+          path="/reset-password" 
+          element={
+            <ResetPassword 
+              onNavigateToLogin={handleNavigateToLogin}
+              onNavigateToLanding={handleNavigateToLanding}
             />
           } 
         />

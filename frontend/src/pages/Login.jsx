@@ -5,9 +5,10 @@ import Button from '../components/Button';
 import useForm from '../hooks/useForm';
 import '../styles/Auth.css';
 
-const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboard }) => {
+const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboard, onNavigateToForgotPassword }) => {
   const { login } = useAuth();
   const [loginError, setLoginError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Validation function
   const validate = (values) => {
@@ -78,7 +79,7 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
           onNavigateToDashboard();
         }
       } else {
-        setLoginError(result.error);
+        setLoginError('Invalid credentials. Please check your ID number and password.');
       }
     } catch (error) {
       setLoginError('An unexpected error occurred. Please try again.');
@@ -141,7 +142,7 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
                   value={values.studentId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="Student: 20-2024-123 | Staff: 20-2024-1234 | Guard: 20-123-456"
+                  placeholder="Enter ID number"
                   error={touched.studentId && errors.studentId}
                   required
                   icon={
@@ -158,7 +159,7 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="Enter your password"
+                  placeholder="Enter password"
                   error={touched.password && errors.password}
                   required
                   icon={
@@ -171,10 +172,15 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
                 {/* Remember Me & Forgot Password */}
                 <div className="auth-options">
                   <label className="checkbox-label">
-                    <input type="checkbox" className="checkbox-input" />
+                    <input 
+                      type="checkbox" 
+                      className="checkbox-input" 
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
                     <span className="checkbox-text">Remember me</span>
                   </label>
-                  <button type="button" className="forgot-password-link">
+                  <button type="button" className="forgot-password-link" onClick={onNavigateToForgotPassword}>
                     Forgot password?
                   </button>
                 </div>

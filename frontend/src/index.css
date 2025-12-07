@@ -7,6 +7,25 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Global button reset - prevent any blue default colors */
+button {
+  color: inherit;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+/* Ensure no blue focus states */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline-color: transparent;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
