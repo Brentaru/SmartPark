@@ -10,6 +10,8 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
   const { register } = useAuth();
   const navigate = useNavigate();
   const [registerError, setRegisterError] = useState('');
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Detect role based on ID format
   const detectRoleFromId = (studentId) => {
@@ -239,7 +241,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                   value={values.studentId}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="Student: 20-2024-123 | Staff: 20-2024-1234 | Guard: 20-123-456"
+                  placeholder="Enter your ID number"
                   error={touched.studentId && errors.studentId}
                   required
                   icon={
@@ -258,7 +260,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                     value={values.firstName}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="John"
+                    placeholder="Enter first name"
                     error={touched.firstName && errors.firstName}
                     required
                     icon={
@@ -275,7 +277,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                     value={values.lastName}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="Doe"
+                    placeholder="Enter last name"
                     error={touched.lastName && errors.lastName}
                     required
                     icon={
@@ -293,7 +295,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                   value={values.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="john.doe@cit.edu"
+                  placeholder="Enter school email address"
                   error={touched.email && errors.email}
                   required
                   icon={
@@ -310,7 +312,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                   value={values.contactNumber}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="09123456789"
+                  placeholder="Enter contact number"
                   error={touched.contactNumber && errors.contactNumber}
                   required
                   icon={
@@ -327,7 +329,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="Create a strong password"
+                  placeholder="Enter password"
                   error={touched.password && errors.password}
                   required
                   icon={
@@ -344,7 +346,7 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                   value={values.confirmPassword}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  placeholder="Re-enter your password"
+                  placeholder="Re-enter password"
                   error={touched.confirmPassword && errors.confirmPassword}
                   required
                   icon={
@@ -360,9 +362,9 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
                     <input type="checkbox" className="checkbox-input" required />
                     <span className="checkbox-text">
                       I agree to the{' '}
-                      <button type="button" className="terms-link">Terms of Service</button>
+                      <button type="button" className="terms-link" onClick={(e) => { e.preventDefault(); setShowTermsModal(true); }}>Terms of Service</button>
                       {' '}and{' '}
-                      <button type="button" className="terms-link">Privacy Policy</button>
+                      <button type="button" className="terms-link" onClick={(e) => { e.preventDefault(); setShowPrivacyModal(true); }}>Privacy Policy</button>
                     </span>
                   </label>
                 </div>
@@ -396,6 +398,88 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
           </div>
         </div>
       </div>
+
+      {/* Terms of Service Modal */}
+      {showTermsModal && (
+        <div className="modal-overlay" onClick={() => setShowTermsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Terms of Service</h2>
+              <button className="modal-close" onClick={() => setShowTermsModal(false)}>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <h3>1. Acceptance of Terms</h3>
+              <p>By accessing and using SmartPark, you accept and agree to be bound by the terms and provision of this agreement.</p>
+              
+              <h3>2. Use License</h3>
+              <p>Permission is granted to temporarily access SmartPark for personal, non-commercial use only. This is the grant of a license, not a transfer of title.</p>
+              
+              <h3>3. User Account</h3>
+              <p>You are responsible for maintaining the confidentiality of your account and password. You agree to accept responsibility for all activities that occur under your account.</p>
+              
+              <h3>4. Parking Reservations</h3>
+              <p>All parking slot reservations are subject to availability. SmartPark reserves the right to cancel or modify reservations under certain circumstances.</p>
+              
+              <h3>5. User Conduct</h3>
+              <p>You agree not to misuse the SmartPark service, including but not limited to: making false reservations, sharing account credentials, or violating campus parking regulations.</p>
+              
+              <h3>6. Limitation of Liability</h3>
+              <p>SmartPark shall not be liable for any damages arising from the use or inability to use the service, including but not limited to parking-related incidents.</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setShowTermsModal(false)}>I Understand</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Privacy Policy Modal */}
+      {showPrivacyModal && (
+        <div className="modal-overlay" onClick={() => setShowPrivacyModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Privacy Policy</h2>
+              <button className="modal-close" onClick={() => setShowPrivacyModal(false)}>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div className="modal-body">
+              <h3>Information We Collect</h3>
+              <p>We collect information that you provide directly to us, including: ID number, name, school email, contact number, and vehicle information.</p>
+              
+              <h3>How We Use Your Information</h3>
+              <p>We use the information we collect to:</p>
+              <ul>
+                <li>Provide, maintain, and improve SmartPark services</li>
+                <li>Process parking reservations and manage parking slots</li>
+                <li>Send you technical notices and support messages</li>
+                <li>Verify your identity and prevent fraud</li>
+              </ul>
+              
+              <h3>Information Sharing</h3>
+              <p>We do not sell or share your personal information with third parties except as necessary to provide our services or as required by law.</p>
+              
+              <h3>Data Security</h3>
+              <p>We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+              
+              <h3>Your Rights</h3>
+              <p>You have the right to access, update, or delete your personal information at any time through your account settings.</p>
+              
+              <h3>Contact Us</h3>
+              <p>If you have any questions about this Privacy Policy, please contact us at privacy@smartpark.edu</p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-primary" onClick={() => setShowPrivacyModal(false)}>I Understand</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
