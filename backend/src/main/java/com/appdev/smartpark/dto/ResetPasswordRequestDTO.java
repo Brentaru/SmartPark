@@ -1,0 +1,13 @@
+package com.appdev.smartpark.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ResetPasswordRequestDTO {
+    private String token;
+    private String newPassword;
+}

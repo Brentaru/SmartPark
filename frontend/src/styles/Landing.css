@@ -575,7 +575,7 @@
 
 .contact-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 1.5rem;
   padding: 1.5rem;
   background: #f9fafb;
@@ -623,6 +623,44 @@
   padding: 2.5rem;
   border-radius: 16px;
   border: 2px solid #f3f4f6;
+}
+
+.contact-success-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  color: #16a34a;
+  margin-bottom: 1.5rem;
+  font-size: 14px;
+}
+
+.contact-success-message svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.contact-error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  margin-bottom: 1.5rem;
+  font-size: 14px;
+}
+
+.contact-error-message svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .form-group {
