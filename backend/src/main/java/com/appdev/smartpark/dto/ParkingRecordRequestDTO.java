@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 public class ParkingRecordRequestDTO {
     private Integer vehicleID;
     private Integer slotID;
-    private Integer guardID;
+    private String verifiedByUserId;
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
-    private Integer verifiedBy;
 }

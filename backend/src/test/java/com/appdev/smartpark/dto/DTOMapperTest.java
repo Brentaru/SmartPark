@@ -243,17 +243,17 @@ class DTOMapperTest {
         slot.setLocation("B3");
         slot.setParkingArea(area);
         
-        Guard guard = new Guard();
-        guard.setGuardID(2);
-        guard.setFname("Guard");
-        guard.setLname("Smith");
+        User verifiedByUser = new User();
+        verifiedByUser.setUserID("99-9999-002");
+        verifiedByUser.setFname("Guard");
+        verifiedByUser.setLname("Smith");
+        verifiedByUser.setRole("guard");
         
         ParkingRecord record = new ParkingRecord();
         record.setRecordID(100);
         record.setVehicle(vehicle);
         record.setParkingSlot(slot);
-        record.setGuard(guard);
-        record.setVerifiedBy(1);
+        record.setVerifiedByUser(verifiedByUser);
         
         // Act
         ParkingRecordDTO dto = mapper.toParkingRecordDTO(record);
@@ -265,44 +265,10 @@ class DTOMapperTest {
         assertEquals("ABC-1234", dto.getPlateNumber());  // ✅ Convenience field
         assertEquals(5, dto.getSlotID());
         assertEquals("B3", dto.getSlotLocation());  // ✅ Convenience field
-        assertEquals(2, dto.getGuardID());
-        assertEquals("Guard Smith", dto.getGuardName());  // ✅ Convenience field
-        assertEquals(1, dto.getVerifiedBy());
+        assertEquals("99-9999-002", dto.getVerifiedByUserId());
+        assertEquals("Guard Smith", dto.getVerifiedByUserName());  // ✅ Convenience field
         
         System.out.println("✅ PASS: ParkingRecordDTO includes convenience fields");
-    }
-    
-    // ========== GUARD TESTS ==========
-    
-    @Test
-    @DisplayName("GuardDTO should use verifiedByUserID instead of full User")
-    void testGuardToDTO_UsesUserID() {
-        // Arrange
-        User verifier = new User();
-        verifier.setUserID("21-ADMIN-001");
-        verifier.setPassword("adminPassword");  // Shouldn't leak
-        
-        Guard guard = new Guard();
-        guard.setGuardID(1);
-        guard.setFname("Security");
-        guard.setLname("Guard");
-        guard.setContact("555-0000");
-        guard.setShiftSchedule("9AM-5PM");
-        guard.setVerifiedBy(verifier);
-        
-        // Act
-        GuardDTO dto = mapper.toGuardDTO(guard);
-        
-        // Assert
-        assertNotNull(dto);
-        assertEquals(1, dto.getGuardID());
-        assertEquals("Security", dto.getFname());
-        assertEquals("Guard", dto.getLname());
-        assertEquals("555-0000", dto.getContact());
-        assertEquals("9AM-5PM", dto.getShiftSchedule());
-        assertEquals("21-ADMIN-001", dto.getVerifiedByUserID());  // ✅ Only ID
-        
-        System.out.println("✅ PASS: GuardDTO uses verifiedByUserID");
     }
     
     // ========== SUMMARY TEST ==========
@@ -316,7 +282,6 @@ class DTOMapperTest {
         assertNull(mapper.toParkingSlotDTO(null));
         assertNull(mapper.toParkingAreaDTO(null));
         assertNull(mapper.toParkingRecordDTO(null));
-        assertNull(mapper.toGuardDTO(null));
         
         assertNull(mapper.toUserEntity(null));
         assertNull(mapper.toParkingAreaEntity(null));

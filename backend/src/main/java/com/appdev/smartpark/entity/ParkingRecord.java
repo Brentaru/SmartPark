@@ -32,26 +32,23 @@ public class ParkingRecord {
     private ParkingSlot parkingSlot;
     
     @ManyToOne
-    @JoinColumn(name = "guardid")
-    @JsonIgnoreProperties({"parkingRecords"})
-    private Guard guard;
+    @JoinColumn(name = "verified_by_user")
+    @JsonIgnoreProperties({"vehicles", "parkingRecords"})
+    private User verifiedByUser;
     
     @Column(name = "entry_time")
     private LocalDateTime entryTime;
     
     @Column(name = "exit_time")
     private LocalDateTime exitTime;
-    
-    @Column(name = "verified_by")
-    private Integer verifiedBy;
 
     // Constructors
     public ParkingRecord() {}
 
-    public ParkingRecord(Vehicle vehicle, ParkingSlot parkingSlot, Guard guard, LocalDateTime entryTime) {
+    public ParkingRecord(Vehicle vehicle, ParkingSlot parkingSlot, User verifiedByUser, LocalDateTime entryTime) {
         this.vehicle = vehicle;
         this.parkingSlot = parkingSlot;
-        this.guard = guard;
+        this.verifiedByUser = verifiedByUser;
         this.entryTime = entryTime;
     }
 
@@ -80,12 +77,12 @@ public class ParkingRecord {
         this.parkingSlot = parkingSlot;
     }
 
-    public Guard getGuard() {
-        return guard;
+    public User getVerifiedByUser() {
+        return verifiedByUser;
     }
 
-    public void setGuard(Guard guard) {
-        this.guard = guard;
+    public void setVerifiedByUser(User verifiedByUser) {
+        this.verifiedByUser = verifiedByUser;
     }
 
     public LocalDateTime getEntryTime() {
@@ -102,13 +99,5 @@ public class ParkingRecord {
 
     public void setExitTime(LocalDateTime exitTime) {
         this.exitTime = exitTime;
-    }
-
-    public Integer getVerifiedBy() {
-        return verifiedBy;
-    }
-
-    public void setVerifiedBy(Integer verifiedBy) {
-        this.verifiedBy = verifiedBy;
     }
 }

@@ -22,13 +22,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.appdev.smartpark.dto.DTOMapper;
 import com.appdev.smartpark.dto.ParkingRecordDTO;
 import com.appdev.smartpark.dto.ParkingRecordRequestDTO;
-import com.appdev.smartpark.entity.Guard;
 import com.appdev.smartpark.entity.ParkingRecord;
 import com.appdev.smartpark.entity.ParkingSlot;
+import com.appdev.smartpark.entity.User;
 import com.appdev.smartpark.entity.Vehicle;
-import com.appdev.smartpark.service.GuardService;
 import com.appdev.smartpark.service.ParkingRecordService;
 import com.appdev.smartpark.service.ParkingSlotService;
+import com.appdev.smartpark.service.UserService;
 import com.appdev.smartpark.service.VehicleService;
 
 @RestController
@@ -46,7 +46,7 @@ public class ParkingRecordController {
     private ParkingSlotService parkingSlotService;
     
     @Autowired
-    private GuardService guardService;
+    private UserService userService;
     
     @Autowired
     private DTOMapper dtoMapper;
@@ -77,15 +77,15 @@ public class ParkingRecordController {
                 }
             }
             
-            Guard guard = null;
-            if (requestDTO.getGuardID() != null) {
-                Optional<Guard> guardOpt = guardService.getGuardById(requestDTO.getGuardID());
-                if (guardOpt.isPresent()) {
-                    guard = guardOpt.get();
+            User verifiedByUser = null;
+            if (requestDTO.getVerifiedByUserId() != null) {
+                Optional<User> userOpt = userService.getUserById(requestDTO.getVerifiedByUserId());
+                if (userOpt.isPresent()) {
+                    verifiedByUser = userOpt.get();
                 }
             }
             
-            ParkingRecord parkingRecord = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, guard);
+            ParkingRecord parkingRecord = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, verifiedByUser);
             ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord);
             ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(savedRecord);
             System.out.println("✅ Parking record created successfully with ID: " + savedRecord.getRecordID());
@@ -181,15 +181,15 @@ public class ParkingRecordController {
                 }
             }
             
-            Guard guard = null;
-            if (requestDTO.getGuardID() != null) {
-                Optional<Guard> guardOpt = guardService.getGuardById(requestDTO.getGuardID());
-                if (guardOpt.isPresent()) {
-                    guard = guardOpt.get();
+            User verifiedByUser = null;
+            if (requestDTO.getVerifiedByUserId() != null) {
+                Optional<User> userOpt = userService.getUserById(requestDTO.getVerifiedByUserId());
+                if (userOpt.isPresent()) {
+                    verifiedByUser = userOpt.get();
                 }
             }
             
-            ParkingRecord recordDetails = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, guard);
+            ParkingRecord recordDetails = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, verifiedByUser);
             ParkingRecord updatedRecord = parkingRecordService.updateParkingRecord(id, recordDetails);
             ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(updatedRecord);
             return ResponseEntity.ok(responseDTO);

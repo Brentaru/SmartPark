@@ -26,7 +26,7 @@ public class Vehicle {
     
     @ManyToOne
     @JoinColumn(name = "userID")
-    @JsonIgnoreProperties({"vehicles", "guards", "password"})
+    @JsonIgnoreProperties({"vehicles", "password"})
     private User user;
     
     @OneToMany(mappedBy = "vehicle")

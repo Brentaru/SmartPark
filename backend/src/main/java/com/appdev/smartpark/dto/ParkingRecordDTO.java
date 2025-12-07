@@ -17,9 +17,8 @@ public class ParkingRecordDTO {
     private String plateNumber; // For convenience
     private Integer slotID;
     private String slotLocation; // For convenience
-    private Integer guardID;
-    private String guardName; // For convenience
+    private String verifiedByUserId;
+    private String verifiedByUserName; // For convenience
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
-    private Integer verifiedBy;
 }

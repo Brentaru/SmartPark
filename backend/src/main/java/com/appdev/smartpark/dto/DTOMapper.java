@@ -120,47 +120,21 @@ public class DTOMapper {
             record.getVehicle() != null ? record.getVehicle().getPlateNumber() : null,
             record.getParkingSlot() != null ? record.getParkingSlot().getSlotID() : null,
             record.getParkingSlot() != null ? record.getParkingSlot().getLocation() : null,
-            record.getGuard() != null ? record.getGuard().getGuardID() : null,
-            record.getGuard() != null ? record.getGuard().getFname() + " " + record.getGuard().getLname() : null,
+            record.getVerifiedByUser() != null ? record.getVerifiedByUser().getUserID() : null,
+            record.getVerifiedByUser() != null ? record.getVerifiedByUser().getFname() + " " + record.getVerifiedByUser().getLname() : null,
             record.getEntryTime(),
-            record.getExitTime(),
-            record.getVerifiedBy()
+            record.getExitTime()
         );
     }
 
-    public ParkingRecord toParkingRecordEntity(ParkingRecordRequestDTO dto, Vehicle vehicle, ParkingSlot slot, Guard guard) {
+    public ParkingRecord toParkingRecordEntity(ParkingRecordRequestDTO dto, Vehicle vehicle, ParkingSlot slot, User verifiedByUser) {
         if (dto == null) return null;
         ParkingRecord record = new ParkingRecord();
         record.setVehicle(vehicle);
         record.setParkingSlot(slot);
-        record.setGuard(guard);
+        record.setVerifiedByUser(verifiedByUser);
         record.setEntryTime(dto.getEntryTime());
         record.setExitTime(dto.getExitTime());
-        record.setVerifiedBy(dto.getVerifiedBy());
         return record;
-    }
-
-    // Guard mappings
-    public GuardDTO toGuardDTO(Guard guard) {
-        if (guard == null) return null;
-        return new GuardDTO(
-            guard.getGuardID(),
-            guard.getFname(),
-            guard.getLname(),
-            guard.getContact(),
-            guard.getShiftSchedule(),
-            guard.getVerifiedBy() != null ? guard.getVerifiedBy().getUserID() : null
-        );
-    }
-
-    public Guard toGuardEntity(GuardRequestDTO dto, User verifiedBy) {
-        if (dto == null) return null;
-        Guard guard = new Guard();
-        guard.setFname(dto.getFname());
-        guard.setLname(dto.getLname());
-        guard.setContact(dto.getContact());
-        guard.setShiftSchedule(dto.getShiftSchedule());
-        guard.setVerifiedBy(verifiedBy);
-        return guard;
     }
 }

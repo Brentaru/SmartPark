@@ -61,10 +61,9 @@ public class ParkingRecordService {
         
         record.setVehicle(recordDetails.getVehicle());
         record.setParkingSlot(recordDetails.getParkingSlot());
-        record.setGuard(recordDetails.getGuard());
+        record.setVerifiedByUser(recordDetails.getVerifiedByUser());
         record.setEntryTime(recordDetails.getEntryTime());
         record.setExitTime(recordDetails.getExitTime());
-        record.setVerifiedBy(recordDetails.getVerifiedBy());
         
         return parkingRecordRepository.save(record);
     }

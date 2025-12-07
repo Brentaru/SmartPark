@@ -39,10 +39,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties({"user", "parkingRecords"})
     private List<Vehicle> vehicles;
-    
-    @OneToMany(mappedBy = "verifiedBy")
-    @JsonIgnoreProperties({"verifiedBy"})
-    private List<Guard> guards;
 
     // Constructors
     public User() {}
@@ -141,14 +137,6 @@ public class User {
 
     public void setVehicles(List<Vehicle> vehicles) {
         this.vehicles = vehicles;
-    }
-
-    public List<Guard> getGuards() {
-        return guards;
-    }
-
-    public void setGuards(List<Guard> guards) {
-        this.guards = guards;
     }
 
     public String getPlateNumber() {
