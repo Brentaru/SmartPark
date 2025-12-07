@@ -28,7 +28,7 @@ SmartPark is a web-based application designed to help schools efficiently manage
 **Backend:**
 - Spring Boot (Java)
 - Maven
-- MySQL
+- PostgreSQL (Supabase)
 
 **Tools:**
 - Visual Studio Code
