@@ -38,9 +38,22 @@ const ParkingMap = ({ slots, onSlotClick, canReserve = false, guardMode = false 
     }
   };
 
+  // Sort slots by location before splitting into rows to maintain consistent positioning
+  const sortedSlots = slots ? [...slots].sort((a, b) => {
+    // Extract letter and number from location (e.g., "A-01" -> ["A", "01"])
+    const [letterA, numA] = a.location.split('-');
+    const [letterB, numB] = b.location.split('-');
+    
+    // First compare letters, then numbers
+    if (letterA !== letterB) {
+      return letterA.localeCompare(letterB);
+    }
+    return parseInt(numA) - parseInt(numB);
+  }) : [];
+
   // Split slots into top and bottom rows for NGE parking layout
-  const topRowSlots = slots?.slice(0, 12) || [];
-  const bottomRowSlots = slots?.slice(12, 20) || [];
+  const topRowSlots = sortedSlots.slice(0, 12) || [];
+  const bottomRowSlots = sortedSlots.slice(12, 20) || [];
 
   // Check if there are no slots
   if (!slots || slots.length === 0) {

@@ -187,14 +187,14 @@ const StudentDashboard = ({ currentUser }) => {
         </div>
       </section>
 
+      {/* Parking Map */}
+      <div className="parking-map-full-width">
+        <ParkingMap slots={dashboardData.parkingSlots} />
+      </div>
+
       {/* Activity Table */}
       <div className="dashboard-section">
         <ActivityTable activities={dashboardData.recentActivity} />
-      </div>
-      
-      {/* Full Width Parking Map */}
-      <div className="parking-map-full-width">
-        <ParkingMap slots={dashboardData.parkingSlots} />
       </div>
     </div>
   );

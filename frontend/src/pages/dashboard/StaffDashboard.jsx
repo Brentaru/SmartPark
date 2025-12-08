@@ -259,9 +259,9 @@ const StaffDashboard = ({ currentUser }) => {
 
       {/* Reservation Panel - Staff/Guard can reserve slots */}
       <div className="dashboard-section">
-        <div className="section-header">
-          <h2 className="section-title">Reserve Parking Slots</h2>
-          <p className="section-subtitle">Reserve slots for staff members or authorized personnel</p>
+        <div className="section-header" style={{ textAlign: 'center' }}>
+          <h2 className="section-title">My Reservations</h2>
+          <p className="section-subtitle">View and manage your parking reservations</p>
         </div>
         <ReservationPanel 
           myReservations={myReservations}
@@ -269,23 +269,30 @@ const StaffDashboard = ({ currentUser }) => {
           currentUser={currentUser}
         />
       </div>
+      
+      {/* Parking Map - View Only with Reservation Button */}
+      <div className="parking-map-full-width">
+        <div className="section-header" style={{ textAlign: 'center' }}>
+          <h2 className="section-title">Parking Map</h2>
+          <p className="section-subtitle">View current parking slot status</p>
+        </div>
+        <div style={{ position: 'relative' }}>
+          <ParkingMap 
+            slots={dashboardData.parkingSlots} 
+            canReserve={false}
+          />
+          <button 
+            className="make-reservation-btn"
+            onClick={() => window.location.href = '/my-slots'}
+          >
+            Make Reservation
+          </button>
+        </div>
+      </div>
 
       {/* Activity Table */}
       <div className="dashboard-section">
         <ActivityTable activities={dashboardData.recentActivity} />
-      </div>
-      
-      {/* Parking Map with Reservation Capability */}
-      <div className="parking-map-full-width">
-        <div className="section-header">
-          <h2 className="section-title">Parking Map</h2>
-          <p className="section-subtitle">Click on available slots to reserve them</p>
-        </div>
-        <ParkingMap 
-          slots={dashboardData.parkingSlots} 
-          onSlotClick={handleReserveSlot}
-          canReserve={true}
-        />
       </div>
 
       {/* Reservation Modal */}

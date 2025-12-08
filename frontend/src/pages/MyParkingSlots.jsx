@@ -17,6 +17,8 @@ const MyParkingSlots = () => {
   const [selectedParkingArea, setSelectedParkingArea] = useState(mockDashboardData.parkingAreas[0]);
   const [parkingSlots, setParkingSlots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showReservationModal, setShowReservationModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
   
   const parkingAreas = mockDashboardData.parkingAreas;
 
@@ -57,13 +59,66 @@ const MyParkingSlots = () => {
 
   const handleSlotClick = (slot) => {
     if (slot.status === 'free') {
-      console.log(`Selected slot: ${slot.location}`);
-      alert(`You selected slot ${slot.location}. Redirecting to reservation...`);
+      setSelectedSlot(slot);
+      setShowReservationModal(true);
     } else if (slot.status === 'reserved') {
-      console.log(`View reservation for slot: ${slot.location}`);
-      alert(`This is your reserved slot: ${slot.location}`);
+      if (slot.reservedBy === currentUser.id) {
+        if (window.confirm(`Do you want to cancel your reservation for slot ${slot.location}?`)) {
+          handleCancelReservation(slot.id);
+        }
+      } else {
+        alert(`This slot is already reserved by another user.`);
+      }
     } else {
       alert(`Slot ${slot.location} is currently occupied.`);
+    }
+  };
+
+  const handleConfirmReservation = async () => {
+    if (!selectedSlot) return;
+
+    try {
+      const reservationData = {
+        slotID: selectedSlot.id,
+        reservedBy: currentUser.id,
+        reservedFor: `${currentUser.firstName || 'Staff'} ${currentUser.lastName || 'User'}`,
+        status: 'Reserved'
+      };
+
+      console.log('Attempting to reserve slot:', reservationData);
+      const result = await parkingSlotAPI.updateSlot(selectedSlot.id, reservationData);
+
+      if (result.success) {
+        alert(`Successfully reserved slot ${selectedSlot.location}!`);
+        setShowReservationModal(false);
+        setSelectedSlot(null);
+        loadParkingSlots(); // Reload to show updated status
+      } else {
+        alert(`Failed to reserve slot: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error reserving slot:', error);
+      alert('An error occurred while reserving the slot. Please try again.');
+    }
+  };
+
+  const handleCancelReservation = async (slotId) => {
+    try {
+      const result = await parkingSlotAPI.updateSlot(slotId, {
+        status: 'Available',
+        reservedBy: null,
+        reservedFor: null
+      });
+
+      if (result.success) {
+        alert(`Reservation cancelled successfully!`);
+        loadParkingSlots(); // Reload to show updated status
+      } else {
+        alert(`Failed to cancel reservation: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error canceling reservation:', error);
+      alert('An error occurred while canceling the reservation.');
     }
   };
 
@@ -137,6 +192,47 @@ const MyParkingSlots = () => {
           </div>
         </main>
       </div>
+
+      {/* Reservation Modal */}
+      {showReservationModal && (
+        <div className="modal-overlay" onClick={() => setShowReservationModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Reserve Slot {selectedSlot?.location}</h3>
+              <button 
+                className="modal-close"
+                onClick={() => setShowReservationModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: '1.1rem', marginBottom: '20px', textAlign: 'center' }}>
+                Do you want to proceed on reserving this spot?
+              </p>
+              <div className="slot-details">
+                <p><strong>Location:</strong> {selectedSlot?.location}</p>
+                <p><strong>Area:</strong> {selectedParkingArea}</p>
+                <p><strong>Type:</strong> {selectedSlot?.type || 'Standard'}</p>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn-cancel"
+                onClick={() => setShowReservationModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-proceed"
+                onClick={handleConfirmReservation}
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
