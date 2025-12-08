@@ -150,11 +150,6 @@ const ForgotPassword = ({ onNavigateToLogin, onNavigateToLanding }) => {
                   disabled={isSubmitting || resetStatus === 'success'}
                 >
                   {resetStatus === 'success' ? 'Email Sent ✓' : isSubmitting ? 'Sending...' : 'Send Reset Link'}
-                  {!isSubmitting && resetStatus !== 'success' && (
-                    <svg className="btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  )}
                 </Button>
               </form>
 
@@ -205,7 +200,7 @@ const ForgotPassword = ({ onNavigateToLogin, onNavigateToLanding }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   }
-                  text="Link expires in 24 hours"
+                  text="Reset link expires in 24 hours"
                 />
               </div>
             </div>
