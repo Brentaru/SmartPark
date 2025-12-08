@@ -54,9 +54,16 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         
-        user.setFname(userDetails.getFname());
-        user.setLname(userDetails.getLname());
-        user.setEmail(userDetails.getEmail());
+        // Only update fields that are provided (not null and not empty)
+        if (userDetails.getFname() != null && !userDetails.getFname().isEmpty()) {
+            user.setFname(userDetails.getFname());
+        }
+        if (userDetails.getLname() != null && !userDetails.getLname().isEmpty()) {
+            user.setLname(userDetails.getLname());
+        }
+        if (userDetails.getEmail() != null && !userDetails.getEmail().isEmpty()) {
+            user.setEmail(userDetails.getEmail());
+        }
         
         // Only update password if it's provided and not a placeholder
         if (userDetails.getPassword() != null && 
@@ -67,8 +74,12 @@ public class UserService {
             user.setPassword(hashedPassword);
         }
         
-        user.setRole(userDetails.getRole());
-        user.setContact(userDetails.getContact());
+        if (userDetails.getRole() != null && !userDetails.getRole().isEmpty()) {
+            user.setRole(userDetails.getRole());
+        }
+        if (userDetails.getContact() != null && !userDetails.getContact().isEmpty()) {
+            user.setContact(userDetails.getContact());
+        }
         
         // Update vehicle fields if provided
         if (userDetails.getPlateNumber() != null && !userDetails.getPlateNumber().isEmpty()) {
@@ -79,6 +90,11 @@ public class UserService {
         }
         if (userDetails.getVehicleColor() != null && !userDetails.getVehicleColor().isEmpty()) {
             user.setVehicleColor(userDetails.getVehicleColor());
+        }
+        
+        // Update profile picture URL if provided
+        if (userDetails.getProfilePictureUrl() != null && !userDetails.getProfilePictureUrl().isEmpty()) {
+            user.setProfilePictureUrl(userDetails.getProfilePictureUrl());
         }
         
         return userRepository.save(user);

@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
         // Format user data for frontend
         const formattedUser = {
           id: user.userID,
+          userID: user.userID,
           studentId: user.studentId,
           email: user.email,
           firstName: user.fname,
@@ -53,7 +54,8 @@ export const AuthProvider = ({ children }) => {
           contactNumber: user.contact,
           plateNumber: user.plateNumber,
           vehicleType: user.vehicleType,
-          vehicleColor: user.vehicleColor
+          vehicleColor: user.vehicleColor,
+          profilePictureUrl: user.profilePictureUrl || ''
         };
         
         setCurrentUser(formattedUser);
@@ -98,6 +100,7 @@ export const AuthProvider = ({ children }) => {
         // Format user data for frontend
         const formattedUser = {
           id: user.userID,
+          userID: user.userID,
           studentId: user.studentId,
           email: user.email,
           firstName: user.fname,
@@ -106,7 +109,8 @@ export const AuthProvider = ({ children }) => {
           contactNumber: user.contact,
           plateNumber: user.plateNumber,
           vehicleType: user.vehicleType,
-          vehicleColor: user.vehicleColor
+          vehicleColor: user.vehicleColor,
+          profilePictureUrl: user.profilePictureUrl || ''
         };
         
         setCurrentUser(formattedUser);
@@ -189,17 +193,20 @@ export const AuthProvider = ({ children }) => {
 
   // Update user (generic method that updates context after successful API call)
   const updateUser = (updatedUserData) => {
+    // Handle both frontend format (firstName, lastName) and backend format (fname, lname)
     const formattedUser = {
-      id: updatedUserData.userID,
-      studentId: updatedUserData.studentId,
-      email: updatedUserData.email,
-      firstName: updatedUserData.fname,
-      lastName: updatedUserData.lname,
-      role: updatedUserData.role,
-      contactNumber: updatedUserData.contact,
-      plateNumber: updatedUserData.plateNumber,
-      vehicleType: updatedUserData.vehicleType,
-      vehicleColor: updatedUserData.vehicleColor
+      id: updatedUserData.userID || updatedUserData.id || currentUser?.id,
+      userID: updatedUserData.userID || updatedUserData.id || currentUser?.userID,
+      studentId: updatedUserData.studentId || currentUser?.studentId,
+      email: updatedUserData.email || currentUser?.email,
+      firstName: updatedUserData.firstName || updatedUserData.fname || currentUser?.firstName,
+      lastName: updatedUserData.lastName || updatedUserData.lname || currentUser?.lastName,
+      role: updatedUserData.role || currentUser?.role,
+      contactNumber: updatedUserData.contactNumber || updatedUserData.contact || currentUser?.contactNumber,
+      plateNumber: updatedUserData.plateNumber || currentUser?.plateNumber,
+      vehicleType: updatedUserData.vehicleType || currentUser?.vehicleType,
+      vehicleColor: updatedUserData.vehicleColor || currentUser?.vehicleColor,
+      profilePictureUrl: updatedUserData.profilePictureUrl || currentUser?.profilePictureUrl || ''
     };
     
     // Update both state and localStorage
