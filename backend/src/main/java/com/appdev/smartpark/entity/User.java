@@ -36,6 +36,9 @@ public class User {
     @Column(name = "vehicle_color")
     private String vehicleColor;
     
+    @Column(name = "profile_picture_url", length = 500)
+    private String profilePictureUrl;
+    
     @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties({"user", "parkingRecords"})
     private List<Vehicle> vehicles;
@@ -161,5 +164,13 @@ public class User {
 
     public void setVehicleColor(String vehicleColor) {
         this.vehicleColor = vehicleColor;
+    }
+    
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+    
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 }

@@ -23,4 +23,5 @@ public class UserRequestDTO {
     private String plateNumber;
     private String vehicleType;
     private String vehicleColor;
+    private String profilePictureUrl;
 }
