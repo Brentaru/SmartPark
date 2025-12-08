@@ -11,7 +11,7 @@ import GuardDashboard from './dashboard/GuardDashboard';
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
-  const { isExpanded } = useSidebar();
+  const { isExpanded, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = React.useState(currentUser);
@@ -41,10 +41,6 @@ const Dashboard = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
   if (!user) {
     return (

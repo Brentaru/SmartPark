@@ -75,8 +75,13 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
         } else {
           // Show success message
           alert(`Welcome back, ${result.user.firstName}!`);
-          // Navigate to dashboard
-          onNavigateToDashboard();
+          // Navigate to appropriate dashboard based on role
+          const userRole = result.user.role?.toLowerCase();
+          if (userRole === 'admin') {
+            window.location.href = '/admin-dashboard';
+          } else {
+            onNavigateToDashboard();
+          }
         }
       } else {
         setLoginError('Invalid credentials. Please check your ID number and password.');
