@@ -3,7 +3,7 @@
   position: fixed;
   top: 0;
   right: 0;
-  left: 0;
+  left: 260px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -11,7 +11,11 @@
   background: white;
   border-bottom: 1px solid #e6e6e6;
   z-index: 90;
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.auth-topbar.sidebar-collapsed {
+  left: 70px;
 }
 
 .topbar-left { 

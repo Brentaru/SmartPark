@@ -2,9 +2,6 @@
 
 /* Page Header */
 .parking-slots-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 2rem;
 }
 
@@ -16,10 +13,121 @@
 }
 
 .parking-slots-subtitle {
+  color: #6b7280;
   font-size: 0.9375rem;
-  color: #9ca3af;
   margin: 0;
 }
+
+/* Parking Controls */
+.parking-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.active-slots-counter,
+.parking-area-dropdown-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.active-slots-counter svg,
+.parking-area-dropdown-container svg {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  background: #fee2e2;
+  border-radius: 8px;
+  color: #dc2626;
+  flex-shrink: 0;
+}
+
+.active-slots-counter > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.counter-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.counter-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-top: 0.25rem;
+}
+
+/* Parking Area Dropdown */
+.dropdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.dropdown-wrapper label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dropdown-wrapper select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23111827' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 16px;
+}
+
+.dropdown-wrapper select:hover {
+  border-color: #d1d5db;
+}
+
+.dropdown-wrapper select:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .parking-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .active-slots-counter {
+    justify-content: center;
+  }
+  
+  .parking-area-dropdown {
+    justify-content: space-between;
+  }
+}
+
 
 .new-reservation-btn {
   display: inline-flex;
