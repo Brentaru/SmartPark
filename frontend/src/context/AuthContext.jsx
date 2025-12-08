@@ -93,9 +93,9 @@ export const AuthProvider = ({ children }) => {
       if (result.success) {
         const user = result.data;
         
-        // Auto-detect correct role from ID format
+        // Use backend role first, fallback to auto-detect if not set
         const detectedRole = detectRoleFromId(studentId);
-        const correctRole = detectedRole || user.role;
+        const correctRole = user.role || detectedRole;
         
         // Format user data for frontend
         const formattedUser = {
