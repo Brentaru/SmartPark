@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { parkingAreaAPI, parkingSlotAPI } from '../../../api/api';
 import '../../../styles/dashboard/admin/ParkingAreaManagement.css';
-import { Box, TextField, Button, Grid, Card, CardContent, Typography, IconButton, Modal } from '@mui/material';
-import { Edit, Delete, Add, LocationOn } from '@mui/icons-material';
 import ParkingMap from '../../dashboard/ParkingMap';
 
 const ParkingAreaManagement = ({ onUpdate }) => {

@@ -19,7 +19,7 @@ const SystemLogs = lazy(() => import('../../components/dashboard/admin/SystemLog
 const Reports = lazy(() => import('../../components/dashboard/admin/Reports'));
 
 const AdminDashboard = () => {
-  const { } = useAuth();
+  // const { user } = useAuth(); // Uncomment if needed
   const [activeTab, setActiveTab] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [stats, setStats] = useState({

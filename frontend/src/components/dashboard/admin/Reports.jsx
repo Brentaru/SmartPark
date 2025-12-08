@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { parkingRecordAPI, parkingSlotAPI, parkingAreaAPI, userAPI } from '../../../api/api';
 import '../../../styles/dashboard/admin/Reports.css';
-import { Box, Card, CardContent, Typography, Button, Grid, LinearProgress, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { FileDownload, Print, Assessment } from '@mui/icons-material';
 
 const Reports = () => {
   const [loading, setLoading] = useState(true);

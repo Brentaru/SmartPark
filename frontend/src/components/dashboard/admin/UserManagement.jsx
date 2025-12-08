@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userAPI } from '../../../api/api';
 import '../../../styles/dashboard/admin/UserManagement.css';
-import { Box, TextField, Select, MenuItem, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Modal, FormControl, InputLabel } from '@mui/material';
-import { Search, Edit, Delete, Visibility, Add } from '@mui/icons-material';
 
 const UserManagement = ({ onUpdate }) => {
   const [users, setUsers] = useState([]);

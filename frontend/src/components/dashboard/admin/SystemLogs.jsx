@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { parkingRecordAPI, userAPI } from '../../../api/api';
 import '../../../styles/dashboard/admin/SystemLogs.css';
-import { Box, Select, MenuItem, Typography, Chip, Paper } from '@mui/material';
-import { Info, CheckCircle, Warning, Error as ErrorIcon } from '@mui/icons-material';
 
 const SystemLogs = () => {
   const [logs, setLogs] = useState([]);
