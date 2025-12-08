@@ -34,11 +34,6 @@ const AuthTopbar = ({ pageTitle = 'Dashboard' }) => {
   return (
     <header className={`auth-topbar ${isExpanded ? '' : 'sidebar-collapsed'}`}>
       <div className="topbar-left">
-        <div className="topbar-brand">
-          <span className="brand-smart">Smart</span>
-          <span className="brand-park">Park</span>
-        </div>
-        <div className="topbar-sep">—</div>
         <div className="topbar-title">{pageTitle}</div>
       </div>
 
