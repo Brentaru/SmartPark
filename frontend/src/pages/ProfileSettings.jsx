@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
@@ -7,16 +8,14 @@ import '../styles/ProfileSettings.css';
 
 const ProfileSettings = () => {
   const { currentUser, isAuthenticated } = useAuth();
+  const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const getInitials = () => {
     const firstName = currentUser?.firstName || 'J';
@@ -30,12 +29,12 @@ const ProfileSettings = () => {
 
   return (
     <div className="dashboard-page">
-      <AuthTopbar pageTitle="Profile Settings" onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <AuthTopbar pageTitle="Profile Settings" />
       
       <div className="dashboard-layout">
-        <Sidebar isOpen={sidebarOpen} />
+        <Sidebar />
         
-        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
+        <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
           <div className="dashboard-container">
             {/* Page Header */}
             <div className="settings-page-header">

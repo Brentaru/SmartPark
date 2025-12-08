@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import { useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import '../styles/Dashboard.css';
 import Sidebar from '../components/Sidebar';
@@ -10,9 +11,9 @@ import GuardDashboard from './dashboard/GuardDashboard';
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
+  const { isExpanded } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [user, setUser] = React.useState(currentUser);
 
   // Refresh user data when component mounts or location changes
@@ -40,13 +41,6 @@ const Dashboard = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
-
-  // Redirect Admin users to admin dashboard
-  React.useEffect(() => {
-    if (user && user.role && user.role.toLowerCase() === 'admin') {
-      navigate('/admin-dashboard');
-    }
-  }, [user, navigate]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -86,12 +80,12 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-page">
-      <AuthTopbar pageTitle={getPageTitle()} onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <AuthTopbar pageTitle={getPageTitle()} />
 
       <div className="dashboard-layout">
-        <Sidebar isOpen={sidebarOpen} />
+        <Sidebar />
 
-        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
+        <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
           <div className="dashboard-container">
             <Routes>
               {/* Dashboard Home - default route */}
