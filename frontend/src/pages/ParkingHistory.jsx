@@ -4,14 +4,16 @@ import { useSidebar } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
-import { mockParkingHistory } from '../data/mockData';
 import '../styles/ParkingHistory.css';
 
 const ParkingHistory = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const [filterLocation, setFilterLocation] = useState('all');
+  const API_BASE_URL = 'http://localhost:8080/api';
+  
+  const [parkingHistory, setParkingHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
@@ -23,21 +25,65 @@ const ParkingHistory = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Use mock parking history data from centralized location
-  const parkingHistory = mockParkingHistory;
+  // Fetch parking history from backend
+  useEffect(() => {
+    if (currentUser) {
+      fetchParkingHistory();
+    }
+  }, [currentUser]);
+
+  const fetchParkingHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/parking-records`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch parking history');
+      }
+      const data = await response.json();
+      
+      // Transform backend data to display format
+      const transformedHistory = data.map(record => {
+        const entryTime = record.entryTime ? new Date(record.entryTime) : null;
+        const exitTime = record.exitTime ? new Date(record.exitTime) : null;
+        
+        // Calculate duration
+        let duration = null;
+        if (entryTime && exitTime) {
+          const diff = exitTime - entryTime;
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          duration = `${hours}h ${minutes}m`;
+        }
+        
+        return {
+          id: record.recordID,
+          date: entryTime ? entryTime.toLocaleDateString() : 'N/A',
+          slot: record.slotLocation || 'N/A',
+          area: record.areaName || 'NGE Parking Area',
+          timeIn: entryTime ? entryTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A',
+          timeOut: exitTime ? exitTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
+          duration: duration,
+          vehicle: record.vehiclePlateNumber || 'N/A',
+          status: exitTime ? 'Completed' : 'Active'
+        };
+      });
+      
+      setParkingHistory(transformedHistory);
+    } catch (err) {
+      console.error('Error fetching parking history:', err);
+      setParkingHistory([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter and sort logic
   const getFilteredHistory = () => {
     let filtered = [...parkingHistory];
 
-    // Filter by location
-    if (filterLocation !== 'all') {
-      filtered = filtered.filter(record => record.area.toLowerCase().includes(filterLocation.toLowerCase()));
-    }
-
     // Filter by status
     if (filterStatus !== 'all') {
-      filtered = filtered.filter(record => record.status.toLowerCase() === filterStatus);
+      filtered = filtered.filter(record => record.status.toLowerCase() === filterStatus.toLowerCase());
     }
 
     // Search filter
@@ -83,7 +129,7 @@ const ParkingHistory = () => {
   // Statistics
   const totalSessions = parkingHistory.length;
   const completedSessions = parkingHistory.filter(r => r.status === 'Completed').length;
-  const expiredSessions = parkingHistory.filter(r => r.status === 'Expired').length;
+  const activeSessions = parkingHistory.filter(r => r.status === 'Active').length;
   const mostUsedSlot = parkingHistory.reduce((acc, record) => {
     acc[record.slot] = (acc[record.slot] || 0) + 1;
     return acc;
@@ -95,120 +141,138 @@ const ParkingHistory = () => {
   }
 
   return (
-    <div className="parking-history-page">
+    <div className="dashboard-page">
       <AuthTopbar pageTitle="Parking History" />
 
       <div className="dashboard-layout">
         <Sidebar />
 
         <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
-          <div className="history-container">
+          <div className="dashboard-container">
             {/* Page Header */}
-            <section className="history-header">
-              <div className="header-content">
-                <h1 className="history-title">Parking History</h1>
-                <p className="history-subtitle">View your complete parking activity records</p>
-              </div>
-            </section>
+            <div className="page-header">
+              <h1 className="page-title">Parking History</h1>
+              <p className="page-subtitle">View your complete parking activity records</p>
+            </div>
 
             {/* Statistics Cards */}
-            <section className="history-stats">
+            <div className="parking-stats">
               <div className="stat-card">
-                <div className="stat-icon stat-icon-primary">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="stat-icon" style={{ background: '#f3f4f6', color: '#6b7280' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                   </svg>
                 </div>
-                <div className="stat-info">
-                  <div className="stat-value">{totalSessions}</div>
-                  <div className="stat-label">Total Sessions</div>
+                <div className="stat-content">
+                  <p className="stat-label">Total Sessions</p>
+                  <p className="stat-value">{totalSessions}</p>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon stat-icon-success">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="stat-icon" style={{ background: '#d1fae5', color: '#059669' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </div>
-                <div className="stat-info">
-                  <div className="stat-value">{completedSessions}</div>
-                  <div className="stat-label">Completed</div>
+                <div className="stat-content">
+                  <p className="stat-label">Completed</p>
+                  <p className="stat-value">{completedSessions}</p>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon stat-icon-warning">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                <div className="stat-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
                   </svg>
                 </div>
-                <div className="stat-info">
-                  <div className="stat-value">{expiredSessions}</div>
-                  <div className="stat-label">Expired</div>
+                <div className="stat-content">
+                  <p className="stat-label">Active</p>
+                  <p className="stat-value">{activeSessions}</p>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon stat-icon-info">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="stat-icon" style={{ background: '#dbeafe', color: '#3b82f6' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                     <circle cx="12" cy="10" r="3"/>
                   </svg>
                 </div>
-                <div className="stat-info">
-                  <div className="stat-value">{favoriteSlot}</div>
-                  <div className="stat-label">Favorite Slot</div>
+                <div className="stat-content">
+                  <p className="stat-label">Favorite Slot</p>
+                  <p className="stat-value">{favoriteSlot}</p>
                 </div>
               </div>
-            </section>
+            </div>
 
             {/* Filters and Controls */}
-            <section className="history-controls">
-              <div className="controls-row">
-                <div className="search-box">
-                  <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
-                  </svg>
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search by location, slot, or vehicle..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-
-                <div className="filter-group">
-                  <select 
-                    className="filter-select"
-                    value={filterLocation}
-                    onChange={(e) => setFilterLocation(e.target.value)}
-                  >
-                    <option value="all">All Locations</option>
-                    <option value="nge">NGE Parking Area</option>
-                  </select>
-
-                  <select 
-                    className="filter-select"
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  >
-                    <option value="all">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="expired">Expired</option>
-                  </select>
-                </div>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ flex: '1', minWidth: '250px', position: 'relative' }}>
+                <svg 
+                  style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }}
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search by slot, vehicle, or date..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.625rem 0.875rem 0.625rem 2.5rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.5rem',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
               </div>
-            </section>
+
+              <select 
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                style={{
+                  padding: '0.625rem 0.875rem',
+                  fontSize: '0.875rem',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.5rem',
+                  background: 'white',
+                  color: '#111827',
+                  cursor: 'pointer',
+                  outline: 'none',
+                  minWidth: '150px'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+              >
+                <option value="all">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="active">Active</option>
+              </select>
+            </div>
 
             {/* History Table */}
-            <section className="history-table-section">
-              <div className="table-container">
+            <div style={{ background: 'white', borderRadius: '0.75rem', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '3rem', background: '#f9fafb', borderRadius: '8px' }}>
+                  <div style={{ fontSize: '1rem', color: '#6b7280' }}>Loading parking history...</div>
+                </div>
+              ) : (
+                <div className="table-container">
                 <table className="history-table">
                   <thead>
                     <tr>
@@ -261,7 +325,8 @@ const ParkingHistory = () => {
                   </tbody>
                 </table>
               </div>
-            </section>
+              )}
+            </div>
           </div>
         </main>
       </div>
