@@ -65,7 +65,23 @@ const StudentDashboard = ({ currentUser }) => {
           reservedBy: slot.reservedBy,
           reservedFor: slot.reservedFor
         }));
-        setParkingSlots(transformedSlots);
+        
+        // Sort slots by location to ensure consistent order (A-01, A-02, ..., B-01, B-02, ...)
+        const sortedSlots = transformedSlots.sort((a, b) => {
+          if (!a.location || !b.location) {
+            if (!a.location && !b.location) return 0;
+            if (!a.location) return 1;
+            if (!b.location) return -1;
+          }
+          const [letterA, numA] = a.location.split('-');
+          const [letterB, numB] = b.location.split('-');
+          if (letterA !== letterB) {
+            return letterA.localeCompare(letterB);
+          }
+          return parseInt(numA) - parseInt(numB);
+        });
+        
+        setParkingSlots(sortedSlots);
       } else {
         console.warn('No parking slots found in database.');
         setParkingSlots([]);

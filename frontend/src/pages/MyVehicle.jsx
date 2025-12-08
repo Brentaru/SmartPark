@@ -132,16 +132,48 @@ const MyVehicle = () => {
                 <h1 className="page-title">My Vehicles</h1>
                 <p className="page-subtitle">Manage your registered vehicles</p>
               </div>
-              <button 
-                className="add-vehicle-btn" 
-                onClick={() => setShowAddForm(!showAddForm)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="12" y1="5" x2="12" y2="19"/>
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                </svg>
-                {showAddForm ? 'Cancel' : 'Add Vehicle'}
-              </button>
+            </div>
+
+            {/* Statistics Cards */}
+            <div className="stats-section">
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                    <circle cx="6.5" cy="16.5" r="2.5"/>
+                    <circle cx="16.5" cy="16.5" r="2.5"/>
+                  </svg>
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">{vehicles.length}</div>
+                  <div className="stat-label">Total Vehicles</div>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon stat-icon-primary">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                  </svg>
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">{vehicles.filter(v => v.type === 'Car').length}</div>
+                  <div className="stat-label">Cars</div>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon stat-icon-success">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
+                <div className="stat-content">
+                  <div className="stat-value">{vehicles.filter(v => v.type !== 'Car').length}</div>
+                  <div className="stat-label">Other Types</div>
+                </div>
+              </div>
             </div>
 
             {error && (
@@ -155,98 +187,111 @@ const MyVehicle = () => {
               </div>
             )}
 
-            {showAddForm && (
-              <div className="vehicle-form-card">
-                <h3 className="form-card-title">
+            {/* Always show Add Vehicle Form */}
+            <div className="vehicle-form-card">
+              <div className="form-header">
+                <h3 className="form-title">
                   {editingVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}
                 </h3>
-                <form onSubmit={handleSubmit} className="vehicle-form">
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="plateNumber">
-                        Plate Number <span className="required">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="plateNumber"
-                        name="plateNumber"
-                        value={formData.plateNumber}
-                        onChange={handleChange}
-                        placeholder="e.g., ABC-1234"
-                        className="form-input"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="type">
-                        Vehicle Type <span className="required">*</span>
-                      </label>
-                      <select
-                        id="type"
-                        name="type"
-                        value={formData.type}
-                        onChange={handleChange}
-                        className="form-input"
-                        required
-                      >
-                        <option value="Car">Car</option>
-                        <option value="Motorcycle">Motorcycle</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Van">Van</option>
-                        <option value="Truck">Truck</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="color">
-                        Vehicle Color <span className="required">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        id="color"
-                        name="color"
-                        value={formData.color}
-                        onChange={handleChange}
-                        placeholder="e.g., Black, White, Red"
-                        className="form-input"
-                        required
-                      />
-                    </div>
+                <p className="form-subtitle">Complete the form below to register your vehicle</p>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="vehicle-form">
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label className="field-label">
+                      PLATE NUMBER <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="plateNumber"
+                      value={formData.plateNumber}
+                      onChange={handleChange}
+                      placeholder="Enter plate number (e.g., ABC-1234)"
+                      className="field-input"
+                      required
+                    />
                   </div>
 
+                  <div className="form-field">
+                    <label className="field-label">
+                      VEHICLE TYPE <span className="required">*</span>
+                    </label>
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      className="field-input"
+                      required
+                    >
+                      <option value="Car">Car</option>
+                      <option value="Motorcycle">Motorcycle</option>
+                      <option value="SUV">SUV</option>
+                      <option value="Van">Van</option>
+                      <option value="Truck">Truck</option>
+                    </select>
+                  </div>
+
+                  <div className="form-field">
+                    <label className="field-label">
+                      VEHICLE COLOR <span className="required">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="color"
+                      value={formData.color}
+                      onChange={handleChange}
+                      placeholder="Enter vehicle color (e.g., Black, White, Red)"
+                      className="field-input"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-footer">
+                  <p className="form-note">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="16" x2="12" y2="12"/>
+                      <line x1="12" y1="8" x2="12.01" y2="8"/>
+                    </svg>
+                    This information is required for parking management and security purposes.
+                  </p>
                   <div className="form-actions">
-                    <button type="button" className="btn-secondary" onClick={resetForm}>
-                      Cancel
-                    </button>
-                    <button type="submit" className="btn-primary">
-                      {editingVehicle ? 'Update Vehicle' : 'Add Vehicle'}
+                    {editingVehicle && (
+                      <button type="button" onClick={resetForm} className="btn-cancel">
+                        Cancel
+                      </button>
+                    )}
+                    <button type="submit" className="btn-submit">
+                      {editingVehicle ? 'Update Vehicle' : 'Complete Registration'}
                     </button>
                   </div>
-                </form>
-              </div>
-            )}
+                </div>
+              </form>
+            </div>
 
-            {loading ? (
-              <div className="loading-state">
-                <div className="spinner"></div>
-                <p>Loading vehicles...</p>
-              </div>
-            ) : vehicles.length === 0 ? (
-              <div className="empty-state">
-                <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
-                  <circle cx="6.5" cy="16.5" r="2.5"/>
-                  <circle cx="16.5" cy="16.5" r="2.5"/>
-                </svg>
-                <h3>No Vehicles Registered</h3>
-                <p>Add your first vehicle to get started</p>
-                <button className="btn-primary" onClick={() => setShowAddForm(true)}>
-                  Add Vehicle
-                </button>
-              </div>
-            ) : (
-              <div className="vehicles-grid">
+            {/* Registered Vehicles Section */}
+            <div className="vehicles-section">
+              <h2 className="section-title">Registered Vehicles</h2>
+
+              {loading ? (
+                <div className="loading-state">
+                  <div className="spinner"></div>
+                  <p>Loading vehicles...</p>
+                </div>
+              ) : vehicles.length === 0 ? (
+                <div className="empty-state">
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                    <circle cx="6.5" cy="16.5" r="2.5"/>
+                    <circle cx="16.5" cy="16.5" r="2.5"/>
+                  </svg>
+                  <h3>No Vehicles Registered</h3>
+                  <p>Add your first vehicle using the form above</p>
+                </div>
+              ) : (
+                <div className="vehicles-grid">
                 {vehicles.map((vehicle) => (
                   <div key={vehicle.vehicleID} className="vehicle-card">
                     <div className="vehicle-icon">
@@ -300,7 +345,8 @@ const MyVehicle = () => {
                   </div>
                 ))}
               </div>
-            )}
+              )}
+            </div>
           </div>
         </main>
       </div>

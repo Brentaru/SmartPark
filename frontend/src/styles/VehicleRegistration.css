@@ -1,137 +1,348 @@
+/* Vehicle Registration Requirements Page */
 .vehicle-registration-container {
   min-height: 100vh;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
   display: flex;
-  justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  justify-content: center;
+  padding: 2rem;
 }
 
 .vehicle-registration-card {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 10px 25px rgba(0, 0, 0, 0.05);
+  max-width: 650px;
   width: 100%;
-  padding: 40px;
+  overflow: hidden;
 }
 
+/* Header Section */
 .vehicle-registration-header {
+  background: white;
+  padding: 3rem 3rem 2rem;
   text-align: center;
-  margin-bottom: 30px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+.brand-logo .smart-text {
+  color: #111827;
+}
+
+.brand-logo .park-text {
+  color: #dc2626;
 }
 
 .vehicle-registration-header h2 {
-  font-size: 28px;
-  color: #2d3748;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.2;
 }
 
 .vehicle-registration-header p {
-  font-size: 14px;
-  color: #718096;
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
+/* Error Message */
 .error-message {
-  background: #fed7d7;
-  border: 1px solid #fc8181;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 20px;
-  color: #c53030;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
 }
 
+.error-icon {
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+.error-message span {
+  font-size: 0.875rem;
+  color: #991b1b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Form Section */
 .vehicle-registration-form {
+  padding: 2.5rem 3rem 3rem;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.75rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .form-group label {
-  font-size: 14px;
   font-weight: 600;
-  color: #2d3748;
+  color: #111827;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  letter-spacing: 0.01em;
 }
 
 .required {
-  color: #e53e3e;
+  color: #dc2626;
+  font-size: 1rem;
+  margin-left: 2px;
 }
 
-.form-input {
-  padding: 12px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: all 0.3s ease;
+.form-input,
+select.form-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+  background: #fafafa;
+  color: #111827;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-.form-input:focus {
+.form-input:hover,
+select.form-input:hover {
+  border-color: #d1d5db;
+  background: white;
+}
+
+.form-input:focus,
+select.form-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #dc2626;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+select.form-input {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='9' viewBox='0 0 14 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L7 7.5L13 1.5' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 3rem;
+  background-color: #fafafa;
+}
+
+select.form-input:hover {
+  background-color: white;
 }
 
 .form-hint {
-  font-size: 12px;
-  color: #718096;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
 }
 
+/* Submit Button */
 .form-actions {
-  margin-top: 10px;
+  margin-top: 0.5rem;
 }
 
 .submit-btn {
   width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem 1.5rem;
+  background: #dc2626;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 6px;
   font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.2);
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  background: #b91c1c;
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.25);
+  transform: translateY(-1px);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  background: #d1d5db;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-.registration-info {
-  margin-top: 25px;
-  padding-top: 25px;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
+/* Info Note */
+.registration-info,
+.info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: #f0f9ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  margin-top: 1.5rem;
 }
 
-.registration-info p {
-  font-size: 13px;
-  color: #718096;
-  margin: 8px 0;
+.info-icon {
+  flex-shrink: 0;
+  color: #2563eb;
+  margin-top: 2px;
+}
+
+.registration-info p,
+.info-note p {
+  font-size: 0.875rem;
+  color: #1e40af;
+  margin: 0;
   line-height: 1.5;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #f3f4f6;
+  border-top-color: #dc2626;
+  border-radius: 50%;
+  animation: spin-loader 0.8s linear infinite;
+}
+
+@keyframes spin-loader {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: #6b7280;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vehicle-registration-container {
+    padding: 1rem;
+  }
+
+  .vehicle-registration-header {
+    padding: 2rem 1.5rem 1.5rem;
+  }
+
+  .brand-logo {
+    font-size: 1.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .vehicle-registration-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .vehicle-registration-header p {
+    font-size: 0.9375rem;
+  }
+
+  .vehicle-registration-form {
+    padding: 2rem 1.5rem 2.5rem;
+    gap: 1.5rem;
+  }
+
+  .form-input,
+  select.form-input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .submit-btn {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9375rem;
+  }
 }
 
 @media (max-width: 600px) {
   .vehicle-registration-card {
-    padding: 30px 20px;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vehicle-registration-container {
+    padding: 0.5rem;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+
+  .vehicle-registration-header {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .brand-logo {
+    font-size: 1.625rem;
+    margin-bottom: 1.25rem;
   }
 
   .vehicle-registration-header h2 {
-    font-size: 24px;
+    font-size: 1.375rem;
   }
+
+  .vehicle-registration-form {
+    padding: 1.5rem 1.25rem 2rem;
+  }
+}
+
+/* Accessibility */
+.form-input:disabled,
+select.form-input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Focus visible for keyboard navigation */
+.form-input:focus-visible,
+select.form-input:focus-visible,
+.submit-btn:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 2px;
 }

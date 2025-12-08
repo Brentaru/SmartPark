@@ -4,19 +4,19 @@ import { useSidebar } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
+import { parkingRecordAPI } from '../api/api';
 import '../styles/ParkingHistory.css';
 
 const ParkingHistory = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const API_BASE_URL = 'http://localhost:8080/api';
-  
-  const [parkingHistory, setParkingHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [filterLocation, setFilterLocation] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
+  const [parkingHistory, setParkingHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -25,65 +25,89 @@ const ParkingHistory = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Fetch parking history from backend
+  // Load parking history from API
   useEffect(() => {
-    if (currentUser) {
-      fetchParkingHistory();
-    }
-  }, [currentUser]);
+    const loadParkingHistory = async () => {
+      if (!currentUser?.id) return;
 
-  const fetchParkingHistory = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${API_BASE_URL}/parking-records`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch parking history');
-      }
-      const data = await response.json();
-      
-      // Transform backend data to display format
-      const transformedHistory = data.map(record => {
-        const entryTime = record.entryTime ? new Date(record.entryTime) : null;
-        const exitTime = record.exitTime ? new Date(record.exitTime) : null;
-        
-        // Calculate duration
-        let duration = null;
-        if (entryTime && exitTime) {
-          const diff = exitTime - entryTime;
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          duration = `${hours}h ${minutes}m`;
+      try {
+        setLoading(true);
+        const result = await parkingRecordAPI.getRecordsByUser(currentUser.id);
+        console.log('📊 Parking history for user', currentUser.id, ':', result);
+
+        if (result.success && result.data) {
+          // Transform API data to match component format
+          const transformedHistory = result.data.map(record => {
+            const entryTime = new Date(record.entryTime);
+            const exitTime = record.exitTime ? new Date(record.exitTime) : null;
+
+            // Calculate duration
+            let duration = null;
+            if (exitTime) {
+              const durationMs = exitTime - entryTime;
+              const hours = Math.floor(durationMs / (1000 * 60 * 60));
+              const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+              duration = `${hours}h ${minutes}m`;
+            }
+
+            // Determine status
+            let status = 'Active';
+            if (exitTime) {
+              status = 'Completed';
+            } else if (entryTime < new Date(Date.now() - 24 * 60 * 60 * 1000)) {
+              status = 'Expired';
+            }
+
+            return {
+              id: record.recordID,
+              date: entryTime.toISOString().split('T')[0],
+              slot: record.slotLocation || 'N/A',
+              area: 'NGE Parking Area',
+              timeIn: entryTime.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true 
+              }),
+              timeOut: exitTime ? exitTime.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true 
+              }) : null,
+              duration: duration,
+              status: status,
+              vehicle: record.vehiclePlate || 'N/A'
+            };
+          });
+
+          console.log('✅ Transformed parking history:', transformedHistory);
+          setParkingHistory(transformedHistory);
+        } else {
+          console.warn('⚠️ No parking history found');
+          setParkingHistory([]);
         }
-        
-        return {
-          id: record.recordID,
-          date: entryTime ? entryTime.toLocaleDateString() : 'N/A',
-          slot: record.slotLocation || 'N/A',
-          area: record.areaName || 'NGE Parking Area',
-          timeIn: entryTime ? entryTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A',
-          timeOut: exitTime ? exitTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null,
-          duration: duration,
-          vehicle: record.vehiclePlateNumber || 'N/A',
-          status: exitTime ? 'Completed' : 'Active'
-        };
-      });
-      
-      setParkingHistory(transformedHistory);
-    } catch (err) {
-      console.error('Error fetching parking history:', err);
-      setParkingHistory([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      } catch (error) {
+        console.error('Error loading parking history:', error);
+        setParkingHistory([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadParkingHistory();
+  }, [currentUser]);
 
   // Filter and sort logic
   const getFilteredHistory = () => {
     let filtered = [...parkingHistory];
 
+    // Filter by location
+    if (filterLocation !== 'all') {
+      filtered = filtered.filter(record => record.area.toLowerCase().includes(filterLocation.toLowerCase()));
+    }
+
     // Filter by status
     if (filterStatus !== 'all') {
-      filtered = filtered.filter(record => record.status.toLowerCase() === filterStatus.toLowerCase());
+      filtered = filtered.filter(record => record.status.toLowerCase() === filterStatus);
     }
 
     // Search filter
@@ -129,7 +153,7 @@ const ParkingHistory = () => {
   // Statistics
   const totalSessions = parkingHistory.length;
   const completedSessions = parkingHistory.filter(r => r.status === 'Completed').length;
-  const activeSessions = parkingHistory.filter(r => r.status === 'Active').length;
+  const expiredSessions = parkingHistory.filter(r => r.status === 'Expired').length;
   const mostUsedSlot = parkingHistory.reduce((acc, record) => {
     acc[record.slot] = (acc[record.slot] || 0) + 1;
     return acc;
@@ -140,139 +164,137 @@ const ParkingHistory = () => {
     return <div>Loading...</div>;
   }
 
+  if (loading) {
+    return (
+      <div className="parking-history-page">
+        <AuthTopbar pageTitle="Parking History" />
+        <div className="dashboard-layout">
+          <Sidebar />
+          <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
+            <div style={{ textAlign: 'center', padding: '3rem' }}>
+              <p>Loading parking history...</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="dashboard-page">
+    <div className="parking-history-page">
       <AuthTopbar pageTitle="Parking History" />
 
       <div className="dashboard-layout">
         <Sidebar />
 
         <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
-          <div className="dashboard-container">
+          <div className="history-container">
             {/* Page Header */}
-            <div className="page-header">
-              <h1 className="page-title">Parking History</h1>
-              <p className="page-subtitle">View your complete parking activity records</p>
-            </div>
+            <section className="history-header">
+              <div className="header-content">
+                <h1 className="history-title">Parking History</h1>
+                <p className="history-subtitle">View your complete parking activity records</p>
+              </div>
+            </section>
 
             {/* Statistics Cards */}
-            <div className="parking-stats">
+            <section className="history-stats">
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <div className="stat-icon stat-icon-primary">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <polyline points="12 6 12 12 16 14"/>
                   </svg>
                 </div>
-                <div className="stat-content">
-                  <p className="stat-label">Total Sessions</p>
-                  <p className="stat-value">{totalSessions}</p>
+                <div className="stat-info">
+                  <div className="stat-value">{totalSessions}</div>
+                  <div className="stat-label">Total Sessions</div>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#d1fae5', color: '#059669' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <div className="stat-icon stat-icon-success">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 </div>
-                <div className="stat-content">
-                  <p className="stat-label">Completed</p>
-                  <p className="stat-value">{completedSessions}</p>
+                <div className="stat-info">
+                  <div className="stat-value">{completedSessions}</div>
+                  <div className="stat-label">Completed</div>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
+                <div className="stat-icon stat-icon-warning">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
                   </svg>
                 </div>
-                <div className="stat-content">
-                  <p className="stat-label">Active</p>
-                  <p className="stat-value">{activeSessions}</p>
+                <div className="stat-info">
+                  <div className="stat-value">{expiredSessions}</div>
+                  <div className="stat-label">Expired</div>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#dbeafe', color: '#3b82f6' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <div className="stat-icon stat-icon-info">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                     <circle cx="12" cy="10" r="3"/>
                   </svg>
                 </div>
-                <div className="stat-content">
-                  <p className="stat-label">Favorite Slot</p>
-                  <p className="stat-value">{favoriteSlot}</p>
+                <div className="stat-info">
+                  <div className="stat-value">{favoriteSlot}</div>
+                  <div className="stat-label">Favorite Slot</div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Filters and Controls */}
-            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <div style={{ flex: '1', minWidth: '250px', position: 'relative' }}>
-                <svg 
-                  style={{ position: 'absolute', left: '0.875rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }}
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2"
-                >
-                  <circle cx="11" cy="11" r="8"/>
-                  <path d="m21 21-4.35-4.35"/>
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search by slot, vehicle, or date..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '0.625rem 0.875rem 0.625rem 2.5rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-              </div>
+            <section className="history-controls">
+              <div className="controls-row">
+                <div className="search-box">
+                  <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Search by location, slot, or vehicle..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
 
-              <select 
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                style={{
-                  padding: '0.625rem 0.875rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '0.5rem',
-                  background: 'white',
-                  color: '#111827',
-                  cursor: 'pointer',
-                  outline: 'none',
-                  minWidth: '150px'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-              >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="active">Active</option>
-              </select>
-            </div>
+                <div className="filter-group">
+                  <select 
+                    className="filter-select"
+                    value={filterLocation}
+                    onChange={(e) => setFilterLocation(e.target.value)}
+                  >
+                    <option value="all">All Locations</option>
+                    <option value="nge">NGE Parking Area</option>
+                  </select>
+
+                  <select 
+                    className="filter-select"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <option value="all">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                </div>
+              </div>
+            </section>
 
             {/* History Table */}
-            <div style={{ background: 'white', borderRadius: '0.75rem', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-              {loading ? (
-                <div style={{ textAlign: 'center', padding: '3rem', background: '#f9fafb', borderRadius: '8px' }}>
-                  <div style={{ fontSize: '1rem', color: '#6b7280' }}>Loading parking history...</div>
-                </div>
-              ) : (
-                <div className="table-container">
+            <section className="history-table-section">
+              <div className="table-container">
                 <table className="history-table">
                   <thead>
                     <tr>
@@ -325,8 +347,7 @@ const ParkingHistory = () => {
                   </tbody>
                 </table>
               </div>
-              )}
-            </div>
+            </section>
           </div>
         </main>
       </div>

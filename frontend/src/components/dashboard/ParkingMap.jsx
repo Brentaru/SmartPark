@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import '../../styles/dashboard/ParkingMap.css';
+import NotificationModal from '../NotificationModal';
 
 const ParkingMap = ({ slots, onSlotClick, canReserve = false, guardMode = false }) => {
+  const [notification, setNotification] = useState({ show: false, type: 'info', title: '', message: '' });
   const getSlotClass = (status) => {
     switch(status) {
       case 'free': return 'slot-free';
@@ -20,28 +22,55 @@ const ParkingMap = ({ slots, onSlotClick, canReserve = false, guardMode = false 
       if (slot.status === 'free') {
         onSlotClick(slot);
       } else if (slot.status === 'reserved') {
-        alert(`This slot is already reserved.`);
+        setNotification({
+          show: true,
+          type: 'warning',
+          title: 'Slot Already Reserved',
+          message: `Parking slot ${slot.location} is currently reserved by another user. Please select a different slot.`
+        });
       } else {
-        alert(`Slot ${slot.location} is currently occupied.`);
+        setNotification({
+          show: true,
+          type: 'info',
+          title: 'Slot Occupied',
+          message: `Parking slot ${slot.location} is currently occupied. Please select an available slot.`
+        });
       }
     } else {
-      // Student view - default behavior
+      // Student view - read-only, no reservation allowed
       if (slot.status === 'free') {
-        console.log(`Selected slot: ${slot.location}`);
-        alert(`You selected slot ${slot.location}. Redirecting to reservation...`);
+        setNotification({
+          show: true,
+          type: 'error',
+          title: 'Access Restricted',
+          message: 'Only staff members are authorized to make parking reservations. Students may view parking availability but cannot reserve slots.'
+        });
       } else if (slot.status === 'reserved') {
-        console.log(`View reservation for slot: ${slot.location}`);
-        alert(`This is your reserved slot: ${slot.location}`);
+        setNotification({
+          show: true,
+          type: 'info',
+          title: 'Slot Reserved',
+          message: `Parking slot ${slot.location} is currently reserved.`
+        });
       } else {
-        alert(`Slot ${slot.location} is currently occupied.`);
+        setNotification({
+          show: true,
+          type: 'info',
+          title: 'Slot Occupied',
+          message: `Parking slot ${slot.location} is currently occupied.`
+        });
       }
     }
   };
 
   // Sort slots by location before splitting into rows to maintain consistent positioning
   const sortedSlots = slots ? [...slots].sort((a, b) => {
-    // Check if locations exist
-    if (!a.location || !b.location) return 0;
+    // Handle null or undefined locations
+    if (!a.location || !b.location) {
+      if (!a.location && !b.location) return 0;
+      if (!a.location) return 1;
+      if (!b.location) return -1;
+    }
     
     // Extract letter and number from location (e.g., "A-01" -> ["A", "01"])
     const [letterA, numA] = a.location.split('-');
@@ -164,6 +193,14 @@ const ParkingMap = ({ slots, onSlotClick, canReserve = false, guardMode = false 
           <strong>{slots?.filter(s => s.status === 'free').length || 0}</strong> of <strong>{slots?.length || 0}</strong> slots available
         </p>
       </div>
+
+      <NotificationModal
+        show={notification.show}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
     </div>
   );
 };

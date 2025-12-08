@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userAPI, vehicleAPI } from '../api/api';
-import '../styles/Auth.css';
+import '../styles/VehicleRegistration.css';
 
 const VehicleRegistration = () => {
   const { currentUser, updateUser } = useAuth();
@@ -115,99 +115,102 @@ const VehicleRegistration = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <div className="auth-logo">
-            <span className="logo-smart">Smart</span>
-            <span className="logo-park">Park</span>
+    <div className="vehicle-registration-container">
+      <div className="vehicle-registration-card">
+        <div className="vehicle-registration-header">
+          <div className="brand-logo">
+            <span className="smart-text">Smart</span>
+            <span className="park-text">Park</span>
           </div>
-          <h2 className="auth-title">Vehicle Registration</h2>
-          <p className="auth-subtitle">Complete your profile by registering your vehicle</p>
+          <h2>Vehicle Registration</h2>
+          <p>Complete your profile by registering your vehicle</p>
         </div>
 
-        {error && (
-          <div className="alert-error">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            {error}
-          </div>
-        )}
+        <div className="vehicle-registration-form">
+          {error && (
+            <div className="error-message">
+              <svg className="error-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="plateNumber" className="form-label">
-              Plate Number <span className="required-asterisk">*</span>
-            </label>
-            <input
-              type="text"
-              id="plateNumber"
-              name="plateNumber"
-              value={formData.plateNumber}
-              onChange={handleChange}
-              placeholder="Enter plate number (e.g., ABC-1234)"
-              className="form-input"
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
 
-          <div className="form-group">
-            <label htmlFor="vehicleType" className="form-label">
-              Vehicle Type <span className="required-asterisk">*</span>
-            </label>
-            <select
-              id="vehicleType"
-              name="vehicleType"
-              value={formData.vehicleType}
-              onChange={handleChange}
-              className="form-input"
-              required
-            >
-              <option value="Car">Car</option>
-              <option value="Motorcycle">Motorcycle</option>
-              <option value="SUV">SUV</option>
-              <option value="Van">Van</option>
-              <option value="Truck">Truck</option>
-            </select>
-          </div>
+            <div className="form-group">
+              <label htmlFor="plateNumber">
+                Plate Number <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="plateNumber"
+                name="plateNumber"
+                value={formData.plateNumber}
+                onChange={handleChange}
+                placeholder="Enter plate number (e.g., ABC-1234)"
+                className="form-input"
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="vehicleColor" className="form-label">
-              Vehicle Color <span className="required-asterisk">*</span>
-            </label>
-            <input
-              type="text"
-              id="vehicleColor"
-              name="vehicleColor"
-              value={formData.vehicleColor}
-              onChange={handleChange}
-              placeholder="Enter vehicle color (e.g., Black, White, Red)"
-              className="form-input"
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="vehicleType">
+                Vehicle Type <span className="required">*</span>
+              </label>
+              <select
+                id="vehicleType"
+                name="vehicleType"
+                value={formData.vehicleType}
+                onChange={handleChange}
+                className="form-input"
+                required
+              >
+                <option value="Car">Car</option>
+                <option value="Motorcycle">Motorcycle</option>
+                <option value="SUV">SUV</option>
+                <option value="Van">Van</option>
+                <option value="Truck">Truck</option>
+              </select>
+            </div>
 
-          <button
-            type="submit"
-            className="auth-button"
-            disabled={loading}
-          >
-            {loading ? 'Registering...' : 'Complete Registration'}
-          </button>
-        </form>
+            <div className="form-group">
+              <label htmlFor="vehicleColor">
+                Vehicle Color <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="vehicleColor"
+                name="vehicleColor"
+                value={formData.vehicleColor}
+                onChange={handleChange}
+                placeholder="Enter vehicle color (e.g., Black, White, Red)"
+                className="form-input"
+                required
+              />
+            </div>
 
-        <div className="auth-footer-note">
-          <p>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={loading}
+              >
+                {loading ? 'Registering...' : 'Complete Registration'}
+              </button>
+            </div>
+          </form>
+
+          <div className="info-note">
+            <svg className="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="16" x2="12" y2="12"/>
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            This information is required for parking management and security purposes.
-          </p>
+            <p>This information is required for parking management and security purposes.</p>
+          </div>
         </div>
       </div>
     </div>
