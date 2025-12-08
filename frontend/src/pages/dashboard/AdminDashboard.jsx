@@ -1,26 +1,15 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import Sidebar from '../../components/Sidebar';
 import AuthTopbar from '../../components/AuthTopbar';
 import '../../styles/Dashboard.css';
 import '../../styles/dashboard/AdminDashboard.css';
 import { userAPI, parkingSlotAPI, parkingAreaAPI, parkingRecordAPI } from '../../api/api';
-import { Box, Container, Typography, Card, CardContent, Grid, Tabs, Tab, Skeleton, CircularProgress } from '@mui/material';
-import GroupIcon from '@mui/icons-material/Group';
-import LocalParkingIcon from '@mui/icons-material/LocalParking';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import DescriptionIcon from '@mui/icons-material/Description';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 
 // Lazy load heavy components
 const UserManagement = lazy(() => import('../../components/dashboard/admin/UserManagement'));
-const ParkingAreaManagement = lazy(() => import('../../components/dashboard/admin/ParkingAreaManagement'));
-const SystemLogs = lazy(() => import('../../components/dashboard/admin/SystemLogs'));
-const Reports = lazy(() => import('../../components/dashboard/admin/Reports'));
 
 const AdminDashboard = () => {
   // const { user } = useAuth(); // Uncomment if needed
-  const [activeTab, setActiveTab] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -82,222 +71,120 @@ const AdminDashboard = () => {
     }
   };
 
-  const tabs = [
-    { id: 0, label: 'Manage Users', icon: <GroupIcon /> },
-    { id: 1, label: 'Parking Areas', icon: <LocalParkingIcon /> },
-    { id: 2, label: 'System Logs', icon: <DescriptionIcon /> },
-    { id: 3, label: 'Reports', icon: <AssessmentIcon /> }
-  ];
-
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-  };
-
   return (
     <div className="dashboard-layout">
       <AuthTopbar onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-      <Sidebar isOpen={sidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
       
       <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
-        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+        <div className="admin-dashboard-container">
           {/* Header */}
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 600, color: '#1f2937' }}>
-              Admin Dashboard
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Manage users, parking areas, and system settings
-            </Typography>
-          </Box>
+          <div className="admin-header">
+            <h1>Admin Dashboard</h1>
+            <p>Manage users, parking areas, and system settings</p>
+          </div>
 
           {/* Stats Cards */}
-          <Grid container spacing={2} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={6} lg={3}>
-              <Card sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', height: '100%' }}>
-                <CardContent>
-                  {loading ? (
-                    <Box>
-                      <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
-                      <Skeleton variant="text" width={60} height={30} />
-                      <Skeleton variant="text" width={100} />
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box sx={{ 
-                        width: 64, 
-                        height: 64, 
-                        borderRadius: '14px', 
-                        backgroundColor: '#ede9fe',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}>
-                        <GroupIcon sx={{ fontSize: 32, color: '#7c3aed' }} />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px', mb: 0.5 }}>
-                          Total Users
-                        </Typography>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1f2937' }}>
-                          {stats.totalUsers}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
+          <div className="stats-grid">
+            <div className="stat-card">
+              {loading ? (
+                <div className="stat-skeleton">
+                  <div className="skeleton-circle"></div>
+                  <div className="skeleton-text"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="stat-icon purple">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-label">Total Users</div>
+                    <div className="stat-value">{stats.totalUsers}</div>
+                  </div>
+                </>
+              )}
+            </div>
 
-            <Grid item xs={12} sm={6} lg={3}>
-              <Card sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', height: '100%' }}>
-                <CardContent>
-                  {loading ? (
-                    <Box>
-                      <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
-                      <Skeleton variant="text" width={60} height={30} />
-                      <Skeleton variant="text" width={120} />
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box sx={{ 
-                        width: 64, 
-                        height: 64, 
-                        borderRadius: '14px', 
-                        backgroundColor: '#d1fae5',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}>
-                        <LocalParkingIcon sx={{ fontSize: 32, color: '#059669' }} />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px', mb: 0.5 }}>
-                          Parking Areas
-                        </Typography>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1f2937' }}>
-                          {stats.totalAreas}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
+            <div className="stat-card">
+              {loading ? (
+                <div className="stat-skeleton">
+                  <div className="skeleton-circle"></div>
+                  <div className="skeleton-text"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="stat-icon green">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-label">Parking Areas</div>
+                    <div className="stat-value">{stats.totalAreas}</div>
+                  </div>
+                </>
+              )}
+            </div>
 
-            <Grid item xs={12} sm={6} lg={3}>
-              <Card sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', height: '100%' }}>
-                <CardContent>
-                  {loading ? (
-                    <Box>
-                      <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
-                      <Skeleton variant="text" width={60} height={30} />
-                      <Skeleton variant="text" width={100} />
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box sx={{ 
-                        width: 64, 
-                        height: 64, 
-                        borderRadius: '14px', 
-                        backgroundColor: '#ddd6fe',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}>
-                        <DirectionsCarIcon sx={{ fontSize: 32, color: '#7c3aed' }} />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px', mb: 0.5 }}>
-                          Total Slots
-                        </Typography>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1f2937' }}>
-                          {stats.totalSlots}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
-                          {stats.occupiedSlots} occupied
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
+            <div className="stat-card">
+              {loading ? (
+                <div className="stat-skeleton">
+                  <div className="skeleton-circle"></div>
+                  <div className="skeleton-text"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="stat-icon purple-light">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-label">Total Slots</div>
+                    <div className="stat-value">{stats.totalSlots}</div>
+                    <div className="stat-sublabel">{stats.occupiedSlots} occupied</div>
+                  </div>
+                </>
+              )}
+            </div>
 
-            <Grid item xs={12} sm={6} lg={3}>
-              <Card sx={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e5e7eb', height: '100%' }}>
-                <CardContent>
-                  {loading ? (
-                    <Box>
-                      <Skeleton variant="circular" width={48} height={48} sx={{ mb: 2 }} />
-                      <Skeleton variant="text" width={60} height={30} />
-                      <Skeleton variant="text" width={120} />
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Box sx={{ 
-                        width: 64, 
-                        height: 64, 
-                        borderRadius: '14px', 
-                        backgroundColor: '#fee2e2',
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}>
-                        <DescriptionIcon sx={{ fontSize: 32, color: '#dc2626' }} />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px', mb: 0.5 }}>
-                          Occupancy
-                        </Typography>
-                        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1f2937' }}>
-                          {stats.totalSlots > 0 ? ((stats.occupiedSlots / stats.totalSlots) * 100).toFixed(1) : 0}%
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+            <div className="stat-card">
+              {loading ? (
+                <div className="stat-skeleton">
+                  <div className="skeleton-circle"></div>
+                  <div className="skeleton-text"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="stat-icon red">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <div className="stat-label">Occupancy</div>
+                    <div className="stat-value">
+                      {stats.totalSlots > 0 ? ((stats.occupiedSlots / stats.totalSlots) * 100).toFixed(1) : 0}%
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
 
-          {/* Tabs */}
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-            <Tabs value={activeTab} onChange={handleTabChange}>
-              {tabs.map((tab) => (
-                <Tab 
-                  key={tab.id} 
-                  icon={tab.icon} 
-                  iconPosition="start" 
-                  label={tab.label}
-                  sx={{ 
-                    textTransform: 'none',
-                    fontSize: '0.95rem',
-                    fontWeight: 500,
-                    minHeight: 48
-                  }}
-                />
-              ))}
-            </Tabs>
-          </Box>
-
-          {/* Tab Content */}
-          <Box sx={{ mt: 3 }}>
+          {/* User Management Content */}
+          <div className="admin-content">
             <Suspense fallback={
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-                <CircularProgress />
-              </Box>
+              <div className="loading-spinner">
+                <div className="spinner"></div>
+              </div>
             }>
-              {activeTab === 0 && <UserManagement onUpdate={loadDashboardStats} />}
-              {activeTab === 1 && <ParkingAreaManagement onUpdate={loadDashboardStats} />}
-              {activeTab === 2 && <SystemLogs />}
-              {activeTab === 3 && <Reports />}
+              <UserManagement onUpdate={loadDashboardStats} />
             </Suspense>
-          </Box>
-        </Container>
+          </div>
+        </div>
       </main>
     </div>
   );

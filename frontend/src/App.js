@@ -14,6 +14,9 @@ import MyProfile from './pages/MyProfile';
 import ProfileSettings from './pages/ProfileSettings';
 import VehicleRegistration from './pages/VehicleRegistration';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
+import ParkingAreasPage from './pages/dashboard/ParkingAreasPage';
+import SystemLogsPage from './pages/dashboard/SystemLogsPage';
+import ReportsPage from './pages/dashboard/ReportsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -104,6 +107,36 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Parking Areas (Admin only - protected) */}
+        <Route
+          path="/parking-areas"
+          element={
+            <ProtectedRoute>
+              <ParkingAreasPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* System Logs (Admin only - protected) */}
+        <Route
+          path="/system-logs"
+          element={
+            <ProtectedRoute>
+              <SystemLogsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Reports (Admin only - protected) */}
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsPage />
             </ProtectedRoute>
           }
         />

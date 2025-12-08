@@ -61,7 +61,6 @@ const SystemLogs = () => {
     // Filter by date
     if (dateFilter !== 'all') {
       const now = new Date();
-      const logDate = new Date();
       
       filtered = filtered.filter(log => {
         const timestamp = new Date(log.timestamp);

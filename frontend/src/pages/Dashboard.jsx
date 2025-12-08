@@ -76,7 +76,6 @@ const Dashboard = () => {
   const isStaff = userRole === 'staff';
   const isGuard = userRole === 'guard';
   const isStudent = userRole === 'student';
-  const isAdmin = userRole === 'admin';
 
   // Determine page title based on route
   const getPageTitle = () => {

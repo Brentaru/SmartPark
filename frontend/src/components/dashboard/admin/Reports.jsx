@@ -55,7 +55,6 @@ const Reports = () => {
   };
 
   const generateUsageReport = (records, slots) => {
-    const now = new Date();
     const filteredRecords = filterByDateRange(records, dateRange);
 
     const totalSlots = slots.length;

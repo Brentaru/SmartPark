@@ -273,11 +273,10 @@ const ParkingAreaManagement = ({ onUpdate }) => {
 
           {/* Parking Map Visualization */}
           <div style={{ marginBottom: '2rem' }}>
-            {console.log('Rendering ParkingMap with slots:', slots)}
             <ParkingMap 
               slots={slots} 
               guardMode={true}
-              onSlotClick={(slot) => console.log('Admin clicked slot:', slot)}
+              onSlotClick={(slot) => console.log('Admin viewing slot:', slot)}
             />
           </div>
 
