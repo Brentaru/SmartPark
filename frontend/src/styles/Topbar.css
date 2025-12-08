@@ -7,11 +7,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 0 1.5rem;
   background: white;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e5e7eb;
   z-index: 90;
   transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 70px;
+  box-sizing: border-box;
 }
 
 .auth-topbar.sidebar-collapsed {
@@ -22,48 +24,6 @@
   display: flex; 
   align-items: center; 
   gap: 0.85rem; 
-}
-
-.menu-toggle-btn {
-  background: transparent;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.menu-toggle-btn:hover {
-  background: #f3f4f6;
-  color: #dc2626;
-}
-
-.menu-toggle-btn:active {
-  transform: scale(0.95);
-}
-
-.topbar-brand { 
-  font-weight: 800; 
-  font-size: 1.35rem;
-  display: flex;
-  gap: 0.15rem;
-}
-
-.brand-smart {
-  color: #111827;
-}
-
-.brand-park {
-  color: #dc2626;
-}
-
-.topbar-sep { 
-  color: #d1d5db; 
-  font-size: 1.25rem;
 }
 
 .topbar-title { 
@@ -83,10 +43,9 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
-  border-radius: 3px;
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.25);
+  border-radius: 2px;
 }
 
 .topbar-right { display: flex; align-items: center; gap: 0.75rem; }

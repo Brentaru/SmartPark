@@ -1,19 +1,20 @@
-/* Sidebar styles - Dark modern design */
+/* Sidebar styles - White modern design */
 .app-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   width: 260px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  background: #ffffff;
   height: 100vh;
   padding: 0;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 100;
   overflow-x: hidden;
   overflow-y: auto;
+  border-right: 1px solid #e5e7eb;
 }
 
 .app-sidebar.collapsed {
@@ -26,14 +27,27 @@
 
 /* Sidebar Header */
 .sidebar-header {
-  padding: 1.25rem 1rem;
-  background: rgba(15, 23, 42, 0.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 1rem;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   gap: 1rem;
-  min-height: 70px;
+  height: 70px;
   overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.sidebar-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 100vw;
+  height: 1px;
+  background: #e5e7eb;
+  pointer-events: none;
 }
 
 .app-sidebar.collapsed .sidebar-header {
@@ -43,7 +57,7 @@
 .sidebar-toggle {
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: #6b7280;
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 8px;
@@ -54,20 +68,29 @@
 }
 
 .sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .sidebar-brand {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 800;
   margin: 0;
   letter-spacing: -0.5px;
   white-space: nowrap;
   overflow: hidden;
   opacity: 1;
   transition: opacity 1.0s ease;
+  display: flex;
+  gap: 0.15rem;
+}
+
+.sidebar-brand .brand-smart {
+  color: #111827;
+}
+
+.sidebar-brand .brand-park {
+  color: #dc2626;
 }
 
 .app-sidebar.collapsed .sidebar-brand {
@@ -83,7 +106,7 @@
   overflow-y: auto;
   flex: 1;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: #e5e7eb transparent;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -95,12 +118,12 @@
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: #e5e7eb;
   border-radius: 3px;
 }
 
 .sidebar-nav::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #d1d5db;
 }
 
 .sidebar-link { 
@@ -108,7 +131,7 @@
   align-items: center; 
   gap: 0.875rem;
   padding: 0.875rem 1rem; 
-  color: #cbd5e1; 
+  color: #6b7280; 
   text-decoration: none; 
   border-radius: 10px;
   transition: all 0.2s ease;
@@ -123,19 +146,19 @@
 }
 
 .sidebar-link:hover { 
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: #f3f4f6;
+  color: #111827;
   transform: translateX(4px);
 }
 
 .sidebar-link.active { 
-  background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.15) 100%);
-  color: #60a5fa;
-  box-shadow: inset 3px 0 0 #3b82f6;
+  background: #fef2f2;
+  color: #dc2626;
+  box-shadow: inset 3px 0 0 #dc2626;
 }
 
 .sidebar-link.active:hover {
-  color: #93c5fd;
+  color: #b91c1c;
 }
 
 .link-icon {
@@ -177,13 +200,13 @@
   left: calc(100% + 10px);
   top: 50%;
   transform: translateY(-50%);
-  background: #1e293b;
+  background: #111827;
   color: #ffffff;
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
   white-space: nowrap;
   font-size: 0.875rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   pointer-events: none;
 }

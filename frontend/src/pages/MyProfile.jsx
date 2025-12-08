@@ -1,31 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
-import Toast from '../components/Toast';
-import { userAPI } from '../api/api';
 import '../styles/MyProfile.css';
 
 const MyProfile = () => {
   const { currentUser, isAuthenticated } = useAuth();
+  const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
 
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
   const getInitials = () => {
     const firstName = currentUser?.firstName || 'J';
@@ -110,12 +100,12 @@ const MyProfile = () => {
 
   return (
     <div className="dashboard-page">
-      <AuthTopbar pageTitle="My Profile" onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <AuthTopbar pageTitle="My Profile" />
       
       <div className="dashboard-layout">
-        <Sidebar isOpen={sidebarOpen} />
+        <Sidebar />
         
-        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
+        <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
           <div className="dashboard-container">
             
             {/* Page Header */}
@@ -184,14 +174,12 @@ const MyProfile = () => {
                 
                 {/* 1. Personal Information Section */}
                 <div className="profile-section-card">
-                  <div className="section-header">
-                    <div className="section-header-left">
-                      <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                      </svg>
-                      <h3 className="section-title">Personal Information</h3>
-                    </div>
+                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                    <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <h3 className="section-title">Personal Information</h3>
                   </div>
                   <div className="section-content">
                     <div className="info-grid">
@@ -221,14 +209,12 @@ const MyProfile = () => {
 
                 {/* 2. Account Information Section */}
                 <div className="profile-section-card">
-                  <div className="section-header">
-                    <div className="section-header-left">
-                      <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                      </svg>
-                      <h3 className="section-title">Account Information</h3>
-                    </div>
+                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                    <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <h3 className="section-title">Account Information</h3>
                   </div>
                   <div className="section-content">
                     <div className="info-grid">
@@ -260,13 +246,11 @@ const MyProfile = () => {
 
                 {/* 3. Role & Permissions Section */}
                 <div className="profile-section-card">
-                  <div className="section-header">
-                    <div className="section-header-left">
-                      <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                      </svg>
-                      <h3 className="section-title">Role & Permissions</h3>
-                    </div>
+                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                    <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <h3 className="section-title">Role & Permissions</h3>
                   </div>
                   <div className="section-content">
                     <div className="role-display">
@@ -296,14 +280,12 @@ const MyProfile = () => {
 
                 {/* 4. Security Settings Section */}
                 <div className="profile-section-card">
-                  <div className="section-header">
-                    <div className="section-header-left">
-                      <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                      </svg>
-                      <h3 className="section-title">Security Settings</h3>
-                    </div>
+                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                    <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <h3 className="section-title">Security Settings</h3>
                   </div>
                   <div className="section-content">
                     <div className="security-items">
@@ -318,7 +300,7 @@ const MyProfile = () => {
                             <p className="security-item-desc">Last changed 30 days ago</p>
                           </div>
                         </div>
-                        <button className="security-action-btn" onClick={() => setShowPasswordModal(true)}>
+                        <button className="security-action-btn" onClick={() => navigate('/profile-settings')}>
                           Change
                         </button>
                       </div>
@@ -342,13 +324,11 @@ const MyProfile = () => {
 
                 {/* 5. Activity Summary Section - Role Based */}
                 <div className="profile-section-card">
-                  <div className="section-header">
-                    <div className="section-header-left">
-                      <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                      </svg>
-                      <h3 className="section-title">Activity Summary</h3>
-                    </div>
+                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                    <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    <h3 className="section-title">Activity Summary</h3>
                   </div>
                   <div className="section-content">
                     {(role === 'student' || role === 'staff') && (
@@ -525,94 +505,6 @@ const MyProfile = () => {
           </div>
         </main>
       </div>
-
-      {/* Password Change Modal */}
-      {showPasswordModal && (
-        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Change Password</h3>
-              <button className="modal-close" onClick={() => setShowPasswordModal(false)}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            </div>
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              if (passwordData.newPassword !== passwordData.confirmPassword) {
-                setToast({ message: 'New passwords do not match!', type: 'error' });
-                return;
-              }
-              if (passwordData.newPassword.length < 6) {
-                setToast({ message: 'Password must be at least 6 characters long!', type: 'error' });
-                return;
-              }
-              
-              try {
-                const result = await userAPI.updateUser(currentUser.userID || currentUser.id, {
-                  password: passwordData.newPassword
-                });
-                
-                if (result.success) {
-                  setToast({ message: 'Password updated successfully!', type: 'success' });
-                  setShowPasswordModal(false);
-                  setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-                } else {
-                  setToast({ message: result.error || 'Failed to update password', type: 'error' });
-                }
-              } catch (error) {
-                console.error('Password update error:', error);
-                setToast({ message: 'Failed to update password', type: 'error' });
-              }
-            }}>
-              <div className="modal-body">
-                <div className="form-field">
-                  <label className="field-label">Current Password</label>
-                  <input
-                    type="password"
-                    className="field-input"
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label className="field-label">New Password</label>
-                  <input
-                    type="password"
-                    className="field-input"
-                    value={passwordData.newPassword}
-                    onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="form-field">
-                  <label className="field-label">Confirm New Password</label>
-                  <input
-                    type="password"
-                    className="field-input"
-                    value={passwordData.confirmPassword}
-                    onChange={(e) => setPasswordData({...passwordData, confirmPassword: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="cancel-button" onClick={() => setShowPasswordModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="save-button">
-                  Update Password
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 };

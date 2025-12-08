@@ -1,4 +1,4 @@
-/* My Profile Page - Unified Profile View */
+/* My Profile Page - Unified Profile View - Updated */
 
 /* ========== PAGE HEADER ========== */
 .profile-page-header {
@@ -112,7 +112,8 @@
 
 .info-value {
   font-size: 0.8125rem;
-  color: #374151;
+  font-weight: 300;
+  color: #6b7280;
   word-break: break-word;
   line-height: 1.4;
 }
@@ -155,18 +156,15 @@
 }
 
 .section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid #e5e7eb;
   background: white;
-}
-
-.section-header-left {
-  display: flex;
-  align-items: center;
+  text-align: center !important;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .section-icon {
@@ -181,6 +179,7 @@
   font-weight: 600;
   color: #111827;
   margin: 0;
+  text-align: center !important;
 }
 
 .section-content {
@@ -202,6 +201,7 @@
   background: #f9fafb;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+  text-align: center;
 }
 
 .info-field.full-width {
@@ -214,6 +214,7 @@
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.025em;
+  text-align: center;
 }
 
 .field-value {
@@ -221,6 +222,7 @@
   color: #111827;
   margin: 0;
   line-height: 1.5;
+  text-align: center;
 }
 
 .status-badge {
