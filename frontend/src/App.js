@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from './context/AuthContext';
+import { SidebarProvider } from './context/SidebarContext';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -13,6 +14,7 @@ import MyParkingSlots from './pages/MyParkingSlots';
 import MyProfile from './pages/MyProfile';
 import ProfileSettings from './pages/ProfileSettings';
 import VehicleRegistration from './pages/VehicleRegistration';
+import MyVehicle from './pages/MyVehicle';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -106,6 +108,16 @@ function AppContent() {
             </ProtectedRoute>
           }
         />
+
+        {/* My Vehicle Page (protected) */}
+        <Route
+          path="/my-vehicle"
+          element={
+            <ProtectedRoute>
+              <MyVehicle />
+            </ProtectedRoute>
+          }
+        />
         
         {/* Parking History Page (protected) */}
         <Route
@@ -166,7 +178,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <SidebarProvider>
+          <AppContent />
+        </SidebarProvider>
       </AuthProvider>
     </Router>
   );
