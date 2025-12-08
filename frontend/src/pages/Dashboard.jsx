@@ -11,7 +11,7 @@ import GuardDashboard from './dashboard/GuardDashboard';
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
-  const { isExpanded } = useSidebar();
+  const { isExpanded, toggleSidebar } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = React.useState(currentUser);
@@ -61,10 +61,11 @@ const Dashboard = () => {
                      (user.name && user.name.split(' ')[0]) || 
                      'User';
 
-  // Determine which dashboard to show based on role
-  const isStaff = user.role === 'staff';
-  const isGuard = user.role === 'guard';
-  const isStudent = user.role === 'student';
+  // Determine which dashboard to show based on role (case-insensitive)
+  const userRole = user.role ? user.role.toLowerCase() : 'student';
+  const isStaff = userRole === 'staff';
+  const isGuard = userRole === 'guard';
+  const isStudent = userRole === 'student';
 
   // Determine page title based on route
   const getPageTitle = () => {

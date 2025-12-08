@@ -14,6 +14,10 @@ import MyParkingSlots from './pages/MyParkingSlots';
 import MyProfile from './pages/MyProfile';
 import ProfileSettings from './pages/ProfileSettings';
 import VehicleRegistration from './pages/VehicleRegistration';
+import AdminDashboard from './pages/dashboard/AdminDashboard';
+import ParkingAreasPage from './pages/dashboard/ParkingAreasPage';
+import SystemLogsPage from './pages/dashboard/SystemLogsPage';
+import ReportsPage from './pages/dashboard/ReportsPage';
 import MyVehicle from './pages/MyVehicle';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -95,6 +99,46 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Dashboard (protected) */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Parking Areas (Admin only - protected) */}
+        <Route
+          path="/parking-areas"
+          element={
+            <ProtectedRoute>
+              <ParkingAreasPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* System Logs (Admin only - protected) */}
+        <Route
+          path="/system-logs"
+          element={
+            <ProtectedRoute>
+              <SystemLogsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Reports (Admin only - protected) */}
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <ReportsPage />
             </ProtectedRoute>
           }
         />
