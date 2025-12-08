@@ -22,7 +22,8 @@ public class DTOMapper {
             user.getContact(),
             user.getPlateNumber(),
             user.getVehicleType(),
-            user.getVehicleColor()
+            user.getVehicleColor(),
+            user.getProfilePictureUrl()
         );
     }
 
@@ -40,6 +41,7 @@ public class DTOMapper {
         user.setPlateNumber(dto.getPlateNumber());
         user.setVehicleType(dto.getVehicleType());
         user.setVehicleColor(dto.getVehicleColor());
+        user.setProfilePictureUrl(dto.getProfilePictureUrl());
         return user;
     }
 
