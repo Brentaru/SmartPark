@@ -35,7 +35,9 @@ const MyProfile = () => {
   };
 
   const getPermissions = () => {
-    const role = currentUser?.role || 'student';
+    const role = (currentUser?.role || 'student').toLowerCase().trim();
+    console.log('MyProfile - Current Role:', role); // Debug log
+    console.log('MyProfile - Current User:', currentUser); // Debug log
     switch(role) {
       case 'student':
       case 'staff':
@@ -61,30 +63,31 @@ const MyProfile = () => {
           'Can Generate Reports'
         ];
       default:
+        console.warn('Unknown role detected:', role); // Debug warning
         return ['Limited Access'];
     }
   };
 
   const getActivityStats = () => {
-    const role = currentUser?.role || 'student';
+    const role = (currentUser?.role || 'student').toLowerCase().trim();
     if (role === 'student' || role === 'staff') {
       return {
-        sessions: 24,
-        activeReservations: 1,
-        lastParked: 'Slot A-12',
+        sessions: 0,
+        activeReservations: 0,
+        lastParked: 'No recent activity',
         violations: 0
       };
     } else if (role === 'guard') {
       return {
-        processedToday: 45,
-        shift: 'Morning Shift (6AM - 2PM)',
-        lastEntry: '2 minutes ago',
-        area: 'North Parking Area'
+        processedToday: 0,
+        shift: 'Not assigned',
+        lastEntry: 'No recent activity',
+        area: 'Not assigned'
       };
     } else {
       return {
-        totalUsers: 1234,
-        parkingAreas: 5,
+        totalUsers: 0,
+        parkingAreas: 0,
         activeSlots: 150,
         systemAlerts: 2
       };
@@ -96,7 +99,7 @@ const MyProfile = () => {
   }
 
   const stats = getActivityStats();
-  const role = currentUser?.role || 'student';
+  const role = (currentUser?.role || 'student').toLowerCase().trim();
 
   return (
     <div className="dashboard-page">
@@ -174,7 +177,7 @@ const MyProfile = () => {
                 
                 {/* 1. Personal Information Section */}
                 <div className="profile-section-card">
-                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                  <div className="section-header">
                     <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                       <circle cx="12" cy="7" r="4"/>
@@ -209,7 +212,7 @@ const MyProfile = () => {
 
                 {/* 2. Account Information Section */}
                 <div className="profile-section-card">
-                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                  <div className="section-header">
                     <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -246,7 +249,7 @@ const MyProfile = () => {
 
                 {/* 3. Role & Permissions Section */}
                 <div className="profile-section-card">
-                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                  <div className="section-header">
                     <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
@@ -280,7 +283,7 @@ const MyProfile = () => {
 
                 {/* 4. Security Settings Section */}
                 <div className="profile-section-card">
-                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                  <div className="section-header">
                     <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                       <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -324,7 +327,7 @@ const MyProfile = () => {
 
                 {/* 5. Activity Summary Section - Role Based */}
                 <div className="profile-section-card">
-                  <div className="section-header" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', textAlign: 'center', marginLeft: '-20px' }}>
+                  <div className="section-header">
                     <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                     </svg>
@@ -403,7 +406,7 @@ const MyProfile = () => {
                             <p className="stat-number">{stats.processedToday}</p>
                           </div>
                         </div>
-                        <div className="activity-stat-card full-width">
+                        <div className="activity-stat-card">
                           <div className="stat-icon-wrapper green">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <circle cx="12" cy="12" r="10"/>
@@ -498,6 +501,77 @@ const MyProfile = () => {
                     )}
                   </div>
                 </div>
+
+                {/* 6. My Vehicles Section - Only for Student/Staff */}
+                {(role === 'student' || role === 'staff') && (
+                  <div className="profile-section-card">
+                    <div className="section-header">
+                      <svg className="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="5" y="11" width="14" height="10" rx="2"/>
+                        <circle cx="12" cy="16" r="2"/>
+                        <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                      </svg>
+                      <h3 className="section-title">My Vehicles</h3>
+                    </div>
+                    <div className="section-content">
+                      {currentUser?.vehicleType ? (
+                        <div className="vehicle-display">
+                          <div className="vehicle-item-display">
+                            <div className="vehicle-icon-wrapper">
+                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="5" y="11" width="14" height="10" rx="2"/>
+                                <circle cx="12" cy="16" r="2"/>
+                                <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                              </svg>
+                            </div>
+                            <div className="vehicle-details">
+                              <div className="vehicle-primary">
+                                <span className="vehicle-type-badge">{currentUser.vehicleType || 'Car'}</span>
+                                <span className="primary-badge">Primary</span>
+                              </div>
+                              <p className="vehicle-plate-number">{currentUser.vehiclePlateNumber || 'DSAD'}</p>
+                              <p className="vehicle-model-display">{currentUser.vehicleColor || 'N/A'}</p>
+                            </div>
+                            <button 
+                              className="edit-vehicle-btn"
+                              onClick={() => navigate('/vehicle-registration')}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                              </svg>
+                            </button>
+                          </div>
+                          <button 
+                            className="add-new-vehicle-btn"
+                            onClick={() => navigate('/vehicle-registration')}
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <line x1="12" y1="5" x2="12" y2="19"/>
+                              <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add New Vehicle
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="no-vehicle-display">
+                          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <rect x="5" y="11" width="14" height="10" rx="2"/>
+                            <circle cx="12" cy="16" r="2"/>
+                            <path d="M16 8V6a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                          </svg>
+                          <p className="no-vehicle-text">No vehicle registered yet</p>
+                          <button 
+                            className="register-vehicle-btn"
+                            onClick={() => navigate('/vehicle-registration')}
+                          >
+                            Register Your First Vehicle
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
               </div>
             </div>
