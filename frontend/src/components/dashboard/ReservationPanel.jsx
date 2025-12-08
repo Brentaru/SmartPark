@@ -6,10 +6,6 @@ const ReservationPanel = ({ myReservations, onCancelReservation, currentUser }) 
   if (myReservations !== undefined) {
     return (
       <div className="reservation-panel">
-        <div className="panel-header">
-          <h2 className="panel-title">My Reservations</h2>
-        </div>
-
         {myReservations && myReservations.length > 0 ? (
           <div className="reservations-list">
             {myReservations.map((reservation, index) => (

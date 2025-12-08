@@ -212,6 +212,28 @@
   background: #e5e7eb;
 }
 
+/* Make Reservation Button */
+.make-reservation-btn {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.625rem 1.25rem;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.make-reservation-btn:hover {
+  background: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .staff-dashboard {

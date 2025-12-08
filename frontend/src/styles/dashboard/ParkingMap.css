@@ -1,12 +1,14 @@
 /* Parking Map Styles */
 .parking-map-container {
   background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
-  border: 1px solid #f3f4f6;
-  margin-top: 1.5rem;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  margin-top: 0;
   max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .map-header {
@@ -77,19 +79,23 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 3rem 2.5rem;
+  padding: 1.25rem;
   background: #f9fafb;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  border: none;
   overflow: hidden;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .parking-row {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 2rem;
-  padding: 1.5rem 0;
+  gap: 0.375rem;
+  padding: 1rem 0;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .parking-row-top {
@@ -99,7 +105,7 @@
 .parking-row-bottom {
   padding-top: 1.5rem;
   grid-template-columns: 1fr repeat(8, minmax(0, 1fr)) 1fr;
-  grid-column-gap: 2rem;
+  grid-column-gap: 0.375rem;
 }
 
 .parking-row-bottom .parking-slot:first-child {
@@ -115,8 +121,8 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem 0;
-  margin: 0.5rem 0;
+  padding: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .road-line {
@@ -144,24 +150,28 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 3px solid transparent;
-  padding: 1rem 0.75rem;
-  height: 110px;
+  border: 2px solid transparent;
+  padding: 0.75rem 0.25rem;
+  height: 130px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .parking-slot svg {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   stroke-width: 2;
 }
 
 .slot-number {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* Slot States */
@@ -173,7 +183,7 @@
 .parking-slot.slot-free:hover {
   background: #a7f3d0;
   border-color: #10b981;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .parking-slot.slot-occupied {
@@ -194,14 +204,14 @@
 .parking-slot.slot-reserved:hover {
   background: #bfdbfe;
   border-color: #3b82f6;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 /* Map Footer */
 .map-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #f3f4f6;
+  margin-top: 1.5rem;
+  padding-top: 0;
+  border-top: none;
 }
 
 .availability-text {
