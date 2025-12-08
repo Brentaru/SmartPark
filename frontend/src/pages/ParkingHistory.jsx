@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
@@ -8,8 +9,8 @@ import '../styles/ParkingHistory.css';
 
 const ParkingHistory = () => {
   const { currentUser, isAuthenticated } = useAuth();
+  const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [filterLocation, setFilterLocation] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,10 +22,6 @@ const ParkingHistory = () => {
       navigate('/login');
     }
   }, [isAuthenticated, navigate]);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
   // Use mock parking history data from centralized location
   const parkingHistory = mockParkingHistory;
@@ -99,12 +96,12 @@ const ParkingHistory = () => {
 
   return (
     <div className="parking-history-page">
-      <AuthTopbar pageTitle="Parking History" onToggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
+      <AuthTopbar pageTitle="Parking History" />
 
       <div className="dashboard-layout">
-        <Sidebar isOpen={sidebarOpen} />
+        <Sidebar />
 
-        <main className={`dashboard-main ${sidebarOpen ? '' : 'sidebar-closed'}`}>
+        <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-collapsed'}`}>
           <div className="history-container">
             {/* Page Header */}
             <section className="history-header">
