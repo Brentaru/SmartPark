@@ -20,6 +20,9 @@ import ParkingAreasPage from './pages/dashboard/ParkingAreasPage';
 import SystemLogsPage from './pages/dashboard/SystemLogsPage';
 import ReportsPage from './pages/dashboard/ReportsPage';
 import MyVehicle from './pages/MyVehicle';
+import ManageVehicle from './pages/guard/ManageVehicle';
+import ManageParkingSlot from './pages/guard/ManageParkingSlot';
+import ShiftSchedule from './pages/guard/ShiftSchedule';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -170,6 +173,36 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <MyVehicle />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Manage Vehicle (Guard only - protected) */}
+        <Route
+          path="/manage-vehicle"
+          element={
+            <ProtectedRoute>
+              <ManageVehicle />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Manage Parking Slot (Guard only - protected) */}
+        <Route
+          path="/manage-parking-slot"
+          element={
+            <ProtectedRoute>
+              <ManageParkingSlot />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Shift Schedule (Guard only - protected) */}
+        <Route
+          path="/shift-schedule"
+          element={
+            <ProtectedRoute>
+              <ShiftSchedule />
             </ProtectedRoute>
           }
         />
