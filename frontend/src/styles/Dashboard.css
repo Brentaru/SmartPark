@@ -70,14 +70,14 @@
 .dashboard-main {
   flex: 1;
   background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
-  transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 260px;
   margin-top: 64px;
   padding-top: 1rem;
   min-height: calc(100vh - 64px);
 }
 
-.dashboard-main.sidebar-collapsed {
+.dashboard-main.sidebar-closed {
   margin-left: 70px;
 }
 

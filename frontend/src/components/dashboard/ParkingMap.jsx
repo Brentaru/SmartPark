@@ -40,6 +40,11 @@ const ParkingMap = ({ slots, onSlotClick, canReserve = false, guardMode = false 
 
   // Sort slots by location before splitting into rows to maintain consistent positioning
   const sortedSlots = slots ? [...slots].sort((a, b) => {
+    // Safety check for undefined location
+    if (!a.location || !b.location) {
+      return 0;
+    }
+    
     // Extract letter and number from location (e.g., "A-01" -> ["A", "01"])
     const [letterA, numA] = a.location.split('-');
     const [letterB, numB] = b.location.split('-');
