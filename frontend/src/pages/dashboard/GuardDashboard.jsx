@@ -56,10 +56,23 @@ const GuardDashboard = () => {
       if (!response.ok) throw new Error('Failed to fetch parking stats');
       
       const slots = await response.json();
+      if (!Array.isArray(slots)) {
+        console.error('❌ Parking slots response is not an array:', slots);
+        return;
+      }
       
-      const available = slots.filter(s => s.status === 'Available').length;
-      const occupied = slots.filter(s => s.status === 'Occupied').length;
-      const reserved = slots.filter(s => s.status === 'Reserved').length;
+      // Normalize status comparison - handle both uppercase and lowercase
+      const available = slots.filter(s => 
+        (s.status === 'Available' || s.status === 'available')
+      ).length;
+      const occupied = slots.filter(s => 
+        (s.status === 'Occupied' || s.status === 'occupied')
+      ).length;
+      const reserved = slots.filter(s => 
+        (s.status === 'Reserved' || s.status === 'reserved')
+      ).length;
+
+      console.log('📊 Guard Dashboard Stats - Total:', slots.length, 'Available:', available, 'Occupied:', occupied, 'Reserved:', reserved);
 
       setStats(prev => ({
         ...prev,
@@ -79,12 +92,26 @@ const GuardDashboard = () => {
       const response = await fetch(`${API_BASE_URL}/parking-records`);
       if (!response.ok) throw new Error('Failed to fetch activity');
       
-      const records = await response.json();
+      let records = await response.json();
+      if (!Array.isArray(records)) {
+        console.error('❌ Parking records response is not an array:', records);
+        records = [];
+      }
+      console.log('📊 All parking records:', records);
+      
       const today = new Date().toISOString().split('T')[0];
       
-      const todayRecords = records.filter(r => r.date === today);
-      const vehiclesIn = todayRecords.filter(r => r.timeIn && !r.timeOut).length;
-      const vehiclesOut = todayRecords.filter(r => r.timeOut).length;
+      // Filter records by today's date (check entryTime)
+      const todayRecords = records.filter(r => {
+        if (!r.entryTime) return false;
+        const recordDate = new Date(r.entryTime).toISOString().split('T')[0];
+        return recordDate === today;
+      });
+      
+      const vehiclesIn = todayRecords.filter(r => r.entryTime && !r.exitTime).length;
+      const vehiclesOut = todayRecords.filter(r => r.exitTime).length;
+      
+      console.log('✅ Today records:', todayRecords.length, 'In:', vehiclesIn, 'Out:', vehiclesOut);
       
       setStats(prev => ({
         ...prev,
@@ -94,17 +121,22 @@ const GuardDashboard = () => {
 
       // Set recent activity (last 5 records)
       const sortedRecords = todayRecords
-        .sort((a, b) => new Date(b.date + ' ' + (b.timeIn || '00:00')) - new Date(a.date + ' ' + (a.timeIn || '00:00')))
+        .sort((a, b) => {
+          const timeA = new Date(a.exitTime || a.entryTime);
+          const timeB = new Date(b.exitTime || b.entryTime);
+          return timeB - timeA;
+        })
         .slice(0, 5)
         .map(record => ({
           id: record.recordID,
-          plateNumber: record.plateNumber,
-          action: record.timeOut ? 'Exit' : 'Entry',
-          time: record.timeOut || record.timeIn,
-          slotNumber: record.slotNumber,
-          status: record.status
+          plateNumber: record.plateNumber || 'N/A',
+          action: record.exitTime ? 'Exit' : 'Entry',
+          time: record.exitTime ? new Date(record.exitTime).toLocaleTimeString('en-US', { hour12: false }) : new Date(record.entryTime).toLocaleTimeString('en-US', { hour12: false }),
+          slotNumber: record.slotLocation || 'N/A',
+          status: record.exitTime ? 'Completed' : 'Active'
         }));
       
+      console.log('✅ Recent activity:', sortedRecords);
       setRecentActivity(sortedRecords);
     } catch (error) {
       console.error('Error fetching today activity:', error);

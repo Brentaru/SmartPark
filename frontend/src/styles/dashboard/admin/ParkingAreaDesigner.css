@@ -1,0 +1,314 @@
+/* Formal Parking Area Designer UI */
+
+.parking-slot-plotter {
+  width: 100%;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.plotter-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.plotter-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+}
+
+.plotter-info {
+  font-size: 0.95rem;
+  color: #475569;
+  margin: 0;
+}
+
+.plotter-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.control-section {
+  padding: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.control-section label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.letter-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.letter-inputs input {
+  width: 48px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  color: #0f172a;
+}
+
+.letter-inputs input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.palette-items {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.palette-btn {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: grab;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.palette-btn:active {
+  cursor: grabbing;
+}
+
+.palette-slot { border-color: #6366f1; background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%); color: #fff; }
+.palette-road { border-color: #f59e0b; background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); color: #fff; }
+.palette-erase { border-color: #94a3b8; background: #e2e8f0; color: #0f172a; }
+
+.legend-section .legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.legend-item .cell {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+.legend-item .cell-slot { background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%); border-color: #6366f1; }
+.legend-item .cell-road { background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%); border-color: #f59e0b; }
+.legend-item .cell-empty { background: #f8fafc; border: 2px dashed #cbd5e1; }
+
+.grid-section {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.plotter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 72px);
+  gap: 10px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.grid-cell-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.row-label {
+  position: absolute;
+  left: -26px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: #475569;
+  font-size: 0.9rem;
+  width: 22px;
+  text-align: center;
+}
+
+.grid-cell {
+  width: 72px;
+  height: 72px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.grid-cell:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.grid-cell.cell-slot {
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  border-color: #6366f1;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.35);
+}
+
+.grid-cell.cell-road {
+  background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+  border-color: #f59e0b;
+  box-shadow: 0 8px 18px rgba(249, 115, 22, 0.3);
+}
+
+.grid-cell.cell-empty {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+}
+
+.grid-cell svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+}
+
+.grid-cell .slot-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.grid-cell .road-mark {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.col-labels {
+  display: grid;
+  grid-template-columns: repeat(4, 72px);
+  gap: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 700;
+}
+
+.plotter-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.plotter-actions button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #dc2626;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.plotter-preview {
+  padding: 14px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.plotter-preview h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: #475569;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.slot-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preview-slot {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.16);
+}
+
+@media (max-width: 768px) {
+  .plotter-grid { grid-template-columns: repeat(4, minmax(64px, 1fr)); }
+  .col-labels { grid-template-columns: repeat(4, minmax(64px, 1fr)); }
+  .row-label { display: none; }
+}

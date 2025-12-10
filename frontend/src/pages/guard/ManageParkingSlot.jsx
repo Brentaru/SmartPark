@@ -67,14 +67,29 @@ const ManageParkingSlot = () => {
         location: slot.location,
         status: slot.status === 'Available' || slot.status === 'available' ? 'free' : 
                 slot.status === 'Reserved' || slot.status === 'reserved' ? 'reserved' : 'occupied',
-        slotType: slot.slotType,
+        type: slot.slotType || 'Standard',
         reservedBy: slot.reservedBy,
         reservedFor: slot.reservedFor,
         areaID: slot.areaID
       }));
       
-      console.log('✅ ManageParkingSlot - Transformed slots:', transformedSlots);
-      setParkingSlots(transformedSlots);
+      // Sort slots by location for consistent display
+      const sortedSlots = transformedSlots.sort((a, b) => {
+        if (!a.location || !b.location) {
+          if (!a.location && !b.location) return 0;
+          if (!a.location) return 1;
+          if (!b.location) return -1;
+        }
+        const [letterA, numA] = a.location.split('-');
+        const [letterB, numB] = b.location.split('-');
+        if (letterA !== letterB) {
+          return letterA.localeCompare(letterB);
+        }
+        return parseInt(numA) - parseInt(numB);
+      });
+      
+      console.log('✅ ManageParkingSlot - Transformed & sorted slots:', sortedSlots);
+      setParkingSlots(sortedSlots);
       setError(null);
     } catch (err) {
       console.error('Error fetching parking slots:', err);
@@ -135,14 +150,68 @@ const ManageParkingSlot = () => {
       else if (updates.status === 'occupied') backendStatus = 'Occupied';
       
       console.log(`🔄 Updating slot ${slotId} to status: ${backendStatus}`);
+      console.log('📝 Updates received:', updates);
       
-      // Update slot status via API
-      const response = await fetch(`${API_BASE_URL}/parking-slots/${slotId}/status`, {
-        method: 'PATCH',
+      // Special handling for guard manually marking slot as occupied with plate number
+      if (backendStatus === 'Occupied' && updates.plateNumber) {
+        console.log('🚗 Guard manual parking - checking if plate is registered:', updates.plateNumber);
+        
+        // Use the manual-park endpoint which checks registration and creates record if found
+        const response = await fetch(`${API_BASE_URL}/parking-slots/${slotId}/manual-park`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ plateNumber: updates.plateNumber })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to process manual parking');
+        }
+
+        const result = await response.json();
+        console.log('✅ Manual parking result:', result);
+        
+        if (result.registered) {
+          alert(`Slot occupied successfully!\n\nVehicle ${updates.plateNumber} is registered to user ${result.userID}.\nParking record has been created and will appear in their history.`);
+        } else {
+          alert(`Slot occupied successfully!\n\nVehicle ${updates.plateNumber} is not registered in the system.\nSlot is marked as occupied but no parking record was created.`);
+        }
+        
+        // Refresh the parking slots and reservations
+        await fetchParkingSlots();
+        await fetchReservations();
+        setShowSlotModal(false);
+        return;
+      }
+      
+      // Get the current slot to preserve other fields
+      const slotResponse = await fetch(`${API_BASE_URL}/parking-slots/${slotId}`);
+      if (!slotResponse.ok) {
+        throw new Error('Failed to fetch slot details');
+      }
+      const currentSlot = await slotResponse.json();
+      
+      // Build the update payload
+      const updatePayload = {
+        location: currentSlot.location,
+        status: backendStatus,
+        slotType: currentSlot.slotType,
+        areaID: currentSlot.areaID,
+        // Clear reservation fields if status is being changed away from Reserved
+        reservedBy: backendStatus === 'Available' ? null : currentSlot.reservedBy,
+        reservedFor: backendStatus === 'Available' ? null : currentSlot.reservedFor
+      };
+      
+      console.log('📝 Update payload:', updatePayload);
+      
+      // Update slot via PUT endpoint
+      const response = await fetch(`${API_BASE_URL}/parking-slots/${slotId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: backendStatus })
+        body: JSON.stringify(updatePayload)
       });
 
       if (!response.ok) {
@@ -167,26 +236,83 @@ const ManageParkingSlot = () => {
       try {
         console.log(`✅ Accepting reservation for slot ${reservationId}`);
         
-        // Update slot status to occupied/confirmed
-        const response = await fetch(`${API_BASE_URL}/parking-slots/${reservationId}/status`, {
-          method: 'PATCH',
+        // Step 1: Get the full slot details from backend
+        const slotResponse = await fetch(`${API_BASE_URL}/parking-slots/${reservationId}`);
+        if (!slotResponse.ok) {
+          throw new Error('Failed to fetch slot details');
+        }
+        const slotData = await slotResponse.json();
+        console.log('📍 Slot data for reservation:', slotData);
+        
+        if (!slotData.reservedBy) {
+          throw new Error('No user associated with this reservation');
+        }
+        
+        // Step 2: Get the user's vehicle
+        const vehiclesResponse = await fetch(`${API_BASE_URL}/vehicles/user/${slotData.reservedBy}`);
+        if (!vehiclesResponse.ok) {
+          throw new Error('Failed to fetch user vehicles');
+        }
+        const vehicles = await vehiclesResponse.json();
+        console.log('🚗 User vehicles:', vehicles);
+        
+        if (!vehicles || vehicles.length === 0) {
+          throw new Error('User has no registered vehicles');
+        }
+        
+        // Use the first vehicle (or you could add logic to select the right one)
+        const vehicleID = vehicles[0].vehicleID;
+        
+        // Step 3: Create a parking record for the staff member
+        const now = new Date();
+        const recordData = {
+          vehicleID: vehicleID,
+          slotID: reservationId,
+          verifiedByUserId: slotData.reservedBy, // The staff member who made the reservation
+          entryTime: now.toISOString(),
+          exitTime: null
+        };
+        
+        console.log('📝 Creating parking record:', recordData);
+        
+        const recordResponse = await fetch(`${API_BASE_URL}/parking-records`, {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status: 'Occupied' })
+          body: JSON.stringify(recordData)
         });
 
-        if (!response.ok) {
+        if (!recordResponse.ok) {
+          const errorText = await recordResponse.text();
+          console.error('❌ Parking record creation failed:', errorText);
+          throw new Error('Failed to create parking record: ' + errorText);
+        }
+        
+        const createdRecord = await recordResponse.json();
+        console.log('✅ Parking record created:', createdRecord);
+        
+        // Step 4: Accept reservation - Mark as Occupied and clear reservation fields
+        const acceptResponse = await fetch(`${API_BASE_URL}/parking-slots/${reservationId}/accept-reservation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!acceptResponse.ok) {
           throw new Error('Failed to accept reservation');
         }
 
-        // Refresh data
+        console.log('✅ Reservation accepted - slot status updated to Occupied, reservation fields cleared');
+        
+        // Step 5: Refresh data
         await fetchParkingSlots();
         await fetchReservations();
-        alert(`Reservation accepted for ${reservation.staffName}`);
+        alert(`Reservation accepted for ${reservation.staffName}!\nParking slot ${reservation.requestedSlot} is now occupied.\nParking record created successfully.`);
       } catch (err) {
-        console.error('Error accepting reservation:', err);
-        alert('Failed to accept reservation. Please try again.');
+        console.error('❌ Error accepting reservation:', err);
+        alert(`Failed to accept reservation: ${err.message}\nPlease try again.`);
       }
     }
   };
@@ -195,40 +321,51 @@ const ManageParkingSlot = () => {
     try {
       console.log(`❌ Declining reservation for slot ${reservationId}`);
       
-      // Update slot status back to available
-      const response = await fetch(`${API_BASE_URL}/parking-slots/${reservationId}/status`, {
-        method: 'PATCH',
+      // Use the new decline-reservation endpoint to clear reservation fields
+      const response = await fetch(`${API_BASE_URL}/parking-slots/${reservationId}/decline-reservation`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: 'Available' })
+        }
       });
 
       if (!response.ok) {
         throw new Error('Failed to decline reservation');
       }
 
+      console.log('✅ Reservation declined - slot status updated to Available, reservation fields cleared');
+      
       // Refresh data
       await fetchParkingSlots();
       await fetchReservations();
+      alert('Reservation declined successfully. Slot is now available.');
     } catch (err) {
       console.error('Error declining reservation:', err);
       alert('Failed to decline reservation. Please try again.');
     }
   };
 
-  // Filter slots by selected area
-  const filteredSlots = selectedArea 
+  // Filter slots by selected area for statistics only
+  // Always show ALL slots in the ParkingMap
+  const filteredSlots = parkingSlots; // Show all slots in the map
+  
+  console.log('🅿️ ManageParkingSlot - All slots for map:', filteredSlots);
+  console.log('🅿️ ManageParkingSlot - Total slots count:', filteredSlots.length);
+  
+  // Get filtered slots for statistics if area is selected
+  const filteredSlotsForStats = selectedArea 
     ? parkingSlots.filter(slot => slot.areaID === selectedArea)
     : parkingSlots;
 
-  // Calculate statistics (based on filtered slots)
+  // Calculate statistics (based on filtered slots for stats)
   const stats = {
-    total: filteredSlots.length,
-    available: filteredSlots.filter(s => s.status === 'free').length,
-    occupied: filteredSlots.filter(s => s.status === 'occupied').length,
-    reserved: filteredSlots.filter(s => s.status === 'reserved').length
+    total: filteredSlotsForStats.length,
+    available: filteredSlotsForStats.filter(s => s.status === 'free').length,
+    occupied: filteredSlotsForStats.filter(s => s.status === 'occupied').length,
+    reserved: filteredSlotsForStats.filter(s => s.status === 'reserved').length
   };
+  
+  console.log('🅿️ ManageParkingSlot - Stats:', stats);
 
   return (
     <div className="dashboard-page manage-parking-container">

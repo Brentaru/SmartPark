@@ -69,9 +69,25 @@ const StaffDashboard = ({ currentUser }) => {
           reservedBy: slot.reservedBy,
           reservedFor: slot.reservedFor
         }));
-        console.log('✅ Transformed slots:', transformedSlots);
-        console.log('✅ Number of slots to display:', transformedSlots.length);
-        setParkingSlots(transformedSlots);
+        
+        // Sort slots by location to ensure consistent order (A-01, A-02, ..., B-01, B-02, ...)
+        const sortedSlots = transformedSlots.sort((a, b) => {
+          if (!a.location || !b.location) {
+            if (!a.location && !b.location) return 0;
+            if (!a.location) return 1;
+            if (!b.location) return -1;
+          }
+          const [letterA, numA] = a.location.split('-');
+          const [letterB, numB] = b.location.split('-');
+          if (letterA !== letterB) {
+            return letterA.localeCompare(letterB);
+          }
+          return parseInt(numA) - parseInt(numB);
+        });
+        
+        console.log('✅ Transformed slots:', sortedSlots);
+        console.log('✅ Number of slots to display:', sortedSlots.length);
+        setParkingSlots(sortedSlots);
       } else {
         // If no slots from backend, use empty array (don't fall back to mock)
         console.warn('No parking slots found in database. Please add slots via admin panel.');
@@ -165,21 +181,44 @@ const StaffDashboard = ({ currentUser }) => {
 
   const handleConfirmReservation = async () => {
     try {
-      // Call API to reserve slot for current user
-      const result = await parkingSlotAPI.reserveSlot(
-        selectedSlot.id,
-        currentUser.id,
-        currentUser.id // Reserve for current user
-      );
+      // Prepare complete slot data to preserve all fields including location
+      const reservationData = {
+        slotID: selectedSlot.id,
+        location: selectedSlot.location, // CRITICAL: Preserve location
+        slotType: selectedSlot.type,
+        reservedBy: currentUser.id,
+        reservedFor: `${currentUser.firstName} ${currentUser.lastName}`,
+        status: 'Reserved'
+      };
+
+      console.log('Reserving slot with data:', reservationData);
+      
+      // Use updateSlot instead of reserveSlot to ensure all fields are sent
+      const result = await parkingSlotAPI.updateSlot(selectedSlot.id, reservationData);
       
       if (result.success) {
-        // Reload parking data to get updated slots
-        await loadParkingData();
+        // Update the slot in state immediately to prevent re-sorting issues
+        setParkingSlots(prevSlots => 
+          prevSlots.map(slot => 
+            slot.id === selectedSlot.id 
+              ? { 
+                  ...slot, 
+                  status: 'reserved', 
+                  reservedBy: currentUser.id, 
+                  reservedFor: `${currentUser.firstName} ${currentUser.lastName}`,
+                  location: selectedSlot.location // Ensure location stays
+                }
+              : slot
+          )
+        );
         
         setShowReservationModal(false);
         setSelectedSlot(null);
         
-        alert(`Slot ${selectedSlot.id} has been reserved successfully!`);
+        alert(`Slot ${selectedSlot.location} has been reserved successfully!`);
+        
+        // Reload in background to sync with server
+        setTimeout(() => loadParkingData(), 1000);
       } else {
         alert(`Failed to reserve slot: ${result.error}`);
       }
@@ -279,7 +318,8 @@ const StaffDashboard = ({ currentUser }) => {
         <div style={{ position: 'relative' }}>
           <ParkingMap 
             slots={dashboardData.parkingSlots} 
-            canReserve={false}
+            onSlotClick={handleReserveSlot}
+            canReserve={true}
           />
           <button 
             className="make-reservation-btn"

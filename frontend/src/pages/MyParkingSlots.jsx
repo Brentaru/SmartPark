@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import AuthTopbar from '../components/AuthTopbar';
 import ParkingMap from '../components/dashboard/ParkingMap';
+import NotificationModal from '../components/NotificationModal';
 import { parkingSlotAPI } from '../api/api';
 import { mockDashboardData } from '../data/mockData';
 import '../styles/MyParkingSlots.css';
@@ -19,6 +20,7 @@ const MyParkingSlots = () => {
   const [loading, setLoading] = useState(true);
   const [showReservationModal, setShowReservationModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [notification, setNotification] = useState({ show: false, type: 'info', title: '', message: '' });
   
   const parkingAreas = mockDashboardData.parkingAreas;
 
@@ -45,7 +47,23 @@ const MyParkingSlots = () => {
           reservedBy: slot.reservedBy,
           reservedFor: slot.reservedFor
         }));
-        setParkingSlots(transformedSlots);
+        
+        // Sort slots by location to ensure consistent order (A-01, A-02, ..., B-01, B-02, ...)
+        const sortedSlots = transformedSlots.sort((a, b) => {
+          if (!a.location || !b.location) {
+            if (!a.location && !b.location) return 0;
+            if (!a.location) return 1;
+            if (!b.location) return -1;
+          }
+          const [letterA, numA] = a.location.split('-');
+          const [letterB, numB] = b.location.split('-');
+          if (letterA !== letterB) {
+            return letterA.localeCompare(letterB);
+          }
+          return parseInt(numA) - parseInt(numB);
+        });
+        
+        setParkingSlots(sortedSlots);
       } else {
         setParkingSlots([]);
       }
@@ -58,6 +76,45 @@ const MyParkingSlots = () => {
   };
 
   const handleSlotClick = (slot) => {
+    console.log('Current user role:', currentUser.role);
+    console.log('Clicked slot:', slot);
+    
+    // Only staff can make reservations (case-insensitive check)
+    if (currentUser.role?.toLowerCase() !== 'staff') {
+      if (slot.status === 'reserved' && slot.reservedBy === currentUser.id) {
+        // Students can view their own reservations
+        setNotification({
+          show: true,
+          type: 'info',
+          title: 'Your Reserved Slot',
+          message: `This is your reserved parking slot: ${slot.location}.`
+        });
+      } else if (slot.status === 'free') {
+        setNotification({
+          show: true,
+          type: 'error',
+          title: 'Access Restricted',
+          message: 'Only staff members are authorized to make parking reservations. Students may view parking availability but cannot reserve slots.'
+        });
+      } else if (slot.status === 'reserved') {
+        setNotification({
+          show: true,
+          type: 'warning',
+          title: 'Slot Reserved',
+          message: `This parking slot is already reserved by another user.`
+        });
+      } else {
+        setNotification({
+          show: true,
+          type: 'info',
+          title: 'Slot Occupied',
+          message: `Parking slot ${slot.location} is currently occupied.`
+        });
+      }
+      return;
+    }
+
+    // Staff reservation functionality
     if (slot.status === 'free') {
       setSelectedSlot(slot);
       setShowReservationModal(true);
@@ -80,6 +137,8 @@ const MyParkingSlots = () => {
     try {
       const reservationData = {
         slotID: selectedSlot.id,
+        location: selectedSlot.location, // Preserve location
+        slotType: selectedSlot.type,
         reservedBy: currentUser.id,
         reservedFor: `${currentUser.firstName || 'Staff'} ${currentUser.lastName || 'User'}`,
         status: 'Reserved'
@@ -89,10 +148,27 @@ const MyParkingSlots = () => {
       const result = await parkingSlotAPI.updateSlot(selectedSlot.id, reservationData);
 
       if (result.success) {
+        // Update the slot in state immediately to prevent re-sorting issues
+        setParkingSlots(prevSlots => 
+          prevSlots.map(slot => 
+            slot.id === selectedSlot.id 
+              ? { 
+                  ...slot, 
+                  status: 'reserved', 
+                  reservedBy: currentUser.id, 
+                  reservedFor: reservationData.reservedFor,
+                  location: selectedSlot.location // Ensure location is preserved
+                }
+              : slot
+          )
+        );
+        
         alert(`Successfully reserved slot ${selectedSlot.location}!`);
         setShowReservationModal(false);
         setSelectedSlot(null);
-        loadParkingSlots(); // Reload to show updated status
+        
+        // Reload in background to sync with server
+        setTimeout(() => loadParkingSlots(), 1000);
       } else {
         alert(`Failed to reserve slot: ${result.error || 'Unknown error'}`);
       }
@@ -104,7 +180,13 @@ const MyParkingSlots = () => {
 
   const handleCancelReservation = async (slotId) => {
     try {
+      // Find the slot to preserve its location
+      const slotToCancel = parkingSlots.find(s => s.id === slotId);
+      
       const result = await parkingSlotAPI.updateSlot(slotId, {
+        slotID: slotId,
+        location: slotToCancel?.location, // Preserve location
+        slotType: slotToCancel?.type,
         status: 'Available',
         reservedBy: null,
         reservedFor: null
@@ -233,6 +315,14 @@ const MyParkingSlots = () => {
           </div>
         </div>
       )}
+
+      <NotificationModal
+        show={notification.show}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
     </div>
   );
 };

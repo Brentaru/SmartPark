@@ -54,10 +54,9 @@
 
 /* Container */
 .dashboard-container {
-  max-width: 1600px;
   width: 100%;
-  margin: 0 auto;
-  padding: 1.5rem 1.5rem 1.5rem 0.5rem;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -75,12 +74,17 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 260px;
   margin-top: 64px;
-  padding: 1rem 1rem 1rem 0.5rem;
+  padding: 1.5rem 1rem 1.5rem 1rem;
   min-height: calc(100vh - 64px);
   overflow-x: hidden;
 }
 
 .dashboard-main.sidebar-closed {
+  margin-left: 70px;
+}
+
+/* Maintain support for the collapsed class used by guard/staff pages */
+.dashboard-main.sidebar-collapsed {
   margin-left: 70px;
 }
 

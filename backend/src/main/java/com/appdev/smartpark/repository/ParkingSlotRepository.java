@@ -12,4 +12,5 @@ public interface ParkingSlotRepository extends JpaRepository<ParkingSlot, Intege
     List<ParkingSlot> findByStatus(String status);
     List<ParkingSlot> findByParkingAreaAreaID(Integer areaID);
     List<ParkingSlot> findByReservedBy(String reservedBy);
+    List<ParkingSlot> findByReservedByAndStatus(String reservedBy, String status);
 }

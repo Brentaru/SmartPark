@@ -51,6 +51,48 @@ public class ParkingRecordController {
     @Autowired
     private DTOMapper dtoMapper;
     
+    // Debug endpoint to check database contents
+    @GetMapping("/debug/all")
+    public ResponseEntity<?> debugAllRecords() {
+        System.out.println("🔍 DEBUG: Checking all parking records in database");
+        List<ParkingRecord> records = parkingRecordService.getAllParkingRecords();
+        
+        System.out.println("📊 Total records: " + records.size());
+        records.forEach(record -> {
+            System.out.println("\n--- Record ID: " + record.getRecordID() + " ---");
+            System.out.println("   Entry Time: " + record.getEntryTime());
+            System.out.println("   Exit Time: " + record.getExitTime());
+            
+            if (record.getParkingSlot() != null) {
+                System.out.println("   Slot ID: " + record.getParkingSlot().getSlotID());
+                System.out.println("   Slot Location: " + record.getParkingSlot().getLocation());
+            } else {
+                System.out.println("   ⚠️ Slot is NULL");
+            }
+            
+            if (record.getVehicle() != null) {
+                System.out.println("   Vehicle ID: " + record.getVehicle().getVehicleID());
+                System.out.println("   Plate Number: " + record.getVehicle().getPlateNumber());
+                if (record.getVehicle().getUser() != null) {
+                    System.out.println("   Owner: " + record.getVehicle().getUser().getUserID());
+                }
+            } else {
+                System.out.println("   ⚠️ Vehicle is NULL");
+            }
+            
+            if (record.getVerifiedByUser() != null) {
+                System.out.println("   Verified By: " + record.getVerifiedByUser().getFname() + " " + record.getVerifiedByUser().getLname());
+            } else {
+                System.out.println("   ⚠️ Verified By is NULL");
+            }
+        });
+        
+        return ResponseEntity.ok(Map.of(
+            "totalRecords", records.size(),
+            "message", "Check server logs for full details"
+        ));
+    }
+    
     // Create parking record
     @PostMapping
     public ResponseEntity<?> createParkingRecord(@RequestBody ParkingRecordRequestDTO requestDTO) {
@@ -101,10 +143,19 @@ public class ParkingRecordController {
     // Get all parking records
     @GetMapping
     public ResponseEntity<List<ParkingRecordDTO>> getAllParkingRecords() {
+        System.out.println("📋 GET /parking-records - Fetching all parking records");
         List<ParkingRecord> records = parkingRecordService.getAllParkingRecords();
+        System.out.println("   Found " + records.size() + " records in database");
+        
         List<ParkingRecordDTO> recordDTOs = records.stream()
+                .peek(record -> System.out.println("   - Record ID: " + record.getRecordID() + 
+                        ", Slot: " + (record.getParkingSlot() != null ? record.getParkingSlot().getLocation() : "NULL") +
+                        ", EntryTime: " + record.getEntryTime() +
+                        ", Vehicle: " + (record.getVehicle() != null ? record.getVehicle().getPlateNumber() : "NULL")))
                 .map(dtoMapper::toParkingRecordDTO)
                 .collect(Collectors.toList());
+        
+        System.out.println("   Returning " + recordDTOs.size() + " DTOs");
         return ResponseEntity.ok(recordDTOs);
     }
     
@@ -124,10 +175,19 @@ public class ParkingRecordController {
     // Get records by user
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<ParkingRecordDTO>> getRecordsByUser(@PathVariable String userId) {
+        System.out.println("📋 GET /parking-records/user/" + userId + " - Fetching records for user");
         List<ParkingRecord> records = parkingRecordService.getParkingRecordsByUser(userId);
+        System.out.println("   Found " + records.size() + " records for user " + userId);
+        
         List<ParkingRecordDTO> recordDTOs = records.stream()
+                .peek(record -> System.out.println("   - Record ID: " + record.getRecordID() + 
+                        ", Slot: " + (record.getParkingSlot() != null ? record.getParkingSlot().getLocation() : "NULL") +
+                        ", EntryTime: " + record.getEntryTime() +
+                        ", Vehicle: " + (record.getVehicle() != null ? record.getVehicle().getPlateNumber() : "NULL")))
                 .map(dtoMapper::toParkingRecordDTO)
                 .collect(Collectors.toList());
+        
+        System.out.println("   Returning " + recordDTOs.size() + " DTOs");
         return ResponseEntity.ok(recordDTOs);
     }
     

@@ -21,17 +21,17 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
       // Student: xx-xxxx-xxx (e.g., 20-2024-123)
       // Staff: xx-xxxx-xxxx (e.g., 20-2024-1234)
       // Guard: xx-xxx-xxx (e.g., 20-123-456)
-      // Admin: xx-xxxx-xx (e.g., 99-2025-01)
+      // Admin: xx-xx-xx (e.g., 99-99-99)
       const studentFormat = /^\d{2}-\d{4}-\d{3}$/;
       const staffFormat = /^\d{2}-\d{4}-\d{4}$/;
       const guardFormat = /^\d{2}-\d{3}-\d{3}$/;
-      const adminFormat = /^\d{2}-\d{4}-\d{2}$/; // Admin format
+      const adminFormat = /^\d{2}-\d{2}-\d{2}$/; // Admin format (2-2-2)
       
       if (!studentFormat.test(values.studentId) && 
           !staffFormat.test(values.studentId) && 
           !guardFormat.test(values.studentId) &&
           !adminFormat.test(values.studentId)) {
-        errors.studentId = 'Invalid ID format. Use: Student (xx-xxxx-xxx), Staff (xx-xxxx-xxxx), Guard (xx-xxx-xxx), or Admin (xx-xxxx-xx)';
+        errors.studentId = 'Invalid ID format. Student: xx-xxxx-xxx, Staff: xx-xxxx-xxxx, Guard: xx-xxx-xxx, Admin: xx-xx-xx';
       }
     }
 
@@ -67,19 +67,23 @@ const Login = ({ onNavigateToRegister, onNavigateToLanding, onNavigateToDashboar
       const result = await login(formValues.studentId, formValues.password);
       
       if (result.success) {
-        // Check if user has registered their vehicle
-        if (!result.user.plateNumber) {
-          // Redirect to vehicle registration
-          alert(`Welcome, ${result.user.firstName}! Please register your vehicle to continue.`);
-          window.location.href = '/vehicle-registration';
-        } else {
-          // Show success message
+        // Navigate based on role and vehicle registration status
+        const userRole = result.user.role?.toLowerCase();
+        
+        // Admin and Guard don't need vehicle registration
+        if (userRole === 'admin') {
           alert(`Welcome back, ${result.user.firstName}!`);
-          // Navigate to appropriate dashboard based on role
-          const userRole = result.user.role?.toLowerCase();
-          if (userRole === 'admin') {
-            window.location.href = '/admin-dashboard';
+          window.location.href = '/admin-dashboard';
+        } else if (userRole === 'guard') {
+          alert(`Welcome back, ${result.user.firstName}!`);
+          onNavigateToDashboard();
+        } else {
+          // Student and Staff need vehicle registration
+          if (!result.user.plateNumber) {
+            alert(`Welcome, ${result.user.firstName}! Please register your vehicle to continue.`);
+            window.location.href = '/vehicle-registration';
           } else {
+            alert(`Welcome back, ${result.user.firstName}!`);
             onNavigateToDashboard();
           }
         }

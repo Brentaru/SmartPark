@@ -32,6 +32,13 @@
 }
 
 /* Statistics Cards */
+.history-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
 .parking-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

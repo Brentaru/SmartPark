@@ -63,6 +63,38 @@ public class ParkingSlotService {
         slot.setStatus(status);
         return parkingSlotRepository.save(slot);
     }
+
+    // Accept a reservation - Mark as Occupied and clear reservation fields
+    public ParkingSlot acceptReservation(Integer id) {
+        ParkingSlot slot = parkingSlotRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Parking Slot not found with id: " + id));
+        
+        if (!"Reserved".equals(slot.getStatus())) {
+            throw new RuntimeException("Slot is not in Reserved status");
+        }
+        
+        slot.setStatus("Occupied");
+        slot.setReservedBy(null);
+        slot.setReservedFor(null);
+        
+        return parkingSlotRepository.save(slot);
+    }
+    
+    // Decline a reservation - Clear reservation fields and mark as Available
+    public ParkingSlot declineReservation(Integer id) {
+        ParkingSlot slot = parkingSlotRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Parking Slot not found with id: " + id));
+        
+        if (!"Reserved".equals(slot.getStatus())) {
+            throw new RuntimeException("Slot is not in Reserved status");
+        }
+        
+        slot.setStatus("Available");
+        slot.setReservedBy(null);
+        slot.setReservedFor(null);
+        
+        return parkingSlotRepository.save(slot);
+    }
     
     // Delete
     public void deleteParkingSlot(Integer id) {
@@ -111,8 +143,8 @@ public class ParkingSlotService {
         return parkingSlotRepository.findByStatus("Reserved");
     }
     
-    // Get slots reserved by a specific user
+    // Get slots reserved by a specific user (only those still in Reserved status)
     public List<ParkingSlot> getSlotsByReservedBy(String userId) {
-        return parkingSlotRepository.findByReservedBy(userId);
+        return parkingSlotRepository.findByReservedByAndStatus(userId, "Reserved");
     }
 }

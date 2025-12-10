@@ -594,6 +594,45 @@
   line-height: 1.5;
 }
 
+/* Enhanced Modal Styles */
+.modal-large {
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.generated-slots-preview {
+  margin-top: 20px;
+  padding: 16px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+}
+
+.generated-slots-preview h3 {
+  margin: 0 0 12px 0;
+  color: #1e40af;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.slots-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.slot-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  color: white;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* Responsive adjustments for reservation modal */
 @media (max-width: 640px) {
   .reservation-modal {
@@ -609,5 +648,9 @@
 
   .info-row .info-value {
     margin-left: 0;
+  }
+
+  .modal-large {
+    max-width: 95%;
   }
 }
