@@ -15,6 +15,7 @@ import MyProfile from './pages/MyProfile';
 import ProfileSettings from './pages/ProfileSettings';
 import VehicleRegistration from './pages/VehicleRegistration';
 import AdminDashboard from './pages/dashboard/AdminDashboard';
+import ManageUsersPage from './pages/dashboard/ManageUsersPage';
 import ParkingAreasPage from './pages/dashboard/ParkingAreasPage';
 import SystemLogsPage from './pages/dashboard/SystemLogsPage';
 import ReportsPage from './pages/dashboard/ReportsPage';
@@ -112,6 +113,16 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Manage Users (Admin only - protected) */}
+        <Route
+          path="/manage-users"
+          element={
+            <ProtectedRoute>
+              <ManageUsersPage />
             </ProtectedRoute>
           }
         />

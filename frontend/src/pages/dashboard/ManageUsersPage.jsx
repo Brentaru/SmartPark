@@ -2,9 +2,9 @@ import React from 'react';
 import Sidebar from '../../components/Sidebar';
 import AuthTopbar from '../../components/AuthTopbar';
 import { useSidebar } from '../../context/SidebarContext';
-import ParkingAreaManagement from '../../components/dashboard/admin/ParkingAreaManagement';
+import UserManagement from '../../components/dashboard/admin/UserManagement';
 
-const ParkingAreasPage = () => {
+const ManageUsersPage = () => {
   const { isExpanded, toggleSidebar } = useSidebar();
 
   return (
@@ -12,10 +12,10 @@ const ParkingAreasPage = () => {
       <AuthTopbar onToggleSidebar={toggleSidebar} sidebarOpen={isExpanded} />
       <Sidebar isOpen={isExpanded} onToggle={toggleSidebar} />
       <main className={`dashboard-main ${isExpanded ? '' : 'sidebar-closed'}`} style={{ padding: '2rem', backgroundColor: '#f5f5f5' }}>
-        <ParkingAreaManagement />
+        <UserManagement />
       </main>
     </div>
   );
 };
 
-export default ParkingAreasPage;
+export default ManageUsersPage;

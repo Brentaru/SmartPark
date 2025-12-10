@@ -73,6 +73,10 @@ const Reports = () => {
         }, 0) / completedWithDuration.length
       : 0;
 
+    // Calculate daily trend
+    const dailyTrend = getDailyTrend(filteredRecords);
+    const hourlyDistribution = getHourlyDistribution(filteredRecords);
+
     return {
       totalSlots,
       occupiedSlots,
@@ -82,7 +86,9 @@ const Reports = () => {
       activeSessions,
       completedSessions,
       avgDuration: formatDuration(avgDuration),
-      peakHours: calculatePeakHours(filteredRecords)
+      peakHours: calculatePeakHours(filteredRecords),
+      dailyTrend,
+      hourlyDistribution
     };
   };
 
@@ -195,6 +201,46 @@ const Reports = () => {
     return distribution;
   };
 
+  const getDailyTrend = (records) => {
+    const days = [];
+    const daysCount = getDaysInRange();
+    const now = new Date();
+    
+    for (let i = Math.min(daysCount - 1, 6); i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+      
+      const nextDate = new Date(date);
+      nextDate.setDate(nextDate.getDate() + 1);
+      
+      const dayRecords = records.filter(r => {
+        const entryTime = new Date(r.entryTime);
+        return entryTime >= date && entryTime < nextDate;
+      });
+      
+      days.push({
+        day: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        count: dayRecords.length
+      });
+    }
+    
+    return days;
+  };
+
+  const getHourlyDistribution = (records) => {
+    const hourCounts = Array(24).fill(0);
+    records.forEach(r => {
+      const hour = new Date(r.entryTime).getHours();
+      hourCounts[hour]++;
+    });
+    
+    return hourCounts.map((count, hour) => ({
+      hour: `${hour.toString().padStart(2, '0')}:00`,
+      count
+    }));
+  };
+
   const formatDuration = (milliseconds) => {
     const hours = Math.floor(milliseconds / (1000 * 60 * 60));
     const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
@@ -219,10 +265,6 @@ const Reports = () => {
     URL.revokeObjectURL(url);
   };
 
-  const printReport = () => {
-    window.print();
-  };
-
   if (loading) {
     return (
       <div className="loading-container">
@@ -238,13 +280,20 @@ const Reports = () => {
         <h2>Reports & Analytics</h2>
         <div className="report-actions">
           <button className="btn-secondary" onClick={exportReport}>
-            📥 Export
-          </button>
-          <button className="btn-secondary" onClick={printReport}>
-            🖨️ Print
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
           </button>
           <button className="btn-primary" onClick={generateReport}>
-            🔄 Refresh
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Refresh
           </button>
         </div>
       </div>
@@ -319,6 +368,155 @@ const Reports = () => {
                 </div>
               </div>
             </div>
+
+            {/* Daily Trend Chart */}
+            {reportData.dailyTrend && reportData.dailyTrend.length > 0 && (
+              <div className="report-section">
+                <h4>Daily Parking Trend</h4>
+                <div className="chart-container-report">
+                  <div className="bar-chart-report">
+                    {(() => {
+                      const maxCount = Math.max(...reportData.dailyTrend.map(d => d.count), 1);
+                      return reportData.dailyTrend.map((day, index) => (
+                        <div key={index} className="bar-item-report">
+                          <div className="bar-wrapper-report">
+                            <div 
+                              className="bar-fill-report"
+                              style={{ height: `${(day.count / maxCount) * 100}%` }}
+                            >
+                              <span className="bar-value-report">{day.count}</span>
+                            </div>
+                          </div>
+                          <div className="bar-label-report">{day.day}</div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Hourly Distribution Line Chart */}
+            {reportData.hourlyDistribution && reportData.hourlyDistribution.length > 0 && (
+              <div className="report-section">
+                <h4>Hourly Entry Distribution</h4>
+                <div className="chart-container-report">
+                  <div className="line-chart">
+                    <svg width="100%" height="280" viewBox="0 0 800 280">
+                      {(() => {
+                        const data = reportData.hourlyDistribution;
+                        const maxCount = Math.max(...data.map(d => d.count), 1);
+                        const padding = { top: 20, right: 40, bottom: 40, left: 50 };
+                        const chartWidth = 800 - padding.left - padding.right;
+                        const chartHeight = 280 - padding.top - padding.bottom;
+                        const pointSpacing = chartWidth / (data.length - 1);
+
+                        // Create path points
+                        const points = data.map((d, i) => ({
+                          x: padding.left + (i * pointSpacing),
+                          y: padding.top + chartHeight - (d.count / maxCount * chartHeight)
+                        }));
+
+                        // Create line path
+                        const linePath = points.map((p, i) => 
+                          `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`
+                        ).join(' ');
+
+                        // Create area path
+                        const areaPath = `${linePath} L ${points[points.length - 1].x} ${padding.top + chartHeight} L ${padding.left} ${padding.top + chartHeight} Z`;
+
+                        return (
+                          <>
+                            {/* Grid lines */}
+                            {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => (
+                              <g key={i}>
+                                <line
+                                  x1={padding.left}
+                                  y1={padding.top + chartHeight * (1 - ratio)}
+                                  x2={padding.left + chartWidth}
+                                  y2={padding.top + chartHeight * (1 - ratio)}
+                                  stroke="#e5e7eb"
+                                  strokeWidth="1"
+                                />
+                                <text
+                                  x={padding.left - 10}
+                                  y={padding.top + chartHeight * (1 - ratio) + 4}
+                                  textAnchor="end"
+                                  fontSize="11"
+                                  fill="#6b7280"
+                                >
+                                  {Math.round(maxCount * ratio)}
+                                </text>
+                              </g>
+                            ))}
+
+                            {/* Area fill */}
+                            <path
+                              d={areaPath}
+                              fill="#4f46e5"
+                              fillOpacity="0.1"
+                            />
+
+                            {/* Line */}
+                            <path
+                              d={linePath}
+                              fill="none"
+                              stroke="#4f46e5"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+
+                            {/* Data points */}
+                            {points.map((p, i) => (
+                              <g key={i}>
+                                <circle
+                                  cx={p.x}
+                                  cy={p.y}
+                                  r="4"
+                                  fill="white"
+                                  stroke="#4f46e5"
+                                  strokeWidth="2"
+                                />
+                                {data[i].count > 0 && (
+                                  <text
+                                    x={p.x}
+                                    y={p.y - 10}
+                                    textAnchor="middle"
+                                    fontSize="10"
+                                    fill="#374151"
+                                    fontWeight="500"
+                                  >
+                                    {data[i].count}
+                                  </text>
+                                )}
+                              </g>
+                            ))}
+
+                            {/* X-axis labels (every 3 hours) */}
+                            {data.filter((_, i) => i % 3 === 0).map((d, i) => {
+                              const actualIndex = i * 3;
+                              return (
+                                <text
+                                  key={actualIndex}
+                                  x={padding.left + (actualIndex * pointSpacing)}
+                                  y={padding.top + chartHeight + 25}
+                                  textAnchor="middle"
+                                  fontSize="11"
+                                  fill="#6b7280"
+                                >
+                                  {d.hour}
+                                </text>
+                              );
+                            })}
+                          </>
+                        );
+                      })()}
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -374,6 +572,37 @@ const Reports = () => {
                 </div>
               ))}
             </div>
+
+            {/* Role Distribution Chart */}
+            {reportData.roleDistribution && Object.keys(reportData.roleDistribution).length > 0 && (
+              <div className="report-section">
+                <h4>User Role Distribution</h4>
+                <div className="chart-container-report">
+                  <div className="horizontal-bar-chart">
+                    {(() => {
+                      const total = Object.values(reportData.roleDistribution).reduce((sum, val) => sum + val, 0);
+                      const colors = { 'Admin': '#8b5cf6', 'Student': '#10b981', 'Staff': '#f59e0b', 'Guard': '#3b82f6', 'Pending': '#ef4444' };
+                      return Object.entries(reportData.roleDistribution).map(([role, count], index) => (
+                        <div key={role} className="horizontal-bar-item">
+                          <div className="horizontal-bar-label">{role}</div>
+                          <div className="horizontal-bar-wrapper">
+                            <div 
+                              className="horizontal-bar-fill"
+                              style={{ 
+                                width: `${(count / total) * 100}%`,
+                                backgroundColor: colors[role] || '#6b7280'
+                              }}
+                            >
+                              <span className="horizontal-bar-value">{count} ({((count / total) * 100).toFixed(1)}%)</span>
+                            </div>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="report-section">
               <h4>Top 10 Most Active Users</h4>

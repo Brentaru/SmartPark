@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { parkingRecordAPI, userAPI } from '../../../api/api';
+import { parkingRecordAPI, userAPI, vehicleAPI } from '../../../api/api';
 import '../../../styles/dashboard/admin/SystemLogs.css';
 
 const SystemLogs = () => {
@@ -17,23 +17,40 @@ const SystemLogs = () => {
   const loadLogs = async () => {
     try {
       setLoading(true);
-      const [recordsResult, usersResult] = await Promise.all([
+      const [recordsResult, usersResult, vehiclesResult] = await Promise.all([
         parkingRecordAPI.getAllRecords(),
-        userAPI.getAllUsers()
+        userAPI.getAllUsers(),
+        vehicleAPI.getAllVehicles()
       ]);
       
       if (recordsResult.success) {
+        // Create a mapping of vehicleID to userID
+        const vehicleToUserMap = {};
+        if (vehiclesResult.success) {
+          vehiclesResult.data.forEach(vehicle => {
+            if (vehicle.userID) {
+              vehicleToUserMap[vehicle.vehicleID] = vehicle.userID;
+            }
+          });
+        }
+        
+        console.log('Vehicle to User map:', vehicleToUserMap);
+        console.log('Sample parking record:', recordsResult.data[0]);
+        
         // Convert parking records to log format
-        const formattedLogs = recordsResult.data.map(record => ({
-          id: record.recordID,
-          type: 'parking',
-          action: record.exitTime ? 'exit' : 'entry',
-          timestamp: record.exitTime || record.entryTime,
-          userID: record.userID,
-          slotID: record.slotID,
-          vehicleID: record.vehicleID,
-          details: `${record.exitTime ? 'Exited' : 'Entered'} parking slot #${record.slotID}`
-        }));
+        const formattedLogs = recordsResult.data.map(record => {
+          const userID = vehicleToUserMap[record.vehicleID];
+          return {
+            id: record.recordID,
+            type: 'parking',
+            action: record.exitTime ? 'exit' : 'entry',
+            timestamp: record.exitTime || record.entryTime,
+            userID: userID,
+            slotID: record.slotID,
+            vehicleID: record.vehicleID,
+            details: `${record.exitTime ? 'Exited' : 'Entered'} parking slot #${record.slotLocation || record.slotID || 'N/A'}`
+          };
+        });
         setLogs(formattedLogs);
       }
       
@@ -47,7 +64,12 @@ const SystemLogs = () => {
 
   const getUserName = (userID) => {
     const user = users.find(u => u.userID === userID);
-    return user ? `${user.firstName} ${user.lastName}` : 'Unknown User';
+    if (!user) {
+      console.log('User not found for ID:', userID, 'Available users:', users.length);
+      return 'Unknown User';
+    }
+    const fullName = `${user.fname || ''} ${user.lname || ''}`.trim();
+    return fullName || user.email || user.userID || 'Unknown User';
   };
 
   const getFilteredLogs = () => {
@@ -107,13 +129,45 @@ const SystemLogs = () => {
 
   const getLogIcon = (action) => {
     const icons = {
-      entry: '🚗',
-      exit: '🚦',
-      create: '✅',
-      update: '📝',
-      delete: '🗑️'
+      entry: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99z"/>
+          <circle cx="6.5" cy="15.5" r="1.5"/>
+          <circle cx="17.5" cy="15.5" r="1.5"/>
+        </svg>
+      ),
+      exit: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      ),
+      create: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      ),
+      update: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      ),
+      delete: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+      )
     };
-    return icons[action] || '📋';
+    return icons[action] || (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+    );
   };
 
   const getLogTypeClass = (action) => {
@@ -164,7 +218,7 @@ const SystemLogs = () => {
         <div className="filter-group">
           <input
             type="text"
-            placeholder="🔍 Search logs..."
+            placeholder="Search logs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -186,7 +240,12 @@ const SystemLogs = () => {
           </select>
 
           <button className="btn-secondary" onClick={loadLogs}>
-            🔄 Refresh
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Refresh
           </button>
         </div>
       </div>
@@ -209,13 +268,31 @@ const SystemLogs = () => {
                     <span className="log-details">{log.details}</span>
                   </div>
                   <div className="log-meta">
-                    <span className="log-user">👤 {getUserName(log.userID)}</span>
+                    <span className="log-user">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                      {getUserName(log.userID)}
+                    </span>
                     <span className="log-separator">•</span>
-                    <span className="log-timestamp">🕐 {formatTimestamp(log.timestamp)}</span>
+                    <span className="log-timestamp">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      {formatTimestamp(log.timestamp)}
+                    </span>
                     {log.slotID && (
                       <>
                         <span className="log-separator">•</span>
-                        <span className="log-slot">🅿️ Slot #{log.slotID}</span>
+                        <span className="log-slot">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                          Slot #{log.slotID}
+                        </span>
                       </>
                     )}
                   </div>
