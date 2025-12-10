@@ -145,6 +145,12 @@ const UserManagement = ({ onUpdate }) => {
 
   return (
     <div className="user-management">
+      {/* Page Header */}
+      <div className="page-header">
+        <h2>Manage Users</h2>
+        <p>View and control user accounts</p>
+      </div>
+
       {/* Header with Search and Filters */}
       <div className="management-header">
         <div className="search-box">
@@ -224,25 +230,11 @@ const UserManagement = ({ onUpdate }) => {
                   </td>
                   <td className="actions">
                     <button
-                      className="btn-view"
-                      onClick={() => handleViewUser(user)}
-                      title="View Details"
-                    >
-                      👁️
-                    </button>
-                    <button
-                      className="btn-edit"
-                      onClick={() => handleEditUser(user)}
-                      title="Edit User"
-                    >
-                      ✏️
-                    </button>
-                    <button
-                      className="btn-delete"
+                      className="action-btn action-delete"
                       onClick={() => handleDeleteUser(user.userID)}
                       title="Delete User"
                     >
-                      🗑️
+                      Delete
                     </button>
                   </td>
                 </tr>
