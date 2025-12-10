@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSidebar } from '../../context/SidebarContext';
 import Sidebar from '../../components/Sidebar';
 import AuthTopbar from '../../components/AuthTopbar';
+import { parkingRecordAPI } from '../../api/api';
 import '../../styles/guard/ManageVehicle.css';
 
 // Import modals
@@ -20,6 +21,86 @@ const ManageVehicle = () => {
   const [showRecordExit, setShowRecordExit] = useState(false);
   const [showVerifyAccess, setShowVerifyAccess] = useState(false);
   const [showAllVehicles, setShowAllVehicles] = useState(false);
+
+  // Stats state
+  const [stats, setStats] = useState({
+    vehiclesIn: 0,
+    totalEntries: 0,
+    avgDuration: '0h 0m',
+    violations: 0,
+    loading: true
+  });
+
+  // Load today's statistics
+  useEffect(() => {
+    loadTodayStats();
+  }, []);
+
+  const loadTodayStats = async () => {
+    try {
+      console.log('📊 Loading today\'s vehicle statistics...');
+      
+      // Get all records
+      const allRecordsResult = await parkingRecordAPI.getAllRecords();
+      
+      if (allRecordsResult.success && allRecordsResult.data) {
+        const allRecords = allRecordsResult.data;
+        
+        // Get today's date at midnight
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Filter today's records
+        const todayRecords = allRecords.filter(record => {
+          const entryDate = new Date(record.entryTime);
+          entryDate.setHours(0, 0, 0, 0);
+          return entryDate.getTime() === today.getTime();
+        });
+        
+        // Calculate vehicles currently in (active sessions)
+        const vehiclesIn = allRecords.filter(record => record.exitTime === null).length;
+        
+        // Total entries today
+        const totalEntries = todayRecords.length;
+        
+        // Calculate average duration for completed sessions today
+        const completedToday = todayRecords.filter(record => record.exitTime !== null);
+        let avgDurationMs = 0;
+        
+        if (completedToday.length > 0) {
+          const totalDuration = completedToday.reduce((sum, record) => {
+            const entry = new Date(record.entryTime);
+            const exit = new Date(record.exitTime);
+            return sum + (exit - entry);
+          }, 0);
+          avgDurationMs = totalDuration / completedToday.length;
+        }
+        
+        const hours = Math.floor(avgDurationMs / (1000 * 60 * 60));
+        const minutes = Math.floor((avgDurationMs % (1000 * 60 * 60)) / (1000 * 60));
+        const avgDuration = completedToday.length > 0 ? `${hours}h ${minutes}m` : '—';
+        
+        // Violations (placeholder - can be implemented based on business logic)
+        const violations = 0;
+        
+        console.log('✅ Stats loaded:', { vehiclesIn, totalEntries, avgDuration, violations });
+        
+        setStats({
+          vehiclesIn,
+          totalEntries,
+          avgDuration,
+          violations,
+          loading: false
+        });
+      } else {
+        console.warn('⚠️ Failed to load records');
+        setStats(prev => ({ ...prev, loading: false }));
+      }
+    } catch (error) {
+      console.error('❌ Error loading statistics:', error);
+      setStats(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const quickActions = [
     {
@@ -105,6 +186,67 @@ const ManageVehicle = () => {
               <p className="page-subtitle">Quick actions to manage and monitor vehicles in the parking area</p>
             </div>
 
+            {/* Statistics Section */}
+            <div className="stats-section">
+              <div className="stats-header">
+                <h2 className="section-title">Today's Overview</h2>
+              </div>
+              <div className="stats-grid">
+                <div className="stat-card stat-card-blue">
+                  <div className="stat-icon stat-icon-blue">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <p className="stat-label">Vehicles In</p>
+                    <p className="stat-value">{stats.loading ? '...' : stats.vehiclesIn}</p>
+                  </div>
+                </div>
+
+                <div className="stat-card stat-card-green">
+                  <div className="stat-icon stat-icon-green">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <polyline points="19 12 12 19 5 12"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <p className="stat-label">Total Entries</p>
+                    <p className="stat-value">{stats.loading ? '...' : stats.totalEntries}</p>
+                  </div>
+                </div>
+
+                <div className="stat-card stat-card-orange">
+                  <div className="stat-icon stat-icon-orange">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <p className="stat-label">Avg. Duration</p>
+                    <p className="stat-value">{stats.loading ? '...' : stats.avgDuration}</p>
+                  </div>
+                </div>
+
+                <div className="stat-card stat-card-red">
+                  <div className="stat-icon stat-icon-red">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                  </div>
+                  <div className="stat-content">
+                    <p className="stat-label">Violations</p>
+                    <p className="stat-value">{stats.loading ? '...' : stats.violations}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Quick Actions Grid */}
             <div className="quick-actions-grid">
               {quickActions.map((action) => (
@@ -132,65 +274,6 @@ const ManageVehicle = () => {
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Statistics Section */}
-            <div className="stats-section">
-              <h2 className="section-title">Today's Overview</h2>
-              <div className="stats-grid">
-                <div className="stat-card">
-                  <div className="stat-icon" style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                  </div>
-                  <div className="stat-content">
-                    <p className="stat-label">Vehicles In</p>
-                    <p className="stat-value">—</p>
-                  </div>
-                </div>
-
-                <div className="stat-card">
-                  <div className="stat-icon" style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="12" y1="5" x2="12" y2="19"/>
-                      <polyline points="19 12 12 19 5 12"/>
-                    </svg>
-                  </div>
-                  <div className="stat-content">
-                    <p className="stat-label">Total Entries</p>
-                    <p className="stat-value">—</p>
-                  </div>
-                </div>
-
-                <div className="stat-card">
-                  <div className="stat-icon" style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  </div>
-                  <div className="stat-content">
-                    <p className="stat-label">Avg. Duration</p>
-                    <p className="stat-value">—</p>
-                  </div>
-                </div>
-
-                <div className="stat-card">
-                  <div className="stat-icon" style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                      <line x1="12" y1="9" x2="12" y2="13"/>
-                      <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                  </div>
-                  <div className="stat-content">
-                    <p className="stat-label">Violations</p>
-                    <p className="stat-value">—</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
           </div>

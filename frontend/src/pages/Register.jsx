@@ -18,10 +18,12 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
     const studentFormat = /^\d{2}-\d{4}-\d{3}$/;  // xx-xxxx-xxx
     const staffFormat = /^\d{2}-\d{4}-\d{4}$/;    // xx-xxxx-xxxx
     const guardFormat = /^\d{2}-\d{3}-\d{3}$/;    // xx-xxx-xxx
+    const adminFormat = /^\d{2}-\d{2}-\d{2}$/;    // xx-xx-xx (admin)
     
     if (studentFormat.test(studentId)) return 'student';
     if (staffFormat.test(studentId)) return 'staff';
     if (guardFormat.test(studentId)) return 'guard';
+    if (adminFormat.test(studentId)) return 'admin';
     return 'student'; // default
   };
 
@@ -32,18 +34,21 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
     if (!values.studentId) {
       errors.studentId = 'ID is required';
     } else {
-      // Accept three different ID formats:
+      // Accept four different ID formats:
       // Student: xx-xxxx-xxx (e.g., 20-2024-123)
       // Staff: xx-xxxx-xxxx (e.g., 20-2024-1234)
       // Guard: xx-xxx-xxx (e.g., 20-123-456)
+      // Admin: xx-xx-xx (e.g., 99-99-99)
       const studentFormat = /^\d{2}-\d{4}-\d{3}$/;
       const staffFormat = /^\d{2}-\d{4}-\d{4}$/;
       const guardFormat = /^\d{2}-\d{3}-\d{3}$/;
+      const adminFormat = /^\d{2}-\d{2}-\d{2}$/;
       
       if (!studentFormat.test(values.studentId) && 
           !staffFormat.test(values.studentId) && 
-          !guardFormat.test(values.studentId)) {
-        errors.studentId = 'Invalid ID format. Student: xx-xxxx-xxx, Staff: xx-xxxx-xxxx, Guard: xx-xxx-xxx';
+          !guardFormat.test(values.studentId) &&
+          !adminFormat.test(values.studentId)) {
+        errors.studentId = 'Invalid ID format. Student: xx-xxxx-xxx, Staff: xx-xxxx-xxxx, Guard: xx-xxx-xxx, Admin: xx-xx-xx';
       }
     }
 
@@ -129,12 +134,27 @@ const Register = ({ onNavigateToLogin, onNavigateToLanding, onNavigateToDashboar
       });
       
       if (result.success) {
-        // Show success message with role
-        alert(`Welcome to SmartPark, ${result.user.firstName}! You are registered as ${detectedRole}. Please register your vehicle to continue.`);
-        // Small delay to ensure context is updated before navigation
-        setTimeout(() => {
-          navigate('/vehicle-registration');
-        }, 100);
+        // Auto-detect role based on ID format
+        const detectedRole = detectRoleFromId(formValues.studentId);
+        
+        // Only admin and guard skip vehicle registration
+        if (detectedRole === 'admin' || detectedRole === 'guard') {
+          alert(`Welcome to SmartPark, ${result.user.firstName}! You are registered as ${detectedRole}.`);
+          // Direct to dashboard without vehicle registration
+          setTimeout(() => {
+            if (detectedRole === 'admin') {
+              window.location.href = '/admin-dashboard';
+            } else {
+              navigate('/dashboard');
+            }
+          }, 100);
+        } else {
+          // Student and staff need to register vehicle
+          alert(`Welcome to SmartPark, ${result.user.firstName}! You are registered as ${detectedRole}. Please register your vehicle to continue.`);
+          setTimeout(() => {
+            navigate('/vehicle-registration');
+          }, 100);
+        }
       } else {
         setRegisterError(result.error);
       }

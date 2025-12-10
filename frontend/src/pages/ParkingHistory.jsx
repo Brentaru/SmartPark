@@ -28,65 +28,140 @@ const ParkingHistory = () => {
   // Load parking history from API
   useEffect(() => {
     const loadParkingHistory = async () => {
-      if (!currentUser?.id) return;
+      if (!currentUser?.id) {
+        console.warn('⚠️ No user ID found, cannot load parking history');
+        console.log('currentUser object:', currentUser);
+        return;
+      }
 
       try {
         setLoading(true);
-        const result = await parkingRecordAPI.getRecordsByUser(currentUser.id);
-        console.log('📊 Parking history for user', currentUser.id, ':', result);
+        
+        const userRole = currentUser.role?.toLowerCase();
+        const userID = currentUser.id;
+        
+        console.log('═══════════════════════════════════════════');
+        console.log('📋 PARKING HISTORY LOAD REQUEST');
+        console.log('═══════════════════════════════════════════');
+        console.log(`👤 User Role: ${userRole}`);
+        console.log(`🆔 User ID: ${userID}`);
+        console.log(`📧 Email: ${currentUser.email}`);
+        console.log(`👤 Name: ${currentUser.firstName} ${currentUser.lastName}`);
+        console.log('═══════════════════════════════════════════');
+        
+        // Guard sees all records, Staff and Student see only their own
+        let result;
+        if (userRole === 'guard') {
+          console.log('🛡️ [GUARD] Fetching ALL parking records from system');
+          result = await parkingRecordAPI.getAllRecords();
+          console.log('📊 API Response:', result);
+        } else if (userRole === 'staff' || userRole === 'student') {
+          console.log(`👨‍💼 [${userRole.toUpperCase()}] Fetching records for user: ${userID}`);
+          result = await parkingRecordAPI.getRecordsByUser(userID);
+          console.log('📊 API Response:', result);
+        } else {
+          console.error('❌ Unknown role:', userRole);
+          setParkingHistory([]);
+          setLoading(false);
+          return;
+        }
 
         if (result.success && result.data) {
+          console.log(`✅ Received ${result.data.length} parking records`);
+          console.log('🔍 Raw API data:', result.data);
+          
+          // Validate data before transformation
+          if (!Array.isArray(result.data)) {
+            console.error('❌ API returned non-array data:', result.data);
+            setParkingHistory([]);
+            setLoading(false);
+            return;
+          }
+          
+          if (result.data.length === 0) {
+            console.log('ℹ️ No parking records found for this user/role');
+            setParkingHistory([]);
+            setLoading(false);
+            return;
+          }
+          
           // Transform API data to match component format
-          const transformedHistory = result.data.map(record => {
-            const entryTime = new Date(record.entryTime);
-            const exitTime = record.exitTime ? new Date(record.exitTime) : null;
+          const transformedHistory = result.data.map((record, index) => {
+            try {
+              console.log(`📝 Transforming record ${index}:`, record);
+              
+              if (!record.entryTime) {
+                console.warn(`⚠️ Record ${index} has no entryTime:`, record);
+                return null;
+              }
+              
+              const entryTime = new Date(record.entryTime);
+              const exitTime = record.exitTime ? new Date(record.exitTime) : null;
 
-            // Calculate duration
-            let duration = null;
-            if (exitTime) {
-              const durationMs = exitTime - entryTime;
-              const hours = Math.floor(durationMs / (1000 * 60 * 60));
-              const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-              duration = `${hours}h ${minutes}m`;
+              // Calculate duration
+              let duration = null;
+              if (exitTime) {
+                const durationMs = exitTime - entryTime;
+                const hours = Math.floor(durationMs / (1000 * 60 * 60));
+                const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+                duration = `${hours}h ${minutes}m`;
+              }
+
+              // Determine status
+              let status = 'Active';
+              if (exitTime) {
+                status = 'Completed';
+              } else if (entryTime < new Date(Date.now() - 24 * 60 * 60 * 1000)) {
+                status = 'Expired';
+              }
+
+              const transformedRecord = {
+                id: record.recordID,
+                date: entryTime.toISOString().split('T')[0],
+                slot: record.slotLocation || 'N/A',
+                area: 'NGE Parking Area',
+                timeIn: entryTime.toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  hour12: true 
+                }),
+                timeOut: exitTime ? exitTime.toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  hour12: true 
+                }) : null,
+                duration: duration,
+                status: status,
+                vehicle: record.plateNumber || 'N/A',
+                verifiedBy: record.verifiedByUserName || 'System'
+              };
+              
+              console.log(`✅ Transformed record ${index}:`, transformedRecord);
+              return transformedRecord;
+            } catch (error) {
+              console.error(`❌ Error transforming record ${index}:`, error, record);
+              return null;
             }
+          }).filter(record => record !== null);
 
-            // Determine status
-            let status = 'Active';
-            if (exitTime) {
-              status = 'Completed';
-            } else if (entryTime < new Date(Date.now() - 24 * 60 * 60 * 1000)) {
-              status = 'Expired';
-            }
-
-            return {
-              id: record.recordID,
-              date: entryTime.toISOString().split('T')[0],
-              slot: record.slotLocation || 'N/A',
-              area: 'NGE Parking Area',
-              timeIn: entryTime.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                hour12: true 
-              }),
-              timeOut: exitTime ? exitTime.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                hour12: true 
-              }) : null,
-              duration: duration,
-              status: status,
-              vehicle: record.vehiclePlate || 'N/A'
-            };
-          });
-
-          console.log('✅ Transformed parking history:', transformedHistory);
+          console.log('✅ Final transformed parking history:', transformedHistory);
+          console.log(`📊 Total records after transformation: ${transformedHistory.length}`);
           setParkingHistory(transformedHistory);
         } else {
-          console.warn('⚠️ No parking history found');
+          console.warn('⚠️ API call failed or returned no data');
+          console.log('Result object:', result);
+          console.log('Result.success:', result?.success);
+          console.log('Result.data:', result?.data);
+          console.log('Result.error:', result?.error);
+          
+          // Show a more helpful message
+          if (!result.success && result.error) {
+            alert(`Error loading parking history: ${result.error}`);
+          }
           setParkingHistory([]);
         }
       } catch (error) {
-        console.error('Error loading parking history:', error);
+        console.error('❌ Error loading parking history:', error);
         setParkingHistory([]);
       } finally {
         setLoading(false);
@@ -153,12 +228,7 @@ const ParkingHistory = () => {
   // Statistics
   const totalSessions = parkingHistory.length;
   const completedSessions = parkingHistory.filter(r => r.status === 'Completed').length;
-  const expiredSessions = parkingHistory.filter(r => r.status === 'Expired').length;
-  const mostUsedSlot = parkingHistory.reduce((acc, record) => {
-    acc[record.slot] = (acc[record.slot] || 0) + 1;
-    return acc;
-  }, {});
-  const favoriteSlot = Object.entries(mostUsedSlot).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+  const activeSessions = parkingHistory.filter(r => r.status === 'Active').length;
 
   if (!currentUser) {
     return <div>Loading...</div>;
@@ -193,7 +263,11 @@ const ParkingHistory = () => {
             <section className="history-header">
               <div className="header-content">
                 <h1 className="history-title">Parking History</h1>
-                <p className="history-subtitle">View your complete parking activity records</p>
+                <p className="history-subtitle">
+                  {currentUser?.role?.toLowerCase() === 'guard' 
+                    ? 'View all parking activity records across the system' 
+                    : 'View your complete parking activity records'}
+                </p>
               </div>
             </section>
 
@@ -227,27 +301,13 @@ const ParkingHistory = () => {
               <div className="stat-card">
                 <div className="stat-icon stat-icon-warning">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
                   </svg>
                 </div>
                 <div className="stat-info">
-                  <div className="stat-value">{expiredSessions}</div>
-                  <div className="stat-label">Expired</div>
-                </div>
-              </div>
-
-              <div className="stat-card">
-                <div className="stat-icon stat-icon-info">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                </div>
-                <div className="stat-info">
-                  <div className="stat-value">{favoriteSlot}</div>
-                  <div className="stat-label">Favorite Slot</div>
+                  <div className="stat-value">{activeSessions}</div>
+                  <div className="stat-label">Active Sessions</div>
                 </div>
               </div>
             </section>
@@ -301,6 +361,12 @@ const ParkingHistory = () => {
                       <th>Date</th>
                       <th>Slot</th>
                       <th>Parking Area</th>
+                      {currentUser?.role?.toLowerCase() === 'guard' && (
+                        <>
+                          <th>Vehicle</th>
+                          <th>Verified By</th>
+                        </>
+                      )}
                       <th>Time In</th>
                       <th>Time Out</th>
                       <th>Duration</th>
@@ -316,6 +382,12 @@ const ParkingHistory = () => {
                             <span className="slot-badge">{record.slot}</span>
                           </td>
                           <td className="cell-area">{record.area}</td>
+                          {currentUser?.role?.toLowerCase() === 'guard' && (
+                            <>
+                              <td className="cell-vehicle">{record.vehicle}</td>
+                              <td className="cell-verified">{record.verifiedBy}</td>
+                            </>
+                          )}
                           <td className="cell-time">{record.timeIn}</td>
                           <td className="cell-time">
                             {record.timeOut || <span className="text-muted">—</span>}
@@ -332,7 +404,7 @@ const ParkingHistory = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="7" className="no-data">
+                        <td colSpan={currentUser?.role?.toLowerCase() === 'guard' ? '9' : '7'} className="no-data">
                           <div className="no-data-content">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"/>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { parkingAreaAPI, parkingSlotAPI } from '../../../api/api';
 import '../../../styles/dashboard/admin/ParkingAreaManagement.css';
 import ParkingMap from '../../dashboard/ParkingMap';
+import ParkingSlotPlotter from './ParkingSlotPlotter';
 
 const ParkingAreaManagement = ({ onUpdate }) => {
   const [areas, setAreas] = useState([]);
@@ -29,6 +30,8 @@ const ParkingAreaManagement = ({ onUpdate }) => {
   });
   const [selectedArea, setSelectedArea] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [generatedSlots, setGeneratedSlots] = useState([]); // Slots created from plotter
+  const [showSlotPlotter, setShowSlotPlotter] = useState(false); // Toggle plotter view
 
   useEffect(() => {
     loadAreas();
@@ -98,6 +101,8 @@ const ParkingAreaManagement = ({ onUpdate }) => {
     setShowModal(false);
     setSelectedArea(null);
     setEditMode(false);
+    setGeneratedSlots([]);
+    setShowSlotPlotter(false);
     setFormData({
       areaName: '',
       location: '',
@@ -115,7 +120,29 @@ const ParkingAreaManagement = ({ onUpdate }) => {
         : await parkingAreaAPI.createArea(formData);
 
       if (result.success) {
-        alert(`Parking area ${editMode ? 'updated' : 'created'} successfully!`);
+        // If this is a new area and we have generated slots, create them
+        if (!editMode && generatedSlots.length > 0) {
+          const areaID = result.data.areaID || result.data.id;
+          
+          try {
+            // Create all generated slots
+            for (const slot of generatedSlots) {
+              await parkingSlotAPI.createSlot({
+                location: slot.location,
+                slotType: slot.slotType,
+                status: slot.status,
+                areaID: areaID
+              });
+            }
+            alert(`Parking area created with ${generatedSlots.length} slots!`);
+          } catch (slotError) {
+            console.error('Error creating slots:', slotError);
+            alert(`Area created but some slots failed. Please add them manually.`);
+          }
+        } else {
+          alert(`Parking area ${editMode ? 'updated' : 'created'} successfully!`);
+        }
+        
         handleCloseModal();
         loadAreas();
         loadSlots();
@@ -413,7 +440,7 @@ const ParkingAreaManagement = ({ onUpdate }) => {
       {/* Area Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{editMode ? 'Edit Parking Area' : 'New Parking Area'}</h2>
               <button className="close-btn" onClick={handleCloseModal}>×</button>
@@ -421,56 +448,104 @@ const ParkingAreaManagement = ({ onUpdate }) => {
             
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
-                <div className="form-group">
-                  <label>Area Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.areaName}
-                    onChange={(e) => setFormData({ ...formData, areaName: e.target.value })}
-                    placeholder="e.g., Building A Parking"
-                  />
-                </div>
+                {/* Area Details Tab */}
+                {!showSlotPlotter ? (
+                  <>
+                    <div className="form-group">
+                      <label>Area Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.areaName}
+                        onChange={(e) => setFormData({ ...formData, areaName: e.target.value })}
+                        placeholder="e.g., Building A Parking"
+                      />
+                    </div>
 
-                <div className="form-group">
-                  <label>Location *</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="e.g., Near Main Entrance"
-                  />
-                </div>
+                    <div className="form-group">
+                      <label>Location *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        placeholder="e.g., Near Main Entrance"
+                      />
+                    </div>
 
-                <div className="form-group">
-                  <label>Capacity *</label>
-                  <input
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.capacity}
-                    onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                    placeholder="Number of slots"
-                  />
-                </div>
+                    <div className="form-group">
+                      <label>Capacity *</label>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        value={formData.capacity}
+                        onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                        placeholder="Number of slots"
+                      />
+                    </div>
 
-                <div className="form-group">
-                  <label>Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Optional description..."
-                    rows="3"
+                    <div className="form-group">
+                      <label>Description</label>
+                      <textarea
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="Optional description..."
+                        rows="3"
+                      />
+                    </div>
+
+                    {/* Generated Slots Preview */}
+                    {generatedSlots.length > 0 && (
+                      <div className="generated-slots-preview">
+                        <h3>Generated Slots ({generatedSlots.length})</h3>
+                        <div className="slots-list">
+                          {generatedSlots.map((slot, idx) => (
+                            <span key={idx} className="slot-tag">{slot.location}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Slot Plotter Tab */
+                  <ParkingSlotPlotter
+                    areaCapacity={parseInt(formData.capacity) || 20}
+                    onSlotsGenerated={(slots) => {
+                      setGeneratedSlots(slots);
+                    }}
                   />
-                </div>
+                )}
               </div>
 
               <div className="modal-footer">
+                {!editMode && !showSlotPlotter && (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setShowSlotPlotter(true)}
+                  >
+                    🎨 Design Slots
+                  </button>
+                )}
+                {showSlotPlotter && (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setShowSlotPlotter(false)}
+                  >
+                    ← Back to Details
+                  </button>
+                )}
                 <button type="button" className="btn-secondary" onClick={handleCloseModal}>
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary">
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={showSlotPlotter}
+                  title={showSlotPlotter ? 'Finish designing before saving' : ''}
+                >
                   {editMode ? 'Update' : 'Create'} Area
                 </button>
               </div>

@@ -32,16 +32,37 @@ const apiRequest = async (endpoint, method = 'GET', data = null) => {
   }
 
   try {
+    console.log(`🌐 API Request: ${method} ${url}`);
+    if (data) console.log('📦 Request Body:', data);
+    
     const response = await fetch(url, options);
-    const result = await response.json();
+    
+    // Validate response before parsing
+    if (!response || typeof response !== 'object') {
+      console.error('❌ Invalid response object:', response);
+      return { success: false, error: 'Invalid response from server' };
+    }
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (jsonError) {
+      console.error('❌ Failed to parse response as JSON:', jsonError);
+      console.error('Response status:', response.status);
+      return { success: false, error: 'Invalid JSON response from server' };
+    }
+
+    console.log(`📨 API Response Status: ${response.status}`);
+    console.log('📦 Response Data:', result);
 
     if (!response.ok) {
-      throw new Error(result.message || 'Something went wrong');
+      throw new Error(result.message || `HTTP Error: ${response.status}`);
     }
 
     return { success: true, data: result };
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('❌ API Error:', error.message);
+    console.error('Full Error:', error);
     return { success: false, error: error.message };
   }
 };

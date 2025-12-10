@@ -45,7 +45,7 @@ public class UserController {
             }
             // Convert DTO to Entity
             User user = dtoMapper.toUserEntity(requestDTO);
-            // Set userID to be the same as studentId (the actual ID like 99-9999-999)
+            // Set userID to be the same as studentId (the actual ID like 99-99-99)
             user.setUserID(requestDTO.getStudentId());
             User savedUser = userService.registerUser(user);
             // Convert Entity back to DTO (password excluded!)

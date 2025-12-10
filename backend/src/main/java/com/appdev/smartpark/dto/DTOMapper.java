@@ -116,14 +116,47 @@ public class DTOMapper {
     // ParkingRecord mappings
     public ParkingRecordDTO toParkingRecordDTO(ParkingRecord record) {
         if (record == null) return null;
+        
+        String slotLocation = null;
+        Integer slotID = null;
+        String plateNumber = null;
+        Integer vehicleID = null;
+        String verifiedByUserName = null;
+        String verifiedByUserId = null;
+        
+        // Safely extract parking slot info
+        if (record.getParkingSlot() != null) {
+            slotID = record.getParkingSlot().getSlotID();
+            slotLocation = record.getParkingSlot().getLocation();
+            if (slotLocation == null) {
+                System.out.println("⚠️ Slot " + slotID + " has null location");
+            }
+        } else {
+            System.out.println("⚠️ Record " + record.getRecordID() + " has null parkingSlot");
+        }
+        
+        // Safely extract vehicle info
+        if (record.getVehicle() != null) {
+            vehicleID = record.getVehicle().getVehicleID();
+            plateNumber = record.getVehicle().getPlateNumber();
+        }
+        
+        // Safely extract verified by user info
+        if (record.getVerifiedByUser() != null) {
+            verifiedByUserId = record.getVerifiedByUser().getUserID();
+            String fname = record.getVerifiedByUser().getFname() != null ? record.getVerifiedByUser().getFname() : "";
+            String lname = record.getVerifiedByUser().getLname() != null ? record.getVerifiedByUser().getLname() : "";
+            verifiedByUserName = (fname + " " + lname).trim();
+        }
+        
         return new ParkingRecordDTO(
             record.getRecordID(),
-            record.getVehicle() != null ? record.getVehicle().getVehicleID() : null,
-            record.getVehicle() != null ? record.getVehicle().getPlateNumber() : null,
-            record.getParkingSlot() != null ? record.getParkingSlot().getSlotID() : null,
-            record.getParkingSlot() != null ? record.getParkingSlot().getLocation() : null,
-            record.getVerifiedByUser() != null ? record.getVerifiedByUser().getUserID() : null,
-            record.getVerifiedByUser() != null ? record.getVerifiedByUser().getFname() + " " + record.getVerifiedByUser().getLname() : null,
+            vehicleID,
+            plateNumber,
+            slotID,
+            slotLocation,
+            verifiedByUserId,
+            verifiedByUserName,
             record.getEntryTime(),
             record.getExitTime()
         );
