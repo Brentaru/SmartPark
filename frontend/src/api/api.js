@@ -254,6 +254,29 @@ const guardAPI = {
 };
 
 // ============================================
+// NOTIFICATION API
+// ============================================
+const notificationAPI = {
+  // Get all notifications for a user
+  getUserNotifications: (userId) => apiRequest(`/notifications/user/${userId}`),
+
+  // Get unread notifications for a user
+  getUnreadNotifications: (userId) => apiRequest(`/notifications/user/${userId}/unread`),
+
+  // Get unread notification count
+  getUnreadCount: (userId) => apiRequest(`/notifications/user/${userId}/unread/count`),
+
+  // Mark notification as read
+  markAsRead: (notificationId) => apiRequest(`/notifications/${notificationId}/read`, 'PUT'),
+
+  // Mark all notifications as read
+  markAllAsRead: (userId) => apiRequest(`/notifications/user/${userId}/read-all`, 'PUT'),
+
+  // Delete notification
+  deleteNotification: (notificationId) => apiRequest(`/notifications/${notificationId}`, 'DELETE'),
+};
+
+// ============================================
 // EXPORT ALL API MODULES
 // ============================================
 export {
@@ -263,6 +286,7 @@ export {
   parkingRecordAPI,
   vehicleAPI,
   guardAPI,
+  notificationAPI,
 };
 
 // Default export with all APIs
@@ -273,4 +297,5 @@ export default {
   records: parkingRecordAPI,
   vehicles: vehicleAPI,
   guards: guardAPI,
+  notifications: notificationAPI,
 };

@@ -1,6 +1,7 @@
 package com.appdev.smartpark.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,12 +17,41 @@ public class ParkingRecordService {
     @Autowired
     private ParkingRecordRepository parkingRecordRepository;
     
+    @Autowired
+    private NotificationService notificationService;
+    
     // Create
     public ParkingRecord createParkingRecord(ParkingRecord parkingRecord) {
+        return createParkingRecord(parkingRecord, false);
+    }
+    
+    // Create with option to skip notification (for reservation acceptance flow)
+    public ParkingRecord createParkingRecord(ParkingRecord parkingRecord, boolean skipNotification) {
         if (parkingRecord.getEntryTime() == null) {
             parkingRecord.setEntryTime(LocalDateTime.now());
         }
-        return parkingRecordRepository.save(parkingRecord);
+        ParkingRecord savedRecord = parkingRecordRepository.save(parkingRecord);
+        
+        // Notify student about vehicle entry (skip if this is from reservation acceptance)
+        if (!skipNotification && savedRecord.getVehicle() != null && savedRecord.getVehicle().getUser() != null) {
+            String studentId = savedRecord.getVehicle().getUser().getUserID();
+            String areaName = savedRecord.getParkingSlot().getParkingArea() != null ? 
+                            savedRecord.getParkingSlot().getParkingArea().getName() : "Unknown Area";
+            LocalDateTime entryTime = savedRecord.getEntryTime();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' hh:mm a");
+            String formattedDateTime = entryTime.format(formatter);
+            
+            notificationService.createNotificationWithSlot(
+                studentId,
+                "info",
+                "Vehicle Entry",
+                "Parking Slot " + areaName + " " + savedRecord.getParkingSlot().getLocation() + 
+                " is occupied by you (" + formattedDateTime + ")",
+                savedRecord.getParkingSlot().getSlotID()
+            );
+        }
+        
+        return savedRecord;
     }
     
     // Read All

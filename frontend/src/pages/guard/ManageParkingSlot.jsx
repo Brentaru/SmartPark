@@ -275,7 +275,8 @@ const ManageParkingSlot = () => {
         
         console.log('📝 Creating parking record:', recordData);
         
-        const recordResponse = await fetch(`${API_BASE_URL}/parking-records`, {
+        // Skip notification since we'll send "Reservation Accepted" notification instead
+        const recordResponse = await fetch(`${API_BASE_URL}/parking-records?skipNotification=true`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

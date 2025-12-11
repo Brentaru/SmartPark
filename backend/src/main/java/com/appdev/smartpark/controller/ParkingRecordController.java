@@ -95,9 +95,11 @@ public class ParkingRecordController {
     
     // Create parking record
     @PostMapping
-    public ResponseEntity<?> createParkingRecord(@RequestBody ParkingRecordRequestDTO requestDTO) {
+    public ResponseEntity<?> createParkingRecord(
+            @RequestBody ParkingRecordRequestDTO requestDTO,
+            @org.springframework.web.bind.annotation.RequestParam(value = "skipNotification", defaultValue = "false") boolean skipNotification) {
         try {
-            System.out.println("🚗 Received parking record request:");
+            System.out.println("🚗 Received parking record request (skipNotification=" + skipNotification + "):");
             System.out.println("   Vehicle ID: " + requestDTO.getVehicleID());
             System.out.println("   Slot ID: " + requestDTO.getSlotID());
             System.out.println("   Entry Time: " + requestDTO.getEntryTime());
@@ -128,7 +130,7 @@ public class ParkingRecordController {
             }
             
             ParkingRecord parkingRecord = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, verifiedByUser);
-            ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord);
+            ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord, skipNotification);
             ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(savedRecord);
             System.out.println("✅ Parking record created successfully with ID: " + savedRecord.getRecordID());
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);

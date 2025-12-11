@@ -36,6 +36,9 @@ public class DataInitializer implements CommandLineRunner {
     
     @Autowired
     private ParkingRecordRepository parkingRecordRepository;
+    
+    @Autowired
+    private com.appdev.smartpark.service.NotificationService notificationService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -174,5 +177,6 @@ public class DataInitializer implements CommandLineRunner {
             e.printStackTrace();
             System.out.println("   Make sure users and vehicles exist first");
         }
+        
     }
 }

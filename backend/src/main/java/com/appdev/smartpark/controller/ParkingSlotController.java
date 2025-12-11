@@ -179,7 +179,6 @@ public class ParkingSlotController {
         try {
             String userId = String.valueOf(reservationData.get("userId"));
             String reservedFor = String.valueOf(reservationData.get("reservedFor"));
-            
             ParkingSlot reservedSlot = parkingSlotService.reserveSlot(id, userId, reservedFor);
             ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(reservedSlot);
             return ResponseEntity.ok(responseDTO);
@@ -238,8 +237,6 @@ public class ParkingSlotController {
                         .body(Map.of("message", "Plate number is required"));
             }
 
-            System.out.println("🚗 Manual parking for slot " + id + " with plate: " + plateNumber);
-            
             // Update slot status to Occupied first
             ParkingSlot slot = parkingSlotService.updateSlotStatus(id, "Occupied");
             
@@ -248,7 +245,6 @@ public class ParkingSlotController {
             
             if (vehicleOpt.isPresent()) {
                 Vehicle vehicle = vehicleOpt.get();
-                System.out.println("✅ Found registered vehicle: " + plateNumber + " owned by user: " + vehicle.getUser().getUserID());
                 
                 // Create parking record linked to the vehicle owner
                 ParkingRecord record = new ParkingRecord();
@@ -259,7 +255,6 @@ public class ParkingSlotController {
                 record.setExitTime(null);
                 
                 ParkingRecord savedRecord = parkingRecordService.createParkingRecord(record);
-                System.out.println("✅ Parking record created with ID: " + savedRecord.getRecordID());
                 
                 ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(slot);
                 return ResponseEntity.ok(Map.of(
@@ -269,8 +264,6 @@ public class ParkingSlotController {
                     "userID", vehicle.getUser().getUserID()
                 ));
             } else {
-                System.out.println("⚠️ Vehicle not registered: " + plateNumber + " - Slot marked as occupied without record");
-                
                 // Vehicle not registered - slot is occupied but no record created
                 ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(slot);
                 return ResponseEntity.ok(Map.of(

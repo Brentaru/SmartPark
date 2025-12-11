@@ -1,5 +1,6 @@
 package com.appdev.smartpark.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByStudentId(String studentId);
     Optional<User> findByPlateNumber(String plateNumber);
     boolean existsByEmail(String email);
+    List<User> findByRole(String role);
 }

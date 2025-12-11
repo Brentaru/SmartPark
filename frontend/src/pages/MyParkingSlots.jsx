@@ -135,17 +135,10 @@ const MyParkingSlots = () => {
     if (!selectedSlot) return;
 
     try {
-      const reservationData = {
-        slotID: selectedSlot.id,
-        location: selectedSlot.location, // Preserve location
-        slotType: selectedSlot.type,
-        reservedBy: currentUser.id,
-        reservedFor: `${currentUser.firstName || 'Staff'} ${currentUser.lastName || 'User'}`,
-        status: 'Reserved'
-      };
-
-      console.log('Attempting to reserve slot:', reservationData);
-      const result = await parkingSlotAPI.updateSlot(selectedSlot.id, reservationData);
+      const reservedFor = `${currentUser.firstName || 'Staff'} ${currentUser.lastName || 'User'}`;
+      
+      console.log('Attempting to reserve slot:', selectedSlot.id, 'for user:', currentUser.id);
+      const result = await parkingSlotAPI.reserveSlot(selectedSlot.id, currentUser.id, reservedFor);
 
       if (result.success) {
         // Update the slot in state immediately to prevent re-sorting issues
@@ -156,7 +149,7 @@ const MyParkingSlots = () => {
                   ...slot, 
                   status: 'reserved', 
                   reservedBy: currentUser.id, 
-                  reservedFor: reservationData.reservedFor,
+                  reservedFor: reservedFor,
                   location: selectedSlot.location // Ensure location is preserved
                 }
               : slot
