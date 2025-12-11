@@ -13,14 +13,18 @@
 .section-header {
   text-align: center;
   margin-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .section-title {
   font-size: 2.75rem;
   font-weight: 800;
   color: #111111;
-  margin-bottom: 1rem;
+  margin: 0 0 1rem 0;
   letter-spacing: -0.02em;
+  text-align: center;
 }
 
 .section-title .highlight-red {
@@ -31,7 +35,8 @@
   font-size: 1.25rem;
   color: #6b7280;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
+  text-align: center;
 }
 
 /* Hero Section */
@@ -103,59 +108,54 @@
   margin-right: auto;
 }
 
-/* Buttons */
+/* Hero Buttons - Landing Page Specific */
 .hero-buttons {
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 }
 
-.btn {
+.hero-buttons .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2.5rem;
-  border-radius: 12px;
-  font-size: 1.0625rem;
-  font-weight: 700;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   border: none;
   text-transform: none;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  max-width: fit-content;
 }
 
-.btn-icon {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.3s ease;
-}
-
-.btn:hover .btn-icon {
-  transform: translateX(4px);
-}
-
-.btn-primary {
+.hero-btn-primary {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
   color: white;
   box-shadow: 0 4px 14px rgba(220,38,38,0.4);
 }
 
-.btn-primary:hover {
+.hero-btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(220,38,38,0.5);
   background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
 }
 
-.btn-secondary-outline {
+.hero-btn-secondary {
   background-color: rgba(255,255,255,0.1);
   color: white;
   border: 2px solid rgba(255,255,255,0.3);
   backdrop-filter: blur(10px);
 }
 
-.btn-secondary-outline:hover {
+.hero-btn-secondary:hover {
   background-color: rgba(255,255,255,0.2);
   border-color: rgba(255,255,255,0.5);
   transform: translateY(-2px);
@@ -583,6 +583,12 @@
   transition: all 0.3s ease;
 }
 
+.contact-item .contact-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .contact-item:hover {
   background: #f3f4f6;
   transform: translateX(8px);
@@ -610,12 +616,15 @@
   font-size: 1.125rem;
   font-weight: 700;
   color: #111111;
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.4;
 }
 
 .contact-details p {
   font-size: 1rem;
   color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .contact-form {
