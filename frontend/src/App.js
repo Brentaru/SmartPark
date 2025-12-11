@@ -23,6 +23,7 @@ import MyVehicle from './pages/MyVehicle';
 import ManageVehicle from './pages/guard/ManageVehicle';
 import ManageParkingSlot from './pages/guard/ManageParkingSlot';
 import ShiftSchedule from './pages/guard/ShiftSchedule';
+import ParkingHistoryPage from './pages/dashboard/ParkingHistoryPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Wrapper component to provide navigation handlers
@@ -153,6 +154,16 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Parking History (Admin and Guard - protected) */}
+        <Route
+          path="/parking-history"
+          element={
+            <ProtectedRoute>
+              <ParkingHistoryPage />
             </ProtectedRoute>
           }
         />
