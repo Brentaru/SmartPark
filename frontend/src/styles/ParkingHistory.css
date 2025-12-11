@@ -1,4 +1,8 @@
 /* Parking History Page Styles */
+.parking-history-page {
+  width: 100%;
+}
+
 .dashboard-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);

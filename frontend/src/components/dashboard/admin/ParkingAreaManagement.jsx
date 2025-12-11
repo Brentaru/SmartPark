@@ -32,6 +32,41 @@ const ParkingAreaManagement = ({ onUpdate }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [generatedSlots, setGeneratedSlots] = useState([]); // Slots created from plotter
   const [showSlotPlotter, setShowSlotPlotter] = useState(false); // Toggle plotter view
+  const [selectedSlotIds, setSelectedSlotIds] = useState([]);
+  const [bulkStatus, setBulkStatus] = useState('Reserved');
+
+  const normalizeSlotLocation = (slot) => {
+    const rawLocation = (slot?.slotNumber || slot?.location || '').toString().trim();
+    const match = rawLocation.match(/([A-Za-z]+)\s*-?\s*(\d+)/);
+    if (!match) return rawLocation;
+    const [, letter, number] = match;
+    return `${letter.toUpperCase()}-${number.padStart(2, '0')}`;
+  };
+
+  const slotStatusForMap = (status) => {
+    const normalized = (status || '').toLowerCase();
+    if (normalized === 'available' || normalized === 'free') return 'free';
+    if (normalized === 'reserved') return 'reserved';
+    if (normalized === 'occupied') return 'occupied';
+    return 'free';
+  };
+
+  const sortSlotsByLocation = (a, b) => {
+    if (!a.location || !b.location) {
+      if (!a.location && !b.location) return 0;
+      if (!a.location) return 1;
+      return -1;
+    }
+
+    const [letterA, numA] = a.location.split('-');
+    const [letterB, numB] = b.location.split('-');
+
+    if (letterA !== letterB) {
+      return letterA.localeCompare(letterB);
+    }
+
+    return parseInt(numA, 10) - parseInt(numB, 10);
+  };
 
   useEffect(() => {
     loadAreas();
@@ -57,15 +92,22 @@ const ParkingAreaManagement = ({ onUpdate }) => {
       const result = await parkingSlotAPI.getAllSlots();
       console.log('Slots API result:', result);
       if (result.success) {
-        setAllSlots(result.data); // Store raw data
-        // Transform slot data to match ParkingMap component format
-        const transformedSlots = result.data.map(slot => ({
-          id: slot.slotID,
-          location: slot.slotNumber,
-          status: slot.status === 'Available' ? 'free' : 
-                  slot.status === 'Occupied' ? 'occupied' : 
-                  slot.status === 'Reserved' ? 'reserved' : 'free'
+        const normalizedSlots = result.data.map(slot => ({
+          ...slot,
+          location: normalizeSlotLocation(slot)
         }));
+
+        setAllSlots(normalizedSlots); // Store normalized data for tables/forms
+
+        // Transform slot data to match ParkingMap component format and keep alignment like guard view
+        const transformedSlots = normalizedSlots
+          .map(slot => ({
+            id: slot.slotID,
+            location: slot.location,
+            status: slotStatusForMap(slot.status)
+          }))
+          .sort(sortSlotsByLocation);
+
         console.log('Transformed slots:', transformedSlots);
         setSlots(transformedSlots);
       }
@@ -249,17 +291,63 @@ const ParkingAreaManagement = ({ onUpdate }) => {
     const map = {
       'Available': 'status-available',
       'Occupied': 'status-occupied',
-      'Reserved': 'status-reserved',
-      'Maintenance': 'status-maintenance'
+      'Reserved': 'status-reserved'
     };
     return map[status] || 'status-available';
   };
 
-  const filteredSlots = allSlots.filter(slot => {
-    const statusMatch = filterStatus === 'all' || slot.status === filterStatus;
-    const areaMatch = filterArea === 'all' || slot.parkingAreaID === parseInt(filterArea);
-    return statusMatch && areaMatch;
-  });
+  const filteredSlots = allSlots
+    .filter(slot => {
+      const statusMatch = filterStatus === 'all' || slot.status === filterStatus;
+      const areaMatch = filterArea === 'all' || slot.parkingAreaID === parseInt(filterArea, 10);
+      return statusMatch && areaMatch;
+    })
+    .sort(sortSlotsByLocation);
+
+  const toggleSelectSlot = (slotId) => {
+    setSelectedSlotIds((prev) =>
+      prev.includes(slotId) ? prev.filter(id => id !== slotId) : [...prev, slotId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    const filteredIds = filteredSlots.map(s => s.slotID);
+    const allSelected = filteredIds.every(id => selectedSlotIds.includes(id));
+    setSelectedSlotIds(allSelected ? selectedSlotIds.filter(id => !filteredIds.includes(id)) : [...new Set([...selectedSlotIds, ...filteredIds])]);
+  };
+
+  const applyBulkStatus = async () => {
+    if (selectedSlotIds.length === 0) {
+      alert('Select at least one slot to update.');
+      return;
+    }
+
+    try {
+      for (const slotId of selectedSlotIds) {
+        const slot = allSlots.find(s => s.slotID === slotId);
+        if (!slot) continue;
+
+        const payload = {
+          location: slot.location,
+          status: bulkStatus,
+          slotType: slot.slotType || 'Standard',
+          areaID: slot.parkingAreaID,
+          reservedBy: bulkStatus === 'Available' ? null : slot.reservedBy,
+          reservedFor: bulkStatus === 'Available' ? null : slot.reservedFor
+        };
+
+        await parkingSlotAPI.updateSlot(slotId, payload);
+      }
+
+      alert(`Updated ${selectedSlotIds.length} slot(s) to ${bulkStatus}.`);
+      setSelectedSlotIds([]);
+      loadSlots();
+      if (onUpdate) onUpdate();
+    } catch (err) {
+      console.error('Error applying bulk status:', err);
+      alert('Failed to apply bulk update. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
@@ -363,7 +451,6 @@ const ParkingAreaManagement = ({ onUpdate }) => {
                 <option value="Available">Available</option>
                 <option value="Occupied">Occupied</option>
                 <option value="Reserved">Reserved</option>
-                <option value="Maintenance">Maintenance</option>
               </select>
 
               <select value={filterArea} onChange={(e) => setFilterArea(e.target.value)}>
@@ -379,12 +466,50 @@ const ParkingAreaManagement = ({ onUpdate }) => {
                 + Add New Slot
               </button>
             </div>
+
+            {selectedSlotIds.length > 0 && (
+              <div className="bulk-actions-container">
+                <div className="bulk-actions-content">
+                  <div className="bulk-actions-label">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="8 17 12 21 20 13"></polyline>
+                      <path d="M16.5 4h-5D6 9 6 15"></path>
+                    </svg>
+                    <span>{selectedSlotIds.length} slot{selectedSlotIds.length !== 1 ? 's' : ''} selected</span>
+                  </div>
+                  <div className="bulk-actions-controls">
+                    <select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} className="bulk-status-select">
+                      <option value="Available">🟢 Set as Available</option>
+                      <option value="Reserved">🔵 Set as Reserved</option>
+                      <option value="Occupied">🔴 Set as Occupied</option>
+                    </select>
+                    <button className="btn-bulk-apply" onClick={applyBulkStatus}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="8 17 12 21 20 13"></polyline>
+                        <path d="M16.5 4h-5D6 9 6 15"></path>
+                      </svg>
+                      Apply to {selectedSlotIds.length}
+                    </button>
+                    <button className="btn-bulk-clear" onClick={() => setSelectedSlotIds([])}>
+                      × Clear
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="slots-table-container">
             <table className="slots-table">
               <thead>
                 <tr>
+                  <th style={{ width: '40px', textAlign: 'center' }}>
+                    <input
+                      type="checkbox"
+                      checked={filteredSlots.length > 0 && filteredSlots.every(s => selectedSlotIds.includes(s.slotID))}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th>Slot ID</th>
                   <th>Location</th>
                   <th>Type</th>
@@ -396,11 +521,18 @@ const ParkingAreaManagement = ({ onUpdate }) => {
               <tbody>
                 {filteredSlots.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="no-data">No parking slots found</td>
+                    <td colSpan="7" className="no-data">No parking slots found</td>
                   </tr>
                 ) : (
                   filteredSlots.map(slot => (
                     <tr key={slot.slotID}>
+                      <td style={{ textAlign: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedSlotIds.includes(slot.slotID)}
+                          onChange={() => toggleSelectSlot(slot.slotID)}
+                        />
+                      </td>
                       <td className="slot-id">#{slot.slotID}</td>
                       <td>{slot.location}</td>
                       <td>{slot.slotType}</td>
@@ -601,7 +733,6 @@ const ParkingAreaManagement = ({ onUpdate }) => {
                     <option value="Available">Available</option>
                     <option value="Occupied">Occupied</option>
                     <option value="Reserved">Reserved</option>
-                    <option value="Maintenance">Maintenance</option>
                   </select>
                 </div>
 

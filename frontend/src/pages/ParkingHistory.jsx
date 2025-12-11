@@ -49,10 +49,10 @@ const ParkingHistory = () => {
         console.log(`👤 Name: ${currentUser.firstName} ${currentUser.lastName}`);
         console.log('═══════════════════════════════════════════');
         
-        // Guard sees all records, Staff and Student see only their own
+        // Guard and Admin see all records, Staff and Student see only their own
         let result;
-        if (userRole === 'guard') {
-          console.log('🛡️ [GUARD] Fetching ALL parking records from system');
+        if (userRole === 'guard' || userRole === 'admin') {
+          console.log(`🔓 [${userRole.toUpperCase()}] Fetching ALL parking records from system`);
           result = await parkingRecordAPI.getAllRecords();
           console.log('📊 API Response:', result);
         } else if (userRole === 'staff' || userRole === 'student') {
@@ -116,10 +116,10 @@ const ParkingHistory = () => {
               }
 
               const transformedRecord = {
-                id: record.recordID,
+                id: record.recordID || record.id || '',
                 date: entryTime.toISOString().split('T')[0],
-                slot: record.slotLocation || 'N/A',
-                area: 'NGE Parking Area',
+                slot: record.slotLocation || record.slotID || 'N/A',
+                area: record.areaName || record.area || 'Parking Area',
                 timeIn: entryTime.toLocaleTimeString('en-US', { 
                   hour: '2-digit', 
                   minute: '2-digit', 
@@ -132,8 +132,8 @@ const ParkingHistory = () => {
                 }) : null,
                 duration: duration,
                 status: status,
-                vehicle: record.plateNumber || 'N/A',
-                verifiedBy: record.verifiedByUserName || 'System'
+                vehicle: record.plateNumber || record.vehiclePlateNumber || record.vehicleID || 'N/A',
+                verifiedBy: record.verifiedByUserName || record.verifiedBy || 'System'
               };
               
               console.log(`✅ Transformed record ${index}:`, transformedRecord);

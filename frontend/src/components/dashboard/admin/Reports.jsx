@@ -369,11 +369,13 @@ const Reports = () => {
               </div>
             </div>
 
-            {/* Daily Trend Chart */}
-            {reportData.dailyTrend && reportData.dailyTrend.length > 0 && (
-              <div className="report-section">
-                <h4>Daily Parking Trend</h4>
-                <div className="chart-container-report">
+            {/* Charts Row - Daily Trend and Hourly Distribution Side by Side */}
+            <div className="charts-row-container">
+              {/* Daily Trend Chart */}
+              {reportData.dailyTrend && reportData.dailyTrend.length > 0 && (
+                <div className="report-section chart-section-half">
+                  <h4>Daily Parking Trend</h4>
+                  <div className="chart-container-report">
                   <div className="bar-chart-report">
                     {(() => {
                       const maxCount = Math.max(...reportData.dailyTrend.map(d => d.count), 1);
@@ -394,15 +396,15 @@ const Reports = () => {
                   </div>
                 </div>
               </div>
-            )}
+              )}
 
-            {/* Hourly Distribution Line Chart */}
-            {reportData.hourlyDistribution && reportData.hourlyDistribution.length > 0 && (
-              <div className="report-section">
-                <h4>Hourly Entry Distribution</h4>
-                <div className="chart-container-report">
-                  <div className="line-chart">
-                    <svg width="100%" height="280" viewBox="0 0 800 280">
+              {/* Hourly Distribution Line Chart */}
+              {reportData.hourlyDistribution && reportData.hourlyDistribution.length > 0 && (
+                <div className="report-section chart-section-half">
+                  <h4>Hourly Entry Distribution</h4>
+                  <div className="chart-container-report">
+                    <div className="line-chart">
+                      <svg width="100%" height="280" viewBox="0 0 800 280">
                       {(() => {
                         const data = reportData.hourlyDistribution;
                         const maxCount = Math.max(...data.map(d => d.count), 1);
@@ -512,11 +514,12 @@ const Reports = () => {
                           </>
                         );
                       })()}
-                    </svg>
+                      </svg>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 

@@ -296,6 +296,37 @@
   border: 1px solid #e9ecef;
 }
 
+/* Charts Row Container - Side by Side Layout */
+.charts-row-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.chart-section-half {
+  margin: 0 !important;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.chart-section-half h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+@media (max-width: 1200px) {
+  .charts-row-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
 /* Loading State */
 .loading {
   text-align: center;
