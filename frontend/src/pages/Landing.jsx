@@ -74,12 +74,10 @@ const Landing = ({ onNavigateToLogin, onNavigateToRegister }) => {
               Experience hassle-free parking with real-time availability and instant booking.
             </p>
             <div className="hero-buttons">
-              <button className="btn btn-primary" onClick={onNavigateToRegister}>
-                <span>Get Started Free</span>
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                
+              <button className="btn hero-btn-primary" onClick={onNavigateToRegister}>
+                <span>Get Started</span>
               </button>
-              <button className="btn btn-secondary-outline" onClick={onNavigateToLogin}>
+              <button className="btn hero-btn-secondary" onClick={onNavigateToLogin}>
                 Sign In
               </button>
             </div>
@@ -321,9 +319,6 @@ const Landing = ({ onNavigateToLogin, onNavigateToRegister }) => {
             <div className="cta-buttons">
               <button className="btn btn-white" onClick={onNavigateToRegister}>
                 <span>Get Started Now</span>
-                <svg className="btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
               </button>
               <button className="btn btn-outline-white" onClick={onNavigateToLogin}>
                 Sign In
