@@ -14,11 +14,13 @@ import java.time.LocalDateTime;
 public class ParkingRecordDTO {
     private Integer recordID;
     private Integer vehicleID;
-    private String plateNumber; // For convenience
+    private String plateNumber; // For convenience - from vehicle or guest
     private Integer slotID;
     private String slotLocation; // For convenience
     private String verifiedByUserId;
     private String verifiedByUserName; // For convenience
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
+    private Boolean isGuest; // True if guest vehicle (not registered)
+    private String guestPlateNumber; // Plate number for guest vehicles
 }

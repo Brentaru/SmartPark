@@ -26,10 +26,12 @@ import com.appdev.smartpark.dto.ParkingSlotRequestDTO;
 import com.appdev.smartpark.entity.ParkingArea;
 import com.appdev.smartpark.entity.ParkingRecord;
 import com.appdev.smartpark.entity.ParkingSlot;
+import com.appdev.smartpark.entity.User;
 import com.appdev.smartpark.entity.Vehicle;
 import com.appdev.smartpark.service.ParkingAreaService;
 import com.appdev.smartpark.service.ParkingRecordService;
 import com.appdev.smartpark.service.ParkingSlotService;
+import com.appdev.smartpark.service.UserService;
 import com.appdev.smartpark.service.VehicleService;
 
 @RestController
@@ -48,6 +50,9 @@ public class ParkingSlotController {
     
     @Autowired
     private VehicleService vehicleService;
+    
+    @Autowired
+    private UserService userService;
     
     @Autowired
     private DTOMapper dtoMapper;
@@ -78,7 +83,36 @@ public class ParkingSlotController {
     public ResponseEntity<List<ParkingSlotDTO>> getAllParkingSlots() {
         List<ParkingSlot> slots = parkingSlotService.getAllParkingSlots();
         List<ParkingSlotDTO> slotDTOs = slots.stream()
-                .map(dtoMapper::toParkingSlotDTO)
+                .map(slot -> {
+                    ParkingSlotDTO dto = dtoMapper.toParkingSlotDTO(slot);
+                    
+                    // If slot is reserved, enrich with user and vehicle details
+                    if ("Reserved".equalsIgnoreCase(slot.getStatus()) && slot.getReservedBy() != null) {
+                        String studentId = slot.getReservedBy();
+                        Optional<User> userOpt = userService.getUserByStudentId(studentId);
+                        
+                        if (userOpt.isPresent()) {
+                            User user = userOpt.get();
+                            dto.setReservedByName(user.getFname() + " " + user.getLname());
+                            
+                            // Get user's vehicle plate number
+                            List<Vehicle> vehicles = vehicleService.getVehiclesByUser(user.getUserID());
+                            if (!vehicles.isEmpty()) {
+                                dto.setVehiclePlateNumber(vehicles.get(0).getPlateNumber());
+                            } else if (user.getPlateNumber() != null) {
+                                // Fallback to user's plate number field
+                                dto.setVehiclePlateNumber(user.getPlateNumber());
+                            }
+                        }
+                        
+                        // Set reservedAt from entity's timestamp field
+                        if (slot.getReservedAt() != null) {
+                            dto.setReservedAt(slot.getReservedAt().toString());
+                        }
+                    }
+                    
+                    return dto;
+                })
                 .collect(Collectors.toList());
         return ResponseEntity.ok(slotDTOs);
     }
@@ -232,6 +266,8 @@ public class ParkingSlotController {
     public ResponseEntity<?> manualParkVehicle(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         try {
             String plateNumber = body.get("plateNumber");
+            String guardId = body.get("guardId"); // Optional: guard who verified
+            
             if (plateNumber == null || plateNumber.trim().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "Plate number is required"));
@@ -253,6 +289,7 @@ public class ParkingSlotController {
                 record.setVerifiedByUser(vehicle.getUser()); // Link to the vehicle owner
                 record.setEntryTime(LocalDateTime.now());
                 record.setExitTime(null);
+                record.setIsGuest(false);
                 
                 ParkingRecord savedRecord = parkingRecordService.createParkingRecord(record);
                 
@@ -261,15 +298,30 @@ public class ParkingSlotController {
                     "message", "Slot occupied and record created for registered vehicle",
                     "slot", responseDTO,
                     "registered", true,
-                    "userID", vehicle.getUser().getUserID()
+                    "userID", vehicle.getUser().getUserID(),
+                    "recordID", savedRecord.getRecordID()
                 ));
             } else {
-                // Vehicle not registered - slot is occupied but no record created
+                // Vehicle not registered - create guest parking record
+                ParkingRecord guestRecord = new ParkingRecord();
+                guestRecord.setVehicle(null); // No vehicle entity
+                guestRecord.setParkingSlot(slot);
+                guestRecord.setVerifiedByUser(null); // No verified user
+                guestRecord.setEntryTime(LocalDateTime.now());
+                guestRecord.setExitTime(null);
+                guestRecord.setGuestPlateNumber(plateNumber); // Store plate number
+                guestRecord.setIsGuest(true); // Mark as guest
+                
+                ParkingRecord savedRecord = parkingRecordService.createParkingRecord(guestRecord);
+                
                 ParkingSlotDTO responseDTO = dtoMapper.toParkingSlotDTO(slot);
                 return ResponseEntity.ok(Map.of(
-                    "message", "Slot occupied - vehicle not registered in system",
+                    "message", "Slot occupied - guest vehicle recorded",
                     "slot", responseDTO,
-                    "registered", false
+                    "registered", false,
+                    "isGuest", true,
+                    "guestPlateNumber", plateNumber,
+                    "recordID", savedRecord.getRecordID()
                 ));
             }
         } catch (Exception e) {

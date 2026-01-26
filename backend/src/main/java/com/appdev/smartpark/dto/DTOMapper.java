@@ -70,15 +70,16 @@ public class DTOMapper {
     // ParkingSlot mappings
     public ParkingSlotDTO toParkingSlotDTO(ParkingSlot slot) {
         if (slot == null) return null;
-        return new ParkingSlotDTO(
-            slot.getSlotID(),
-            slot.getLocation(),
-            slot.getStatus(),
-            slot.getSlotType(),
-            slot.getReservedBy(),
-            slot.getReservedFor(),
-            slot.getParkingArea() != null ? slot.getParkingArea().getAreaID() : null
-        );
+        ParkingSlotDTO dto = new ParkingSlotDTO();
+        dto.setSlotID(slot.getSlotID());
+        dto.setLocation(slot.getLocation());
+        dto.setStatus(slot.getStatus());
+        dto.setSlotType(slot.getSlotType());
+        dto.setReservedBy(slot.getReservedBy());
+        dto.setReservedFor(slot.getReservedFor());
+        dto.setAreaID(slot.getParkingArea() != null ? slot.getParkingArea().getAreaID() : null);
+        // Additional fields will be set by the controller when needed
+        return dto;
     }
 
     public ParkingSlot toParkingSlotEntity(ParkingSlotRequestDTO dto, ParkingArea area) {
@@ -149,6 +150,15 @@ public class DTOMapper {
             verifiedByUserName = (fname + " " + lname).trim();
         }
         
+        // For guest vehicles, use guestPlateNumber if no vehicle
+        Boolean isGuest = record.getIsGuest() != null ? record.getIsGuest() : false;
+        String guestPlateNumber = record.getGuestPlateNumber();
+        
+        // If guest and no vehicle plate, use guest plate number
+        if (isGuest && plateNumber == null && guestPlateNumber != null) {
+            plateNumber = guestPlateNumber;
+        }
+        
         return new ParkingRecordDTO(
             record.getRecordID(),
             vehicleID,
@@ -158,7 +168,9 @@ public class DTOMapper {
             verifiedByUserId,
             verifiedByUserName,
             record.getEntryTime(),
-            record.getExitTime()
+            record.getExitTime(),
+            isGuest,
+            guestPlateNumber
         );
     }
 
@@ -170,6 +182,7 @@ public class DTOMapper {
         record.setVerifiedByUser(verifiedByUser);
         record.setEntryTime(dto.getEntryTime());
         record.setExitTime(dto.getExitTime());
+        record.setIsGuest(false); // Default to not guest when created from DTO
         return record;
     }
 }
