@@ -2,6 +2,7 @@ package com.appdev.smartpark.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -12,13 +13,20 @@ import org.springframework.web.filter.CorsFilter;
  */
 @Configuration
 public class CorsConfig {
+
+    @Value("${app.cors.allowed-origins:http://localhost:3000}")
+    private String allowedOrigins;
     
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         
-        // Allow all origins for development (restrict in production)
-        config.addAllowedOriginPattern("*");
+        for (String origin : allowedOrigins.split(",")) {
+            String trimmedOrigin = origin.trim();
+            if (!trimmedOrigin.isEmpty()) {
+                config.addAllowedOriginPattern(trimmedOrigin);
+            }
+        }
         
         // Allow all standard HTTP methods including PATCH
         config.addAllowedMethod("GET");

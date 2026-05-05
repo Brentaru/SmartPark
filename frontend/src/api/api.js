@@ -3,7 +3,7 @@
 // Simple and easy to understand for college projects
 // ============================================
 
-const API_BASE_URL = 'http://localhost:8080/api';
+import { API_BASE_URL } from './config';
 
 // ============================================
 // HELPER FUNCTION - Makes API calls easier

@@ -5,6 +5,7 @@ import com.appdev.smartpark.entity.User;
 import com.appdev.smartpark.repository.PasswordResetTokenRepository;
 import com.appdev.smartpark.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class PasswordResetService {
     
     @Autowired
     private EmailService emailService;
+
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendUrl;
     
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
@@ -50,7 +54,7 @@ public class PasswordResetService {
         tokenRepository.save(resetToken);
         
         // Create reset link (frontend URL)
-        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String resetLink = frontendUrl.replaceAll("/+$", "") + "/reset-password?token=" + token;
         
         // Send email
         emailService.sendPasswordResetEmail(email, resetLink);

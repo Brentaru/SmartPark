@@ -1,6 +1,7 @@
 package com.appdev.smartpark.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.net.URI;
@@ -15,12 +16,22 @@ public class EmailService {
     
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     
-    private static final String BREVO_API_KEY = "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";
     private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-    private static final String SENDER_EMAIL = "brentunabia11@gmail.com";
-    private static final String SENDER_NAME = "SmartPark";
+
+    @Value("${app.brevo.api-key:}")
+    private String brevoApiKey;
+
+    @Value("${app.email.sender:}")
+    private String senderEmail;
+
+    @Value("${app.email.sender-name:SmartPark}")
+    private String senderName;
     
     public void sendPasswordResetEmail(String toEmail, String resetLink) throws Exception {
+        if (brevoApiKey == null || brevoApiKey.isBlank() || senderEmail == null || senderEmail.isBlank()) {
+            throw new Exception("Email service is not configured. Set BREVO_API_KEY and EMAIL_SENDER.");
+        }
+
         HttpClient client = HttpClient.newHttpClient();
         
         // Create email JSON payload
@@ -28,8 +39,8 @@ public class EmailService {
         
         // Sender
         JSONObject sender = new JSONObject();
-        sender.put("email", SENDER_EMAIL);
-        sender.put("name", SENDER_NAME);
+        sender.put("email", senderEmail);
+        sender.put("name", senderName);
         emailJson.put("sender", sender);
         
         // Recipient
@@ -224,7 +235,7 @@ public class EmailService {
             .uri(URI.create(BREVO_API_URL))
             .header("accept", "application/json")
             .header("content-type", "application/json")
-            .header("api-key", BREVO_API_KEY)
+            .header("api-key", brevoApiKey)
             .POST(HttpRequest.BodyPublishers.ofString(emailJson.toString()))
             .build();
         

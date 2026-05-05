@@ -2,6 +2,7 @@ package com.appdev.smartpark.service;
 
 import com.appdev.smartpark.dto.ContactFormDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.net.URI;
@@ -15,13 +16,27 @@ import org.json.JSONArray;
 public class ContactService {
     
     private static final Logger logger = LoggerFactory.getLogger(ContactService.class);
-    private static final String BREVO_API_KEY = "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";
     private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
-    private static final String SENDER_EMAIL = "brentunabia11@gmail.com";
-    private static final String SENDER_NAME = "SmartPark Contact Form";
-    private static final String RECIPIENT_EMAIL = "brentunabia11@gmail.com";
+
+    @Value("${app.brevo.api-key:}")
+    private String brevoApiKey;
+
+    @Value("${app.email.sender:}")
+    private String senderEmail;
+
+    @Value("${app.email.sender-name:SmartPark Contact Form}")
+    private String senderName;
+
+    @Value("${app.email.contact-recipient:}")
+    private String recipientEmail;
     
     public void sendContactEmail(ContactFormDTO contactForm) throws Exception {
+        if (brevoApiKey == null || brevoApiKey.isBlank()
+            || senderEmail == null || senderEmail.isBlank()
+            || recipientEmail == null || recipientEmail.isBlank()) {
+            throw new Exception("Contact email service is not configured. Set BREVO_API_KEY, EMAIL_SENDER, and CONTACT_RECIPIENT_EMAIL.");
+        }
+
         HttpClient client = HttpClient.newHttpClient();
         
         // Create email JSON payload
@@ -29,14 +44,14 @@ public class ContactService {
         
         // Sender
         JSONObject sender = new JSONObject();
-        sender.put("email", SENDER_EMAIL);
-        sender.put("name", SENDER_NAME);
+        sender.put("email", senderEmail);
+        sender.put("name", senderName);
         emailJson.put("sender", sender);
         
         // Recipient
         JSONArray to = new JSONArray();
         JSONObject recipient = new JSONObject();
-        recipient.put("email", RECIPIENT_EMAIL);
+        recipient.put("email", recipientEmail);
         to.put(recipient);
         emailJson.put("to", to);
         
@@ -174,7 +189,7 @@ public class ContactService {
             .uri(URI.create(BREVO_API_URL))
             .header("accept", "application/json")
             .header("content-type", "application/json")
-            .header("api-key", BREVO_API_KEY)
+            .header("api-key", brevoApiKey)
             .POST(HttpRequest.BodyPublishers.ofString(emailJson.toString()))
             .build();
         

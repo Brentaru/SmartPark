@@ -10,7 +10,6 @@ const ShiftSchedule = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const API_BASE_URL = 'http://localhost:8080/api';
 
   // State management
   const [shifts, setShifts] = useState([]);

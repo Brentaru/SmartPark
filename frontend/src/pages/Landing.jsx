@@ -1,6 +1,7 @@
 ﻿import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { API_BASE_URL } from '../api/config';
 import '../styles/Landing.css';
 
 const Landing = ({ onNavigateToLogin, onNavigateToRegister }) => {
@@ -28,7 +29,7 @@ const Landing = ({ onNavigateToLogin, onNavigateToRegister }) => {
     setSubmitMessage('');
 
     try {
-      const response = await fetch('http://localhost:8080/api/contact', {
+      const response = await fetch(`${API_BASE_URL}/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,15 +6,11 @@ import AuthTopbar from '../components/AuthTopbar';
 import Toast from '../components/Toast';
 import { createClient } from '@supabase/supabase-js';
 import { userAPI } from '../api/api';
+import { IS_SUPABASE_CONFIGURED, SUPABASE_ANON_KEY, SUPABASE_URL } from '../api/config';
 import '../styles/ProfileSettings.css';
 
-// TEMPORARY: Test Supabase connection
-import { testSupabaseConnection } from '../utils/testSupabase';
-
 // Initialize Supabase client
-const supabaseUrl = 'https://hxinvbaafgclfdjviztk.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh4aW52YmFhZmdjbGZkanZpenRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwNzg5MjcsImV4cCI6MjA4MDY1NDkyN30.p0epC9bXTpGXF8fN_CL7H5uxbUirNNkIcJ-JHk-Cohs';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = IS_SUPABASE_CONFIGURED ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 const ProfileSettings = () => {
   const { currentUser, isAuthenticated, updateUser } = useAuth();
@@ -110,6 +106,12 @@ const ProfileSettings = () => {
       
       const file = event.target.files[0];
       if (!file) return;
+
+      if (!supabase) {
+        setToast({ message: 'Supabase storage is not configured.', type: 'error' });
+        setUploading(false);
+        return;
+      }
 
       // Validate file type
       if (!file.type.startsWith('image/')) {

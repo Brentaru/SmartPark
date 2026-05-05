@@ -4,13 +4,13 @@ import { useSidebar } from '../../context/SidebarContext';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import AuthTopbar from '../../components/AuthTopbar';
+import { API_BASE_URL } from '../../api/config';
 import '../../styles/guard/GuardDashboard.css';
 
 const GuardDashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const { isExpanded } = useSidebar();
   const navigate = useNavigate();
-  const API_BASE_URL = 'http://localhost:8080/api';
 
   // State management
   const [stats, setStats] = useState({

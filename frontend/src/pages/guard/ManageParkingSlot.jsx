@@ -3,12 +3,12 @@ import { useSidebar } from '../../context/SidebarContext';
 import Sidebar from '../../components/Sidebar';
 import AuthTopbar from '../../components/AuthTopbar';
 import ParkingMap from '../../components/dashboard/ParkingMap';
+import { API_BASE_URL } from '../../api/config';
 import '../../styles/guard/ManageParkingSlot.css';
 import SlotStatusModal from './modals/SlotStatusModal';
 
 const ManageParkingSlot = () => {
   const { isExpanded } = useSidebar();
-  const API_BASE_URL = 'http://localhost:8080/api';
   
   // State for parking slots from backend
   const [parkingSlots, setParkingSlots] = useState([]);

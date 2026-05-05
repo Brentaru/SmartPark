@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
 import useForm from '../hooks/useForm';
+import { API_BASE_URL } from '../api/config';
 import '../styles/Auth.css';
 
 const ForgotPassword = ({ onNavigateToLogin, onNavigateToLanding }) => {
@@ -41,7 +42,7 @@ const ForgotPassword = ({ onNavigateToLogin, onNavigateToLanding }) => {
     setResetStatus('');
     
     try {
-      const response = await fetch('http://localhost:8080/api/password/forgot', {
+      const response = await fetch(`${API_BASE_URL}/password/forgot`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
