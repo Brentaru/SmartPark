@@ -72,16 +72,16 @@
 
 .notification-badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 0;
+  right: 0;
   background: #dc2626;
   color: white;
-  font-size: 0.625rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  padding: 0.125rem 0.375rem;
-  border-radius: 10px;
+  padding: 0.1rem 0.3rem;
+  border-radius: 8px;
   line-height: 1;
-  min-width: 16px;
+  min-width: 14px;
   text-align: center;
 }
 

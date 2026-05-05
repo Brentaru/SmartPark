@@ -1,5 +1,7 @@
 package com.appdev.smartpark.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,12 +10,22 @@ import org.springframework.stereotype.Service;
 
 import com.appdev.smartpark.entity.ParkingSlot;
 import com.appdev.smartpark.repository.ParkingSlotRepository;
+import com.appdev.smartpark.repository.UserRepository;
 
 @Service
 public class ParkingSlotService {
     
     @Autowired
     private ParkingSlotRepository parkingSlotRepository;
+    
+    @Autowired
+    private NotificationService notificationService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private ParkingRecordService parkingRecordService;
     
     // Create
     public ParkingSlot createParkingSlot(ParkingSlot parkingSlot) {
@@ -45,6 +57,8 @@ public class ParkingSlotService {
         ParkingSlot slot = parkingSlotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Parking Slot not found with id: " + id));
         
+        String oldStatus = slot.getStatus();
+        
         slot.setLocation(slotDetails.getLocation());
         slot.setStatus(slotDetails.getStatus());
         slot.setSlotType(slotDetails.getSlotType());
@@ -52,7 +66,29 @@ public class ParkingSlotService {
         slot.setReservedBy(slotDetails.getReservedBy());
         slot.setReservedFor(slotDetails.getReservedFor());
         
-        return parkingSlotRepository.save(slot);
+        ParkingSlot savedSlot = parkingSlotRepository.save(slot);
+        
+        // Notify admins when guard makes a slot available
+        String newStatus = slotDetails.getStatus();
+        if ("Available".equals(newStatus) && !"Available".equals(oldStatus)) {
+            // Close any active parking records for this slot (set exit time)
+            int closedRecords = parkingRecordService.closeActiveRecordsForSlot(id);
+            System.out.println("🚗 Closed " + closedRecords + " active parking records when slot " + savedSlot.getLocation() + " was marked Available");
+            
+            String areaName = savedSlot.getParkingArea() != null ? savedSlot.getParkingArea().getName() : "Unknown Area";
+            List<com.appdev.smartpark.entity.User> admins = userRepository.findByRoleIgnoreCase("admin");
+            for (com.appdev.smartpark.entity.User admin : admins) {
+                notificationService.createNotificationWithSlot(
+                    admin.getUserID(),
+                    "info",
+                    "Slot Made Available",
+                    "Slot " + savedSlot.getLocation() + " in " + areaName + " was changed from " + oldStatus + " to Available by guard",
+                    savedSlot.getSlotID()
+                );
+            }
+        }
+        
+        return savedSlot;
     }
     
     // Update Status Only
@@ -60,8 +96,30 @@ public class ParkingSlotService {
         ParkingSlot slot = parkingSlotRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Parking Slot not found with id: " + id));
         
+        String oldStatus = slot.getStatus();
         slot.setStatus(status);
-        return parkingSlotRepository.save(slot);
+        ParkingSlot savedSlot = parkingSlotRepository.save(slot);
+        
+        // When a slot is marked as Available, close any active parking records
+        if ("Available".equals(status) && !"Available".equals(oldStatus)) {
+            // Close any active parking records for this slot (set exit time)
+            int closedRecords = parkingRecordService.closeActiveRecordsForSlot(id);
+            System.out.println("🚗 Closed " + closedRecords + " active parking records when slot " + savedSlot.getLocation() + " was marked Available");
+            
+            String areaName = savedSlot.getParkingArea() != null ? savedSlot.getParkingArea().getName() : "Unknown Area";
+            List<com.appdev.smartpark.entity.User> admins = userRepository.findByRoleIgnoreCase("admin");
+            for (com.appdev.smartpark.entity.User admin : admins) {
+                notificationService.createNotificationWithSlot(
+                    admin.getUserID(),
+                    "info",
+                    "Slot Made Available",
+                    "Slot " + savedSlot.getLocation() + " in " + areaName + " was changed from " + oldStatus + " to Available",
+                    savedSlot.getSlotID()
+                );
+            }
+        }
+        
+        return savedSlot;
     }
 
     // Accept a reservation - Mark as Occupied and clear reservation fields
@@ -73,11 +131,43 @@ public class ParkingSlotService {
             throw new RuntimeException("Slot is not in Reserved status");
         }
         
+        String reservedByUserId = slot.getReservedBy();
+        String areaName = slot.getParkingArea() != null ? slot.getParkingArea().getName() : "Unknown Area";
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' hh:mm a");
+        String formattedDateTime = now.format(formatter);
+        
         slot.setStatus("Occupied");
         slot.setReservedBy(null);
         slot.setReservedFor(null);
+        slot.setReservedAt(null); // Clear reservation timestamp
         
-        return parkingSlotRepository.save(slot);
+        ParkingSlot savedSlot = parkingSlotRepository.save(slot);
+        
+        // Notify the staff user who made the reservation
+        if (reservedByUserId != null) {
+            notificationService.createNotificationWithSlot(
+                reservedByUserId,
+                "success",
+                "Reservation Accepted",
+                "Parking Slot " + areaName + " " + savedSlot.getLocation() + " is occupied by you (" + formattedDateTime + ")",
+                savedSlot.getSlotID()
+            );
+        }
+        
+        // Notify all admins about the accepted reservation
+        List<com.appdev.smartpark.entity.User> admins = userRepository.findByRoleIgnoreCase("admin");
+        for (com.appdev.smartpark.entity.User admin : admins) {
+            notificationService.createNotificationWithSlot(
+                admin.getUserID(),
+                "info",
+                "Reservation Accepted by Guard",
+                "Guard accepted reservation for slot " + savedSlot.getLocation() + " in " + areaName + " (" + formattedDateTime + ")",
+                savedSlot.getSlotID()
+            );
+        }
+        
+        return savedSlot;
     }
     
     // Decline a reservation - Clear reservation fields and mark as Available
@@ -89,11 +179,30 @@ public class ParkingSlotService {
             throw new RuntimeException("Slot is not in Reserved status");
         }
         
+        // Save the user who made the reservation before clearing
+        String reservedByUserId = slot.getReservedBy();
+        String areaName = slot.getParkingArea() != null ? slot.getParkingArea().getName() : "Unknown Area";
+        String slotLocation = slot.getLocation();
+        
         slot.setStatus("Available");
         slot.setReservedBy(null);
         slot.setReservedFor(null);
+        slot.setReservedAt(null); // Clear reservation timestamp
         
-        return parkingSlotRepository.save(slot);
+        ParkingSlot savedSlot = parkingSlotRepository.save(slot);
+        
+        // Notify the staff user who made the reservation that it was declined
+        if (reservedByUserId != null) {
+            notificationService.createNotificationWithSlot(
+                reservedByUserId,
+                "warning",
+                "Reservation Declined",
+                "Your reservation for slot " + slotLocation + " in " + areaName + " has been declined by the guard.",
+                savedSlot.getSlotID()
+            );
+        }
+        
+        return savedSlot;
     }
     
     // Delete
@@ -118,8 +227,28 @@ public class ParkingSlotService {
         slot.setStatus("Reserved");
         slot.setReservedBy(userId);
         slot.setReservedFor(reservedFor);
+        slot.setReservedAt(java.time.LocalDateTime.now()); // Set reservation timestamp
         
-        return parkingSlotRepository.save(slot);
+        ParkingSlot savedSlot = parkingSlotRepository.save(slot);
+        
+        // Notify all guards about new reservation (case-insensitive role search)
+        List<com.appdev.smartpark.entity.User> guards = userRepository.findByRoleIgnoreCase("guard");
+        String areaName = savedSlot.getParkingArea() != null ? savedSlot.getParkingArea().getName() : "Unknown Area";
+        
+        System.out.println("🔔 Creating notifications for " + guards.size() + " guards about reservation of slot " + savedSlot.getLocation());
+        
+        for (com.appdev.smartpark.entity.User guard : guards) {
+            System.out.println("📧 Sending notification to guard: " + guard.getUserID());
+            notificationService.createNotificationWithSlot(
+                guard.getUserID(),
+                "info",
+                "New Reservation",
+                "New reservation for slot " + savedSlot.getLocation() + " in " + areaName + " by " + reservedFor,
+                savedSlot.getSlotID()
+            );
+        }
+        
+        return savedSlot;
     }
     
     // Cancel reservation
@@ -134,6 +263,7 @@ public class ParkingSlotService {
         slot.setStatus("Available");
         slot.setReservedBy(null);
         slot.setReservedFor(null);
+        slot.setReservedAt(null); // Clear reservation timestamp
         
         return parkingSlotRepository.save(slot);
     }

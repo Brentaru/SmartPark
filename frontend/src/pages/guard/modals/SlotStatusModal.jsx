@@ -6,11 +6,15 @@ const SlotStatusModal = ({ slot, onClose, onUpdate }) => {
   const [reservedBy, setReservedBy] = useState(slot.reservedBy || '');
 
   const handleSubmit = () => {
+    console.log('🎯 SlotStatusModal handleSubmit called');
+    console.log('📍 Slot ID:', slot.id);
+    console.log('📊 New status:', status);
     const updates = {
       status,
       plateNumber: status === 'occupied' ? plateNumber.toUpperCase() : null,
       reservedBy: status === 'reserved' ? reservedBy : null
     };
+    console.log('📝 Updates object:', updates);
     onUpdate(slot.id, updates);
   };
 

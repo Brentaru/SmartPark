@@ -15,7 +15,7 @@ public class EmailService {
     
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     
-    private static final String BREVO_API_KEY = "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";
+    private static final String BREVO_API_KEY = "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";
     private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
     private static final String SENDER_EMAIL = "brentunabia11@gmail.com";
     private static final String SENDER_NAME = "SmartPark";

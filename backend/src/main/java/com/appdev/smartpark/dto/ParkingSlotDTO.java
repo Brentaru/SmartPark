@@ -18,4 +18,9 @@ public class ParkingSlotDTO {
     private String reservedBy;
     private String reservedFor;
     private Integer areaID; // ParkingArea ID reference
+    
+    // Additional fields for reservation details
+    private String reservedByName; // Full name of user who reserved
+    private String vehiclePlateNumber; // Vehicle plate number of the user
+    private String reservedAt; // When the reservation was made
 }

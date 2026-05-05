@@ -1,5 +1,6 @@
 package com.appdev.smartpark.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -36,6 +37,9 @@ public class ParkingSlot {
     
     @Column(name = "reserved_for")
     private String reservedFor; // Name or details of person slot is reserved for
+    
+    @Column(name = "reserved_at")
+    private LocalDateTime reservedAt; // Timestamp when reservation was made
     
     @ManyToOne
     @JoinColumn(name = "areaid")
@@ -111,6 +115,14 @@ public class ParkingSlot {
 
     public void setReservedFor(String reservedFor) {
         this.reservedFor = reservedFor;
+    }
+
+    public LocalDateTime getReservedAt() {
+        return reservedAt;
+    }
+
+    public void setReservedAt(LocalDateTime reservedAt) {
+        this.reservedAt = reservedAt;
     }
 
     public List<ParkingRecord> getParkingRecords() {

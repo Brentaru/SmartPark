@@ -41,6 +41,12 @@ public class ParkingRecord {
     
     @Column(name = "exit_time")
     private LocalDateTime exitTime;
+    
+    @Column(name = "guest_plate_number")
+    private String guestPlateNumber;
+    
+    @Column(name = "is_guest")
+    private Boolean isGuest = false;
 
     // Constructors
     public ParkingRecord() {}
@@ -99,5 +105,21 @@ public class ParkingRecord {
 
     public void setExitTime(LocalDateTime exitTime) {
         this.exitTime = exitTime;
+    }
+    
+    public String getGuestPlateNumber() {
+        return guestPlateNumber;
+    }
+    
+    public void setGuestPlateNumber(String guestPlateNumber) {
+        this.guestPlateNumber = guestPlateNumber;
+    }
+    
+    public Boolean getIsGuest() {
+        return isGuest;
+    }
+    
+    public void setIsGuest(Boolean isGuest) {
+        this.isGuest = isGuest;
     }
 }

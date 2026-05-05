@@ -95,9 +95,11 @@ public class ParkingRecordController {
     
     // Create parking record
     @PostMapping
-    public ResponseEntity<?> createParkingRecord(@RequestBody ParkingRecordRequestDTO requestDTO) {
+    public ResponseEntity<?> createParkingRecord(
+            @RequestBody ParkingRecordRequestDTO requestDTO,
+            @org.springframework.web.bind.annotation.RequestParam(value = "skipNotification", defaultValue = "false") boolean skipNotification) {
         try {
-            System.out.println("🚗 Received parking record request:");
+            System.out.println("🚗 Received parking record request (skipNotification=" + skipNotification + "):");
             System.out.println("   Vehicle ID: " + requestDTO.getVehicleID());
             System.out.println("   Slot ID: " + requestDTO.getSlotID());
             System.out.println("   Entry Time: " + requestDTO.getEntryTime());
@@ -128,7 +130,7 @@ public class ParkingRecordController {
             }
             
             ParkingRecord parkingRecord = dtoMapper.toParkingRecordEntity(requestDTO, vehicle, slot, verifiedByUser);
-            ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord);
+            ParkingRecord savedRecord = parkingRecordService.createParkingRecord(parkingRecord, skipNotification);
             ParkingRecordDTO responseDTO = dtoMapper.toParkingRecordDTO(savedRecord);
             System.out.println("✅ Parking record created successfully with ID: " + savedRecord.getRecordID());
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
@@ -151,7 +153,9 @@ public class ParkingRecordController {
                 .peek(record -> System.out.println("   - Record ID: " + record.getRecordID() + 
                         ", Slot: " + (record.getParkingSlot() != null ? record.getParkingSlot().getLocation() : "NULL") +
                         ", EntryTime: " + record.getEntryTime() +
-                        ", Vehicle: " + (record.getVehicle() != null ? record.getVehicle().getPlateNumber() : "NULL")))
+                        ", Vehicle: " + (record.getVehicle() != null ? record.getVehicle().getPlateNumber() : "NULL") +
+                        ", IsGuest: " + record.getIsGuest() +
+                        ", GuestPlate: " + record.getGuestPlateNumber()))
                 .map(dtoMapper::toParkingRecordDTO)
                 .collect(Collectors.toList());
         
@@ -219,6 +223,69 @@ public class ParkingRecordController {
                 .map(dtoMapper::toParkingRecordDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(recordDTOs);
+    }
+    
+    // Get active record by user (user's currently parked vehicle)
+    @GetMapping("/user/{userId}/active")
+    public ResponseEntity<List<ParkingRecordDTO>> getActiveRecordByUser(@PathVariable String userId) {
+        System.out.println("🚗 GET /parking-records/user/" + userId + "/active - Fetching active parking for user");
+        
+        // Get only the most recent active record
+        ParkingRecord mostRecent = parkingRecordService.getMostRecentActiveRecordByUser(userId);
+        
+        if (mostRecent != null) {
+            System.out.println("   ✅ Found most recent active record at slot: " + 
+                (mostRecent.getParkingSlot() != null ? mostRecent.getParkingSlot().getLocation() : "NULL") +
+                ", entry time: " + mostRecent.getEntryTime());
+            
+            List<ParkingRecordDTO> result = new java.util.ArrayList<>();
+            result.add(dtoMapper.toParkingRecordDTO(mostRecent));
+            return ResponseEntity.ok(result);
+        } else {
+            System.out.println("   ℹ️ No active parking record found for user " + userId);
+            return ResponseEntity.ok(new java.util.ArrayList<>());
+        }
+    }
+    
+    // Get active record by plate number (for guards to record exit)
+    @GetMapping("/active/plate/{plateNumber}")
+    public ResponseEntity<?> getActiveRecordByPlateNumber(@PathVariable String plateNumber) {
+        System.out.println("🚗 GET /parking-records/active/plate/" + plateNumber + " - Fetching active record by plate");
+        
+        ParkingRecord record = parkingRecordService.getActiveRecordByPlateNumber(plateNumber);
+        
+        if (record != null) {
+            System.out.println("   ✅ Found active record ID: " + record.getRecordID());
+            ParkingRecordDTO dto = dtoMapper.toParkingRecordDTO(record);
+            
+            // Add extra info for the guard's exit modal
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("recordID", dto.getRecordID());
+            response.put("plateNumber", dto.getPlateNumber());
+            response.put("slotID", dto.getSlotID());
+            response.put("slotLocation", dto.getSlotLocation());
+            response.put("entryTime", dto.getEntryTime());
+            response.put("isGuest", dto.getIsGuest());
+            
+            // Get owner name if registered vehicle
+            if (record.getVehicle() != null && record.getVehicle().getUser() != null) {
+                String ownerName = record.getVehicle().getUser().getFname() + " " + record.getVehicle().getUser().getLname();
+                response.put("ownerName", ownerName);
+            } else {
+                response.put("ownerName", "Guest");
+            }
+            
+            // Get parking area name
+            if (record.getParkingSlot() != null && record.getParkingSlot().getParkingArea() != null) {
+                response.put("parkingArea", record.getParkingSlot().getParkingArea().getName());
+            }
+            
+            return ResponseEntity.ok(response);
+        } else {
+            System.out.println("   ❌ No active record found for plate: " + plateNumber);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No active parking record found for plate number: " + plateNumber));
+        }
     }
     
     // Update parking record
